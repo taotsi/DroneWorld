@@ -1,0 +1,1 @@
+#include "components/image_process_component.h"
