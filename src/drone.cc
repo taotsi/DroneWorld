@@ -20,7 +20,7 @@ void Drone::Begin() {
 }
 
 void Drone::Update(double DeltaTime) {
-    std::cout << "drone update\n";
+    //std::cout << "drone update\n";
     Movement_.Update(DeltaTime);
     ImageRecord_.Update(DeltaTime);
     ImageProcess_.Update(DeltaTime);

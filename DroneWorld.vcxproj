@@ -22,14 +22,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\components\base_component.cc" />
-    <ClCompile Include="source\components\communication_component.cc" />
-    <ClCompile Include="source\components\image_process_component.cc" />
-    <ClCompile Include="source\components\image_record_component.cc" />
-    <ClCompile Include="source\components\movement_component.cc" />
-    <ClCompile Include="source\drone.cc" />
-    <ClCompile Include="source\main.cc" />
-    <ClCompile Include="source\world.cc" />
+    <ClCompile Include="src\components\base_component.cc" />
+    <ClCompile Include="src\components\communication_component.cc" />
+    <ClCompile Include="src\components\image_process_component.cc" />
+    <ClCompile Include="src\components\image_record_component.cc" />
+    <ClCompile Include="src\components\movement_component.cc" />
+    <ClCompile Include="src\drone.cc" />
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="src\utility.cc" />
+    <ClCompile Include="src\world.cc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AirLib\AirLib.vcxproj">
@@ -40,6 +41,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\image_codec\pfm.hpp" />
+    <ClInclude Include="deps\nlohmann\json.hpp" />
     <ClInclude Include="include\components\communication_component.h" />
     <ClInclude Include="include\components\base_component.h" />
     <ClInclude Include="include\drone.h" />
@@ -145,7 +148,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>include\components;$(ProjectDir)..\AirLib\deps\rpclib\include;include;$(ProjectDir)..\AirLib\deps\eigen3;$(ProjectDir)..\AirLib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>deps\*;include\*;$(ProjectDir)..\AirLib\deps\rpclib\include;include;$(ProjectDir)..\AirLib\deps\eigen3;$(ProjectDir)..\AirLib\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/w34263 /w34266 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4100;4505;4820;4464;4514;4710;4571;%(DisableSpecificWarnings)</DisableSpecificWarnings>

@@ -1,7 +1,11 @@
 #pragma once
 #include <thread>
 #include <stdexcept>
+#include <experimental/filesystem>
 
+namespace fs = std::experimental::filesystem;
+
+// bugged
 class ThreadRaii {
     std::thread thread_;
 public:

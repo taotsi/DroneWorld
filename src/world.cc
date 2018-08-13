@@ -10,6 +10,7 @@ World::~World() {
 
 void World::Loop() {
     Begin();
+
     auto previous = std::chrono::system_clock::now();
     while (!isDone) {
         auto current = std::chrono::system_clock::now();
@@ -32,8 +33,7 @@ void World::ProcessInput() {
 void World::Begin() {
     if (drone_list_.empty()) {
         std::cout << "No drones in drone_map_!\n";
-    }
-    else {
+    } else {
         for (const auto &itr : drone_list_) {
             itr.second->Begin();
         }

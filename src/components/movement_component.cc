@@ -4,8 +4,8 @@ MovementComponent::MovementComponent() {
 }
 
 void MovementComponent::Begin() {
-    std::thread thread_{ &MovementComponent::ThreadMain, this };
-    thread_.detach();
+    //std::thread thread_{ &MovementComponent::ThreadMain, this };
+    //thread_.detach();
 }
 
 void MovementComponent::ThreadMain() {
