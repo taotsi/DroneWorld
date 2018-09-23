@@ -1,6 +1,0 @@
-﻿  image_record_component.cc
-  drone.cc
-  main.cc
-  world.cc
-  Generating Code...
-LINK : fatal error LNK1104: cannot open file 'rpc.lib'
