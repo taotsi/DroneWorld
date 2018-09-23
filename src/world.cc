@@ -64,4 +64,9 @@ void World::SpawnDrones() {
     drone_list_.insert(std::pair<std::string, Drone*>("drone1", drone1));
 }
 
-std::map<std::string, Drone*> World::drone_list_ = std::map<std::string, Drone*>();
+std::map<std::string, Drone*> World::drone_list_ = 
+	std::map<std::string, Drone*>();
+
+void World::test() {
+	std::cout << "server test\n";
+}

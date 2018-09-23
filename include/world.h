@@ -7,18 +7,20 @@
 #include <vector>
 #include <map>
 #include <set>
-
 #include "drone.h"
 
 class World {
 public:
     static World& Instance();
+	World();
     virtual ~World();
     void Loop();
     friend class Drone;
 
+	void test();
+
 private:
-    World();
+	
     void ProcessInput();
     void Begin();
     void Update(double DeltaTime);

@@ -5,7 +5,8 @@
 
 Drone::Drone(std::string name)
   : name_(name) {
-    World::drone_list_.insert(std::pair<std::string, Drone*>(name_, this));
+    World::drone_list_.insert(
+		std::pair<std::string, Drone*>(name_, this));
 }
 
 Drone::~Drone() {

@@ -75,7 +75,7 @@ void ImageRecordComponent::Record() {
 
 void ImageRecordComponent::Behave() {
     isBusy_ = true;
-    thread_handle_ = std::thread{ 
-        &ImageRecordComponent::Record, this };
+    /*thread_handle_ = std::thread{ 
+        &ImageRecordComponent::Record, this };*/
     //thread_handle_.detach();
 }
