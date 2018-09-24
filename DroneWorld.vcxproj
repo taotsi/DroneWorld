@@ -34,10 +34,10 @@
     <ClCompile Include="src\world.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AirLib\AirLib.vcxproj">
+    <ProjectReference Include="..\AirSim\AirLib\AirLib.vcxproj">
       <Project>{4bfb7231-077a-4671-bd21-d3ade3ea36e7}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\MavLinkCom\MavLinkCom.vcxproj">
+    <ProjectReference Include="..\AirSim\MavLinkCom\MavLinkCom.vcxproj">
       <Project>{8510c7a4-bf63-41d2-94f6-d8731d137a5a}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -838,7 +838,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>deps\*;deps\rpclib\include;include\*;include;$(ProjectDir)..\AirLib\deps\eigen3;$(ProjectDir)..\AirLib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\deps\*;$(ProjectDir)\deps\rpclib\include;$(ProjectDir)\include\*;$(ProjectDir)\include;$(ProjectDir)..\AirSim\AirLib\deps\eigen3;$(ProjectDir)..\AirSim\AirLib\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/w34263 /w34266 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4100;4505;4820;4464;4514;4710;4571;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -846,7 +846,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)\..\AirSim\AirLib\deps\MavLinkCom\lib\$(Platform)\$(Configuration);deps\rpclib\lib\$(Platform)\$(Configuration);$(ProjectDir)\..\AirSim\AirLib\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\AirSim\AirLib\deps\MavLinkCom\lib\$(Platform)\$(Configuration);$(ProjectDir)\deps\rpclib\lib\$(Platform)\$(Configuration);$(ProjectDir)\..\AirSim\AirLib\lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
