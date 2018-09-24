@@ -14,16 +14,20 @@ STRICT_MODE_ON
 #include <thread>
 #include "utility.h"
 
+typedef ImageCaptureBase::ImageRequest ImageRequest;
+typedef ImageCaptureBase::ImageResponse ImageResponse;
+typedef ImageCaptureBase::ImageType ImageType;
+
 class BaseComponent {
 public:
     BaseComponent();
     virtual ~BaseComponent();
     virtual void Update(double DeltaTime) {};
     virtual void Begin();
-    void Start() { isOn_ = true; };
-    void Stop() { isOn_ = false; };
+    void Start() { is_on_ = true; };
+    void Stop() { is_on_ = false; };
 protected:
-    bool isOn_ = false;
-    bool isBusy_ = false;
+    bool is_on_ = false;
+    bool is_busy_ = false;
 private:
 };

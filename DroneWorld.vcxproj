@@ -27,6 +27,7 @@
     <ClCompile Include="src\components\image_process_component.cc" />
     <ClCompile Include="src\components\image_record_component.cc" />
     <ClCompile Include="src\components\movement_component.cc" />
+    <ClCompile Include="src\components\stixel_component.cc" />
     <ClCompile Include="src\drone.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="src\rpc_server.cc" />
@@ -729,6 +730,7 @@
     <ClInclude Include="deps\rpclib\include\rpc\version.h" />
     <ClInclude Include="include\components\communication_component.h" />
     <ClInclude Include="include\components\base_component.h" />
+    <ClInclude Include="include\components\stixel_component.h" />
     <ClInclude Include="include\drone.h" />
     <ClInclude Include="include\components\image_process_component.h" />
     <ClInclude Include="include\components\image_record_component.h" />

@@ -14,6 +14,7 @@ STRICT_MODE_ON
 #include <map>
 #include "components/movement_component.h"
 #include "components/image_process_component.h"
+#include "components/stixel_component.h"
 #include "components/image_record_component.h"
 #include "components/communication_component.h"
 
@@ -25,13 +26,10 @@ public:
     static std::set<Drone*> drone_set_;
     void Begin();
     virtual void Update(double DeltaTime);
-
 private:
     std::string name_;
-    
-    MovementComponent Movement_;
-    ImageRecordComponent ImageRecord_;
-    ImageProcessComponent ImageProcess_;
-    CommunicationComponent Communication_;
+    std::unique_ptr<MovementComponent> movement_;
+	std::unique_ptr<ImageRecordComponent> image_record_;
+	std::unique_ptr<StixelComponent> stixel_;
 };
 

@@ -22,17 +22,17 @@ void MovementComponent::ThreadMain() {
 }
 
 void MovementComponent::BehaveForcibly() {
-    isBusy_ = true;
+    is_busy_ = true;
 
-    isBusy_ = false;
+	is_busy_ = false;
 }
 
 bool MovementComponent::BehaveSafely() {
-    if (isBusy_) {
+    if (is_busy_) {
         std::cout << "Still on another mission!\n";
     } else {
-        isBusy_ = true;
+		is_busy_ = true;
 
     }
-    return isBusy_;
+    return is_busy_;
 }
