@@ -1,17 +1,17 @@
 %function [] = KDE_stixel()
-% pict ¼ÇÂ¼ÔËĞĞ´Ë´¦£¬¶àÖ¡ÔËĞĞ
+% pict è®°å½•è¿è¡Œæ­¤å¤„ï¼Œå¤šå¸§è¿è¡Œ
 clearvars -EXCEPT pict
 close all;clc
-% ¼ÇÂ¼ÕÏ°­ÎïÁĞÌáÈ¡µÄ½á¹û£¬£¨x,y£©Îª¶şÎ¬Ó³Éä×ø±ê£¬hÎªÕÏ°­ÎïÏÂ¶ËµÄÊÀ½ç×ø±ê¸ß¶È£¬zÎªÉÏ¶ËÊÀ½ç×ø±ê¸ß¶È
+% è®°å½•éšœç¢ç‰©åˆ—æå–çš„ç»“æœï¼Œï¼ˆx,yï¼‰ä¸ºäºŒç»´æ˜ å°„åæ ‡ï¼Œhä¸ºéšœç¢ç‰©ä¸‹ç«¯çš„ä¸–ç•Œåæ ‡é«˜åº¦ï¼Œzä¸ºä¸Šç«¯ä¸–ç•Œåæ ‡é«˜åº¦
 Stixel_result_x = [];
 Stixel_result_y = [];
-% ×ø±êÎ»ÖÃ(x,y)
+% åæ ‡ä½ç½®(x,y)
 Stixel_result_z = [];
 Stixel_result_h = [];
-%¼ÇÂ¼¸ÃstixelÊÇ·ñ³¬³öÊÓÒ°£¬³¬³ö¼ÇÎª1 £¬ÏÂÃæÁ½¸ö±äÁ¿·Ö±ğ¼ÇÂ¼ÉÏ·½ºÍÏÂ·½³¬³öÊÓÒ°
+%è®°å½•è¯¥stixelæ˜¯å¦è¶…å‡ºè§†é‡ï¼Œè¶…å‡ºè®°ä¸º1 ï¼Œä¸‹é¢ä¸¤ä¸ªå˜é‡åˆ†åˆ«è®°å½•ä¸Šæ–¹å’Œä¸‹æ–¹è¶…å‡ºè§†é‡
 Beyond_view_flag = [];
 below_view_flag = [];
-% ¼ÇÂ¼ÕÏ°­ÎïÌáÈ¡¸öÊı
+% è®°å½•éšœç¢ç‰©æå–ä¸ªæ•°
 Stixel_number = 0;
 D = imread('4disparity_screenshot_12.09.2019.png');
 D = rgb2gray(D);
@@ -23,7 +23,7 @@ D = 64*im2double(D);
 %D=imfilter(D,w2,'replicate');
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%¶ÁÈ¡txtÖĞ´æ´¢µÄÎŞÈË»ú×´Ì¬Êı¾İ
+%è¯»å–txtä¸­å­˜å‚¨çš„æ— äººæœºçŠ¶æ€æ•°æ®
 %w2=fspecial('average',[5 5]);
 %D=imfilter(D,w2,'replicate');
 uav_x = 0;
@@ -34,27 +34,27 @@ uav_z = 1.73;
 RGBshow = imread('0000000092.png');
 figure(20);hold on;
 imshow(RGBshow);
-% ¼ÆËãÏñËØ×ø±êÏòÊÀ½ç×ø±ê±ä»»µÄ±äÁ¿,´Ë´¦µÄ½Ç¶ÈĞèÒªÈ·¶¨Õı¸ººÅ
+% è®¡ç®—åƒç´ åæ ‡å‘ä¸–ç•Œåæ ‡å˜æ¢çš„å˜é‡,æ­¤å¤„çš„è§’åº¦éœ€è¦ç¡®å®šæ­£è´Ÿå·
 CosValue = 1;
 SinValue = 0;
 
 
 %for n = 200:1:201
-%»æÍ¼Ñ¡ÔñÁĞ×ø±ê
+%ç»˜å›¾é€‰æ‹©åˆ—åæ ‡
 w=796;
 figure(3);
 plot(D(1:rows,w));
 %axis([0 375 0 260])
-%»æÖÆÄ³Ò»ÁĞÉî¶ÈÊÓ²î
+%ç»˜åˆ¶æŸä¸€åˆ—æ·±åº¦è§†å·®
 A_plot = D(1:rows,w);
 %A = 10*A;
-% ÉèÖÃstixel¿í¶È
+% è®¾ç½®stixelå®½åº¦
 stixel_width = 7;
-% ÉèÖÃÖ±·½Í¼µÄÍ³¼Æ·Ö±æÂÊ
+% è®¾ç½®ç›´æ–¹å›¾çš„ç»Ÿè®¡åˆ†è¾¨ç‡
 width=64;
 
 
-%ÉèÖÃÏà»ú²ÎÊı
+%è®¾ç½®ç›¸æœºå‚æ•°
 fx = 984.2439;
 fy = 980.8;
 v0 = 233.2;
@@ -62,23 +62,23 @@ u0 = 690;
 Baseline = 0.25;
 
 
-% ÓÉÓÚÊÇ·ÂÕæÊı¾İ£¬ĞèÒª×Ô¼ºÏŞ¶¨·¶Î§
-% ¸ù¾İÏà»ú²ÎÊıºÍÊÓ²î¼ÆËã×îĞ¡·Ö±æÂÊºÍ×î´óÌ½²â¾àÀë·¶Î§
+% ç”±äºæ˜¯ä»¿çœŸæ•°æ®ï¼Œéœ€è¦è‡ªå·±é™å®šèŒƒå›´
+% æ ¹æ®ç›¸æœºå‚æ•°å’Œè§†å·®è®¡ç®—æœ€å°åˆ†è¾¨ç‡å’Œæœ€å¤§æ¢æµ‹è·ç¦»èŒƒå›´
 Z_min = 0.5;
 Z_max = 20;
 Disparity_min = fx * Baseline / Z_max;
 Disparity_max = fx * Baseline / Z_min;
-% ÉèÖÃÎïÌåÓĞĞ§¸ß¶È£¬×îĞ¡ÎïÌåµÄ¸ß¶È
+% è®¾ç½®ç‰©ä½“æœ‰æ•ˆé«˜åº¦ï¼Œæœ€å°ç‰©ä½“çš„é«˜åº¦
 detal_y = 0.3;
 sitxel_cnt = 1;
-% ÉèÖÃºËÃÜ¶È¹À¼ÆµÄ¿í¶È ´Ë´¦Èç¹û¹ıÓÚĞ¡£¬ÈİÒ×ÒıÈëÁ¿»¯Îó²î£¬¼´ÏàÁÚstixelÉî¶ÈÇáÎ¢±ä»¯ÎŞ·¨±í´ï£¬³öÏÖ½×Ìİ
+% è®¾ç½®æ ¸å¯†åº¦ä¼°è®¡çš„å®½åº¦ æ­¤å¤„å¦‚æœè¿‡äºå°ï¼Œå®¹æ˜“å¼•å…¥é‡åŒ–è¯¯å·®ï¼Œå³ç›¸é‚»stixelæ·±åº¦è½»å¾®å˜åŒ–æ— æ³•è¡¨è¾¾ï¼Œå‡ºç°é˜¶æ¢¯
 Kernel_width = 1000;
 
 figure(4);
 [x,N] = hist(A_plot,width);
 bar(x);
     
-%ºËÃÜ¶È¹À¼Æ
+%æ ¸å¯†åº¦ä¼°è®¡
 
 W5_gauss = [0.00170354, 0.109878, 0.440655, 0.109878, 0.0017035];
 W7_gauss = [0.00038771, 0.01330373, 0.11098164, 0.22508352, 0.11098164, 0.01330373, 0.00038771];
@@ -90,12 +90,12 @@ W13_trian = [0.1 0.3 0.5 0.7 0.9 1.1 1.3 1.1 0.9 0.7 0.5 0.3 0.1];
 W19_trian = [0.1 0.2 0.3 0.4 0.5 0.6 .07 0.8 0.9 1 0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1];
 W25_trian = [0.1 0.2 0.3 0.4 0.5 0.6 .07 0.8 0.9 1 1.1 1.2 1.3 1.4 1.3 1.2 1.1 1 0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1];
 
-% ºËÃÜ¶È¹À¼ÆµÄ·Ö±æÂÊ
+% æ ¸å¯†åº¦ä¼°è®¡çš„åˆ†è¾¨ç‡
 [f,xi]=ksdensity(A_plot);
 figure(5);
 plot(f);
 %%
-    % »æÖÆµ÷ÊÔ²¿·Ö
+    % ç»˜åˆ¶è°ƒè¯•éƒ¨åˆ†
     clear A;
     A = [];
     KDE_D = zeros(Kernel_width,1);
@@ -106,7 +106,7 @@ plot(f);
             kde_cnt = round(D(v,u) * Kernel_width / Disparity_max);
             for k = -8:8
                 if ((k + kde_cnt) > 1)
-                    % ´Ë´¦ -1 µÄÖ÷ÒªÔ­ÒòÊÇ 
+                    % æ­¤å¤„ -1 çš„ä¸»è¦åŸå› æ˜¯ 
                     KDE_D(k + kde_cnt) = KDE_D(k + kde_cnt) + W17_guass(k+9);
                 end
             end
@@ -115,7 +115,7 @@ plot(f);
     figure(6);
     plot(KDE_D);
     
-%     % ÈôÔëÉùÌ«´ó¿ÉÒÔ²ÉÓÃIIRÂË²¨Æ÷¹ıÂËÃ«´ÌÔëÉù
+%     % è‹¥å™ªå£°å¤ªå¤§å¯ä»¥é‡‡ç”¨IIRæ»¤æ³¢å™¨è¿‡æ»¤æ¯›åˆºå™ªå£°
 %     B = zeros(3,1);
 %     A = zeros(3,1);
 %     B(1)=1;B(2)=2;B(3)=1;
@@ -138,14 +138,14 @@ plot(f);
     
 figure(20);hold on;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ÌáÈ¡ÕÏ°­ÎïÁĞ
+% æå–éšœç¢ç‰©åˆ—
 for u = 3:stixel_width:cols
     clear A;
     A = [];
-    % ²úÉúÏìÓ¦ºÍÃÜ¶È¿í¶ÈµÄ´æ´¢
+    % äº§ç”Ÿå“åº”å’Œå¯†åº¦å®½åº¦çš„å­˜å‚¨
     KDE_D = zeros(Kernel_width,1);
-    % ÂË³ıÊÓ²î½ÏĞ¡£¬¾àÀë´óÓÚ100Ã×µÄĞÅÏ¢
-    % ²ÉÓÃ¸ÅÂÊÃÜ¶È¹À¼ÆÍ³¼Æ·Ö²¼
+    % æ»¤é™¤è§†å·®è¾ƒå°ï¼Œè·ç¦»å¤§äº100ç±³çš„ä¿¡æ¯
+    % é‡‡ç”¨æ¦‚ç‡å¯†åº¦ä¼°è®¡ç»Ÿè®¡åˆ†å¸ƒ
     for v =1:rows
         if ((D(v,u)>Disparity_min)&&(D(v,u)<Disparity_max))
             A = [A D(v,u)];
@@ -158,14 +158,14 @@ for u = 3:stixel_width:cols
         end
     end
     
-    % ÕÒ³öÎïÌå£¬¼´´óÓÚÒ»¶¨ãĞÖµ50cm¸ß¶ÈµÄÎïÌå
-    % Í¨¹ıºËÃÜ¶È¹À¼Æº¯ÊıÕÒ³öÎïÌåµÄÉî¶È¾ùÖµºÍ·½²î
+    % æ‰¾å‡ºç‰©ä½“ï¼Œå³å¤§äºä¸€å®šé˜ˆå€¼50cmé«˜åº¦çš„ç‰©ä½“
+    % é€šè¿‡æ ¸å¯†åº¦ä¼°è®¡å‡½æ•°æ‰¾å‡ºç‰©ä½“çš„æ·±åº¦å‡å€¼å’Œæ–¹å·®
     Object_cnt = 0;
     Object_mean = zeros(6,1);
     Object_depth_value = zeros(6,1);
     Object_detla = zeros(6,1);
     for t=2:Kernel_width-1
-        % ĞèÒª¼ÆËãÈ·ÇĞµÄ½á¹û
+        % éœ€è¦è®¡ç®—ç¡®åˆ‡çš„ç»“æœ
         %delt_y = (v1-v2)*baseline/disparity;
         if ((KDE_D(t)*Baseline) > (0.5 * t * Disparity_max / Kernel_width))
             if ((KDE_D(t)>KDE_D(t-1))&&(KDE_D(t)>KDE_D(t+1)))
@@ -179,30 +179,30 @@ for u = 3:stixel_width:cols
             end
         end
     end
-    % ¼ì²âÎïÌåµÄÊıÁ¿Object_cnt¸ö
+    % æ£€æµ‹ç‰©ä½“çš„æ•°é‡Object_cntä¸ª
     for o=1:Object_cnt
         detla_cnt = 1;
         while(( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( max(Object_mean(o)-detla_cnt ,1))) || ( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( max(Object_mean(o) + detla_cnt,1))) )
             detla_cnt = detla_cnt + 1;
         end
-        % ´Ë´¦µÄÏµÊıÊÇÓÉÕÏ°­Îï¼ÆËãµÃµ½µÄ¿í¶È¾ö¶¨£¬×îºÃÂÔ´óÒ»Ğ©
+        % æ­¤å¤„çš„ç³»æ•°æ˜¯ç”±éšœç¢ç‰©è®¡ç®—å¾—åˆ°çš„å®½åº¦å†³å®šï¼Œæœ€å¥½ç•¥å¤§ä¸€äº›
         Object_detla(Object_cnt) = 1 * detla_cnt * Disparity_max / Kernel_width;
     end
     
-    % ¼ÆËãdetal_y(30cm)µÄ¸ß¶ÈÔÚ¶ÔÓ¦ÊÓ²îÉÏµÄÏñËØ¸ß¶È£¬×÷ÎªÎïÌåÉ¸Ñ¡µÄ×îĞ¡Öµ¡£
+    % è®¡ç®—detal_y(30cm)çš„é«˜åº¦åœ¨å¯¹åº”è§†å·®ä¸Šçš„åƒç´ é«˜åº¦ï¼Œä½œä¸ºç‰©ä½“ç­›é€‰çš„æœ€å°å€¼ã€‚
     %detal_v = detal_y * Dis_maxnumber1 /Baseline;
     
     v=1;
-    % Ñ¡Ôñ±äÁ¿£¬½øĞĞÎïÌåÅĞ¶Ï»òÂË²¨
+    % é€‰æ‹©å˜é‡ï¼Œè¿›è¡Œç‰©ä½“åˆ¤æ–­æˆ–æ»¤æ³¢
     choose_case = 1;
-    % ÅĞ¶ÏÊÇ·ñÓĞÎïÌå
+    % åˆ¤æ–­æ˜¯å¦æœ‰ç‰©ä½“
     judge_object = 1;
-    % ¼ÆËãÂË²¨ÊıÁ¿
+    % è®¡ç®—æ»¤æ³¢æ•°é‡
     filter_object = 2;
-    % µ±Ç°ÎïÌåµÄÉî¶È¾ùÖµºÍ·½²î
+    % å½“å‰ç‰©ä½“çš„æ·±åº¦å‡å€¼å’Œæ–¹å·®
     Disparity_temp = 0;
     Detla_temp = 0;
-    % ¼ÇÂ¼ÎïÌåµÄÏñËØÊıÁ¿£¬×öãĞÖµµÈÅĞ¶¨
+    % è®°å½•ç‰©ä½“çš„åƒç´ æ•°é‡ï¼Œåšé˜ˆå€¼ç­‰åˆ¤å®š
     judge_cnt = 0;
     
     clear A;
@@ -210,11 +210,11 @@ for u = 3:stixel_width:cols
     while (v<=rows) 
         
         switch choose_case
-            %Ñ¡ÔñÅĞ¶ÏÊÇ·ñÓĞÎïÌå´æÔÚ
+            %é€‰æ‹©åˆ¤æ–­æ˜¯å¦æœ‰ç‰©ä½“å­˜åœ¨
             case judge_object
                 for o = 1:Object_cnt
                     if (abs(A(v)-Object_depth_value(o)) < Object_detla(o))
-                        % µ±ÎïÌåÉî¶È»òÊÓ²îÓëÄ³Ò»ÎïÌåÊÓ²î»òÉî¶ÈÔÚÒ»¶¨·¶Î§ÄÚÊ±£¬ÌøÈëÂË²¨Ä£Ê½
+                        % å½“ç‰©ä½“æ·±åº¦æˆ–è§†å·®ä¸æŸä¸€ç‰©ä½“è§†å·®æˆ–æ·±åº¦åœ¨ä¸€å®šèŒƒå›´å†…æ—¶ï¼Œè·³å…¥æ»¤æ³¢æ¨¡å¼
                         Disparity_temp = Object_depth_value(o);
                         Detla_temp = Object_detla(o);
                         choose_case = filter_object;
@@ -222,7 +222,7 @@ for u = 3:stixel_width:cols
                     end
                 end
                 v = v + 1;
-            %¼ÆËãÊôÓÚ¸ÃÎïÌåµÄÏñËØ¸öÊı
+            %è®¡ç®—å±äºè¯¥ç‰©ä½“çš„åƒç´ ä¸ªæ•°
             case filter_object
                 h_filter = ceil(Disparity_temp * Kernel_width / Disparity_max);
                 if (abs(A(v)-Disparity_temp) < Detla_temp)
@@ -232,12 +232,12 @@ for u = 3:stixel_width:cols
                         line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
                         %rectangle('position',[u,rows-v,stixel_width,judge_cnt],'facecolor','g');
                         x_temp = (u-u0) * Baseline / Disparity_temp;
-                        % ¼ÆËãµÄ¸ß¶ÈÊı¾İÎªµÄhÖá3ÏÂ·½
+                        % è®¡ç®—çš„é«˜åº¦æ•°æ®ä¸ºçš„hè½´3ä¸‹æ–¹
                         h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
-                        % ÕÏ°­ÎïµÍ¶ËµÄ×İ×ø±ê
+                        % éšœç¢ç‰©ä½ç«¯çš„çºµåæ ‡
                         y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
                         z_temp = (fx * CosValue - (v-judge_cnt-v0) * SinValue) * Baseline / Disparity_temp;
-                        % ¼ÆËãÏà»ú×ø±êÎ»ÖÃ£¬×ª»»µ½ÊÀ½ç×ø±êÏµÏÂ
+                        % è®¡ç®—ç›¸æœºåæ ‡ä½ç½®ï¼Œè½¬æ¢åˆ°ä¸–ç•Œåæ ‡ç³»ä¸‹
                         Position_camera = [x_temp z_temp h_temp 1];
                        
                         Position_world = Position_camera';
@@ -272,9 +272,9 @@ for u = 3:stixel_width:cols
                         line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
                         %rectangle('position',[u,rows-v,stixel_width,judge_cnt],'facecolor','g');
                         x_temp = (u-u0) * Baseline / Disparity_temp;
-                        % ¼ÆËãµÄ¸ß¶ÈÊı¾İÎªµÄhÖá3ÏÂ·½  y_temp ÊÇÁĞÏñËØµÍ¶Ë  h_tempÊÇÁĞÏñËØÕÏ°­Îï¶¥¶Ë
+                        % è®¡ç®—çš„é«˜åº¦æ•°æ®ä¸ºçš„hè½´3ä¸‹æ–¹  y_temp æ˜¯åˆ—åƒç´ ä½ç«¯  h_tempæ˜¯åˆ—åƒç´ éšœç¢ç‰©é¡¶ç«¯
                         h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
-                        % ÕÏ°­ÎïµÍ¶ËµÄ×İ×ø±ê
+                        % éšœç¢ç‰©ä½ç«¯çš„çºµåæ ‡
                         y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
                         z_temp = (fx * CosValue - (v-judge_cnt-v0) * SinValue) * Baseline / Disparity_temp;
                         Position_camera = [x_temp z_temp h_temp 1];
@@ -313,7 +313,7 @@ end
 
 
 figure(11);
-% »æÖÆ
+% ç»˜åˆ¶
 for s = 1:Stixel_number
     plot3([Stixel_result_x(s) Stixel_result_x(s)],[Stixel_result_y(s) Stixel_result_y(s)], ...
         [Stixel_result_h(s) Stixel_result_z(s)], 'LineWidth',2);
@@ -321,16 +321,16 @@ for s = 1:Stixel_number
     grid on
 end
 
-%% ¾àÀë¾ÛÀà
+%% è·ç¦»èšç±»
 cluster_flag = [1];
 cluster_number = 1;
 plane_number = 0;
-% ¼ÇÂ¼¾ÛÀàÖĞÄ³Ò»Àà±ğµÄĞòºÅ
+% è®°å½•èšç±»ä¸­æŸä¸€ç±»åˆ«çš„åºå·
 result_cluster_tempx = [Stixel_result_x(1)];
 result_cluster_tempy = [Stixel_result_y(1)];
 result_cluster_temph = [Stixel_result_h(1)];
 result_cluster_tempz = [Stixel_result_z(1)];
-% ´Ë´¦¾ÛÀàËã·¨¿ÉÒÔ¿¼ÂÇÍ¨¹ıÃ¿ÁĞÉî¶ÈÏñËØ»ñÈ¡µÄÎïÌå¸öÊı½øĞĞ¾ÛÀà¡£
+% æ­¤å¤„èšç±»ç®—æ³•å¯ä»¥è€ƒè™‘é€šè¿‡æ¯åˆ—æ·±åº¦åƒç´ è·å–çš„ç‰©ä½“ä¸ªæ•°è¿›è¡Œèšç±»ã€‚
 
 for p = 2:Stixel_number
     for c = 1:1:cluster_number
@@ -339,8 +339,8 @@ for p = 2:Stixel_number
         cluster_center_h = result_cluster_temph(c);
         cluster_center_z = result_cluster_tempz(c);
         distance_xy = sqrt(((Stixel_result_x(p)-cluster_center_x)^2+(Stixel_result_y(p)-cluster_center_y)^2 ));
-        distance_z = 0;%abs(Stixel_result_h(p) - cluster_center_h); % z×ø±êµÄ²îÒì£¬¼´µÍ¶ËµÄ¾àÀë
-        distance_h = 0;%abs(Stixel_result_z(p) - cluster_center_z); % ¸ß¶ÈµÄ²îÒì
+        distance_z = 0;%abs(Stixel_result_h(p) - cluster_center_h); % zåæ ‡çš„å·®å¼‚ï¼Œå³ä½ç«¯çš„è·ç¦»
+        distance_h = 0;%abs(Stixel_result_z(p) - cluster_center_z); % é«˜åº¦çš„å·®å¼‚
         if ((distance_xy<2)&&(distance_z<1)&&(distance_h<1))
             cluster_flag = [cluster_flag c];
             result_cluster_tempx(cluster_number) = Stixel_result_x(p);
@@ -364,34 +364,34 @@ end
 Height_safe = 2;
 Width_safe  = 2;
 
-%£¨x,y£©Îª¶şÎ¬Ó³Éä×ø±ê£¬hÎªÕÏ°­ÎïÏÂ¶ËµÄÊÀ½ç×ø±ê¸ß¶È£¬zÎªÉÏ¶ËÊÀ½ç×ø±ê¸ß¶È
-%% ¸ß¶ÈÂË²¨
+%ï¼ˆx,yï¼‰ä¸ºäºŒç»´æ˜ å°„åæ ‡ï¼Œhä¸ºéšœç¢ç‰©ä¸‹ç«¯çš„ä¸–ç•Œåæ ‡é«˜åº¦ï¼Œzä¸ºä¸Šç«¯ä¸–ç•Œåæ ‡é«˜åº¦
+%% é«˜åº¦æ»¤æ³¢
 for f = 1:cluster_number
     Bef_filter_xx = [];
     Bef_filter_yy = [];
     Bef_filter_zz = [];
     Bef_filter_hh = [];
     
-    % ½«·Öµ½Ä³Ò»ÀàµÄstixel·ÅÔÚxx£¬yyÖĞ£¬¼´¶şÎ¬Æ½ÃæÉÏ
+    % å°†åˆ†åˆ°æŸä¸€ç±»çš„stixelæ”¾åœ¨xxï¼Œyyä¸­ï¼Œå³äºŒç»´å¹³é¢ä¸Š
     serial_number_stixel = [];
     for s = 1:Stixel_number
         if(cluster_flag(s) == f)
             Bef_filter_xx = [Bef_filter_xx Stixel_result_x(s)];
             Bef_filter_yy = [Bef_filter_yy Stixel_result_y(s)];
-            Bef_filter_hh = [Bef_filter_hh Stixel_result_z(s)];    % ×ª±äºóhh±í´ï¸ß¶È£¬¼´ÉÏ·½×ø±ê
-            Bef_filter_zz = [Bef_filter_zz Stixel_result_h(s)];    % ×ª±äºózz±í´ïµ×²¿×ø±ê
+            Bef_filter_hh = [Bef_filter_hh Stixel_result_z(s)];    % è½¬å˜åhhè¡¨è¾¾é«˜åº¦ï¼Œå³ä¸Šæ–¹åæ ‡
+            Bef_filter_zz = [Bef_filter_zz Stixel_result_h(s)];    % è½¬å˜åzzè¡¨è¾¾åº•éƒ¨åæ ‡
             serial_number_stixel = [serial_number_stixel s];
         end
     end
-    % »ñÈ¡¾ÛÀàÄÚ²¿µÄ¸ß¶È×î´óÖµºÍ×îĞ¡Öµ£¬ÓÃÓÚ¹ıÂË¡£
+    % è·å–èšç±»å†…éƒ¨çš„é«˜åº¦æœ€å¤§å€¼å’Œæœ€å°å€¼ï¼Œç”¨äºè¿‡æ»¤ã€‚
     Zmax_temp = max(Bef_filter_hh);
     Zmin_temp = min(Bef_filter_zz);
-    % ÇóÃ¿¸ö¾ÛÀàÄÚ²¿stixelµÄ¸ß¶È²¹¼¯
+    % æ±‚æ¯ä¸ªèšç±»å†…éƒ¨stixelçš„é«˜åº¦è¡¥é›†
     BefCluster_number = size(Bef_filter_xx);
-    % ·Ö±ğ¼ÇÂ¼²¹¼¯µÄÉÏ²¿·ÖºÍÏÂ²¿·Ö
+    % åˆ†åˆ«è®°å½•è¡¥é›†çš„ä¸Šéƒ¨åˆ†å’Œä¸‹éƒ¨åˆ†
     Complement_Bef_z1 = zeros(BefCluster_number(2),2);
     Complement_Bef_z2 = zeros(BefCluster_number(2),2);
-    % Ìî²¹ÓÉÓÚÊÓÒ°ÓĞÏŞµ¼ÖÂ½ü´¦¿´µ½µÄstixelÆ«µÍ
+    % å¡«è¡¥ç”±äºè§†é‡æœ‰é™å¯¼è‡´è¿‘å¤„çœ‹åˆ°çš„stixelåä½
     max_beyongd_temp = 0;
     if(~isempty(Beyond_view_flag))
         for s = 1:BefCluster_number(2)
@@ -401,7 +401,7 @@ for f = 1:cluster_number
                 end
             end
         end
-        % ¶Ô¸ß¶È³¬¹ıÊÓÒ°µÄ½øĞĞÍÆÀíÌî²¹
+        % å¯¹é«˜åº¦è¶…è¿‡è§†é‡çš„è¿›è¡Œæ¨ç†å¡«è¡¥
         for s = 1:Stixel_number       
             if(cluster_flag(s) == f)
                 if (Beyond_view_flag(s) == 1)
@@ -410,7 +410,7 @@ for f = 1:cluster_number
             end
         end
         
-        % ¶ÔÕıÔÚ´¦ÀíµÄÊı¾İ½øĞĞ¸ß¶ÈÊÓÒ°ÓĞÏŞ²úÉúÎó²î½øĞĞÌî²¹
+        % å¯¹æ­£åœ¨å¤„ç†çš„æ•°æ®è¿›è¡Œé«˜åº¦è§†é‡æœ‰é™äº§ç”Ÿè¯¯å·®è¿›è¡Œå¡«è¡¥
         for s = 1:BefCluster_number(2)
             if (Beyond_view_flag(s) == 1)
                 Bef_filter_hh(s) = max_beyongd_temp;
@@ -418,7 +418,7 @@ for f = 1:cluster_number
         end
     end
     
-    % Ìî²¹ÓÉÓÚÊÓÒ°ÓĞÏŞµ¼ÖÂ½ü´¦¿´µ½µÄstixelÆ«¸ß
+    % å¡«è¡¥ç”±äºè§†é‡æœ‰é™å¯¼è‡´è¿‘å¤„çœ‹åˆ°çš„stixelåé«˜
     min_beyongd_temp = Inf;
     if(~isempty(below_view_flag))
         for s = 1:BefCluster_number(2)
@@ -428,7 +428,7 @@ for f = 1:cluster_number
                 end
             end
         end
-    % ¶Ô¸ß¶È³¬¹ıÊÓÒ°µÄ½øĞĞÍÆÀíÌî²¹
+    % å¯¹é«˜åº¦è¶…è¿‡è§†é‡çš„è¿›è¡Œæ¨ç†å¡«è¡¥
     
         for s = 1:Stixel_number
             if(cluster_flag(s) == f)
@@ -438,7 +438,7 @@ for f = 1:cluster_number
             end
         end
         
-        % ¶ÔÕıÔÚ´¦ÀíµÄÊı¾İ½øĞĞ¸ß¶ÈÊÓÒ°ÓĞÏŞ²úÉúÎó²î½øĞĞÌî²¹
+        % å¯¹æ­£åœ¨å¤„ç†çš„æ•°æ®è¿›è¡Œé«˜åº¦è§†é‡æœ‰é™äº§ç”Ÿè¯¯å·®è¿›è¡Œå¡«è¡¥
         for s = 1:BefCluster_number(2)
             if (below_view_flag(s) == 1)
                 Bef_filter_zz(s) = min_beyongd_temp;
@@ -447,7 +447,7 @@ for f = 1:cluster_number
     end
 
 
-    % ¶ÔÌî²¹ÊÓÒ°ÓĞÏŞµ¼ÖÂµÄÆ«²î£¬Çó½â²¹¼¯¡£
+    % å¯¹å¡«è¡¥è§†é‡æœ‰é™å¯¼è‡´çš„åå·®ï¼Œæ±‚è§£è¡¥é›†ã€‚
     for Bef_cnt = 1:BefCluster_number(2)
         if ((Zmax_temp-Bef_filter_hh(Bef_cnt))>Height_safe)
             Complement_Bef_z1(Bef_cnt,1) = Zmax_temp;
@@ -464,7 +464,7 @@ for f = 1:cluster_number
         test_zmin = Complement_Bef_z1(i,2);
         if ((test_zmax-test_zmin)>Height_safe)
             for j = i+1:BefCluster_number(2)
-                % ½«´ı¼ì²âµÄÁĞ¸ß¶È¸³Öµ
+                % å°†å¾…æ£€æµ‹çš„åˆ—é«˜åº¦èµ‹å€¼
                 Compared_zmax1 = Complement_Bef_z1(j,1);
                 Compared_zmin1 = Complement_Bef_z1(j,2);
                 Compared_zmax2 = Complement_Bef_z2(j,1);
@@ -478,9 +478,9 @@ for f = 1:cluster_number
                 else
                     distance_i_j = sqrt((Bef_filter_xx(i)-Bef_filter_xx(j-1))^2 + (Bef_filter_yy(i)-Bef_filter_yy(j-1))^2);
                     if (distance_i_j > Width_safe)
-                        % ÈôÖĞ¼ä³öÏÖ´óÓÚÎŞÈË»ú¿É°²È«Í¨ĞĞµÄÇøÓòÊ±£¬½«Í¬Ò»¾ÛÀà½øĞĞ²ğ·Ö¡£
-                        % ½«ºóĞøµÄstixel½øĞĞ²ğ·Ö£¬µÃµ½ĞÂµÄ·Ö×é
-                        % ¼ÇÂ¼ÉÏ·½ºÍÏÂ·½ÊÇ·ñ²ğ·Ö¿ª
+                        % è‹¥ä¸­é—´å‡ºç°å¤§äºæ— äººæœºå¯å®‰å…¨é€šè¡Œçš„åŒºåŸŸæ—¶ï¼Œå°†åŒä¸€èšç±»è¿›è¡Œæ‹†åˆ†ã€‚
+                        % å°†åç»­çš„stixelè¿›è¡Œæ‹†åˆ†ï¼Œå¾—åˆ°æ–°çš„åˆ†ç»„
+                        % è®°å½•ä¸Šæ–¹å’Œä¸‹æ–¹æ˜¯å¦æ‹†åˆ†å¼€
                         clustering_add_cnt1 = 0;
                         clustering_add_cnt2 = 0;
                         for w = i:j
@@ -490,7 +490,7 @@ for f = 1:cluster_number
                                 clustering_add_cnt1 = 1;
                             end
                         end
-                        %×ÜµÄ¾ÛÀà·¢Éú¸Ä±ä
+                        %æ€»çš„èšç±»å‘ç”Ÿæ”¹å˜
                         cluster_number = cluster_number + clustering_add_cnt1 + clustering_add_cnt2;
                         for w = j:BefCluster_number(2)
                             cluster_flag(serial_number_stixel(w)) = cluster_number + 1;
@@ -503,9 +503,9 @@ for f = 1:cluster_number
                 if (abs(test_zmax-test_zmin)<Height_safe)
                     distance_i_j = sqrt((Bef_filter_xx(i)-Bef_filter_xx(j-1))^2 + (Bef_filter_yy(i)-Bef_filter_yy(j-1))^2);
                     if (distance_i_j > Width_safe)
-                        % ÈôÖĞ¼ä³öÏÖ´óÓÚÎŞÈË»ú¿É°²È«Í¨ĞĞµÄÇøÓòÊ±£¬½«Í¬Ò»¾ÛÀà½øĞĞ²ğ·Ö¡£
-                        % ½«ºóĞøµÄstixel½øĞĞ²ğ·Ö£¬µÃµ½ĞÂµÄ·Ö×é
-                        % ¼ÇÂ¼ÉÏ·½ºÍÏÂ·½ÊÇ·ñ²ğ·Ö¿ª
+                        % è‹¥ä¸­é—´å‡ºç°å¤§äºæ— äººæœºå¯å®‰å…¨é€šè¡Œçš„åŒºåŸŸæ—¶ï¼Œå°†åŒä¸€èšç±»è¿›è¡Œæ‹†åˆ†ã€‚
+                        % å°†åç»­çš„stixelè¿›è¡Œæ‹†åˆ†ï¼Œå¾—åˆ°æ–°çš„åˆ†ç»„
+                        % è®°å½•ä¸Šæ–¹å’Œä¸‹æ–¹æ˜¯å¦æ‹†åˆ†å¼€
                         clustering_add_cnt1 = 0;
                         clustering_add_cnt2 = 0;
                         for w = i:j
@@ -515,7 +515,7 @@ for f = 1:cluster_number
                                 clustering_add_cnt1 = 1;
                             end
                         end
-                        %×ÜµÄ¾ÛÀà·¢Éú¸Ä±ä
+                        %æ€»çš„èšç±»å‘ç”Ÿæ”¹å˜
                         cluster_number = cluster_number + clustering_add_cnt1 + clustering_add_cnt2;
                         for w = j:BefCluster_number(2)
                             cluster_flag(serial_number_stixel(w)) = cluster_number + 1;
@@ -532,7 +532,7 @@ for f = 1:cluster_number
         test_zmin = Complement_Bef_z2(i,2);
         if ((test_zmax-test_zmin)>Height_safe)
             for j = i+1:BefCluster_number(2)
-                % ½«´ı¼ì²âµÄÁĞ¸ß¶È¸³Öµ
+                % å°†å¾…æ£€æµ‹çš„åˆ—é«˜åº¦èµ‹å€¼
                 Compared_zmax1 = Complement_Bef_z1(j,1);
                 Compared_zmin1 = Complement_Bef_z1(j,2);
                 Compared_zmax2 = Complement_Bef_z2(j,1);
@@ -546,9 +546,9 @@ for f = 1:cluster_number
                 else
                     distance_i_j = sqrt((Bef_filter_xx(i)-Bef_filter_xx(j-1))^2 + (Bef_filter_yy(i)-Bef_filter_yy(j-1))^2);
                     if (distance_i_j > Width_safe)
-                        % ÈôÖĞ¼ä³öÏÖ´óÓÚÎŞÈË»ú¿É°²È«Í¨ĞĞµÄÇøÓòÊ±£¬½«Í¬Ò»¾ÛÀà½øĞĞ²ğ·Ö¡£
-                        % ½«ºóĞøµÄstixel½øĞĞ²ğ·Ö£¬µÃµ½ĞÂµÄ·Ö×é
-                        % ¼ÇÂ¼ÉÏ·½ºÍÏÂ·½ÊÇ·ñ²ğ·Ö¿ª
+                        % è‹¥ä¸­é—´å‡ºç°å¤§äºæ— äººæœºå¯å®‰å…¨é€šè¡Œçš„åŒºåŸŸæ—¶ï¼Œå°†åŒä¸€èšç±»è¿›è¡Œæ‹†åˆ†ã€‚
+                        % å°†åç»­çš„stixelè¿›è¡Œæ‹†åˆ†ï¼Œå¾—åˆ°æ–°çš„åˆ†ç»„
+                        % è®°å½•ä¸Šæ–¹å’Œä¸‹æ–¹æ˜¯å¦æ‹†åˆ†å¼€
                         clustering_add_cnt1 = 0;
                         clustering_add_cnt2 = 0;
                         for w = i:j
@@ -558,7 +558,7 @@ for f = 1:cluster_number
                                 clustering_add_cnt1 = 1;
                             end
                         end
-                        %×ÜµÄ¾ÛÀà·¢Éú¸Ä±ä
+                        %æ€»çš„èšç±»å‘ç”Ÿæ”¹å˜
                         cluster_number = cluster_number + clustering_add_cnt1 + clustering_add_cnt2;
                         for w = j:BefCluster_number(2)
                             cluster_flag(serial_number_stixel(w)) = cluster_number + 1;
@@ -571,9 +571,9 @@ for f = 1:cluster_number
                 if (abs(test_zmax-test_zmin)<Height_safe)
                     distance_i_j = sqrt((Bef_filter_xx(i)-Bef_filter_xx(j-1))^2 + (Bef_filter_yy(i)-Bef_filter_yy(j-1))^2);
                     if (distance_i_j > Width_safe)
-                        % ÈôÖĞ¼ä³öÏÖ´óÓÚÎŞÈË»ú¿É°²È«Í¨ĞĞµÄÇøÓòÊ±£¬½«Í¬Ò»¾ÛÀà½øĞĞ²ğ·Ö¡£
-                        % ½«ºóĞøµÄstixel½øĞĞ²ğ·Ö£¬µÃµ½ĞÂµÄ·Ö×é
-                        % ¼ÇÂ¼ÉÏ·½ºÍÏÂ·½ÊÇ·ñ²ğ·Ö¿ª
+                        % è‹¥ä¸­é—´å‡ºç°å¤§äºæ— äººæœºå¯å®‰å…¨é€šè¡Œçš„åŒºåŸŸæ—¶ï¼Œå°†åŒä¸€èšç±»è¿›è¡Œæ‹†åˆ†ã€‚
+                        % å°†åç»­çš„stixelè¿›è¡Œæ‹†åˆ†ï¼Œå¾—åˆ°æ–°çš„åˆ†ç»„
+                        % è®°å½•ä¸Šæ–¹å’Œä¸‹æ–¹æ˜¯å¦æ‹†åˆ†å¼€
                         clustering_add_cnt1 = 0;
                         clustering_add_cnt2 = 0;
                         for w = i:j
@@ -583,7 +583,7 @@ for f = 1:cluster_number
                                 clustering_add_cnt1 = 1;
                             end
                         end
-                        %×ÜµÄ¾ÛÀà·¢Éú¸Ä±ä
+                        %æ€»çš„èšç±»å‘ç”Ÿæ”¹å˜
                         cluster_number = cluster_number + clustering_add_cnt1 + clustering_add_cnt2;
                         for w = j:BefCluster_number(2)
                             cluster_flag(serial_number_stixel(w)) = cluster_number + 1;
@@ -599,15 +599,15 @@ for f = 1:cluster_number
     end
 end
 
-%% ¸ß¶ÈÂË²¨ £¬ ½«Í¬Ò»Àà±ğµÄµÄ¸ß¶È½øĞĞÍ³Ò»
+%% é«˜åº¦æ»¤æ³¢ ï¼Œ å°†åŒä¸€ç±»åˆ«çš„çš„é«˜åº¦è¿›è¡Œç»Ÿä¸€
 for f = 1:cluster_number
     serial_number_stixel = [];
     filter_hh = [];
     filter_zz = [];
     for s = 1:Stixel_number
         if(cluster_flag(s) == f)
-            filter_hh = [filter_hh Stixel_result_z(s)];    % ×ª±äºóhh±í´ï¸ß¶È£¬¼´ÉÏ·½×ø±ê
-            filter_zz = [filter_zz Stixel_result_h(s)];    % ×ª±äºózz±í´ïµ×²¿×ø±ê
+            filter_hh = [filter_hh Stixel_result_z(s)];    % è½¬å˜åhhè¡¨è¾¾é«˜åº¦ï¼Œå³ä¸Šæ–¹åæ ‡
+            filter_zz = [filter_zz Stixel_result_h(s)];    % è½¬å˜åzzè¡¨è¾¾åº•éƒ¨åæ ‡
             serial_number_stixel = [serial_number_stixel s];
         end
     end
@@ -622,7 +622,7 @@ for f = 1:cluster_number
             min__temp = filter_zz(s);
         end
     end
-    % ¶Ô¸ß¶È³¬¹ıÊÓÒ°µÄ½øĞĞÍÆÀíÌî²¹
+    % å¯¹é«˜åº¦è¶…è¿‡è§†é‡çš„è¿›è¡Œæ¨ç†å¡«è¡¥
     for s = 1:Stixel_number
         if(cluster_flag(s) == f)
             Stixel_result_z(s) = max__temp;    
@@ -632,7 +632,7 @@ for f = 1:cluster_number
 
 end
 
-%% Æ½ÃæÌáÈ¡
+%% å¹³é¢æå–
 plane_k = zeros(cluster_number,1);
 plane_b = zeros(cluster_number,1);
 plane_x_min = [];
@@ -654,7 +654,7 @@ for f = 1:cluster_number
     yy_temp = [];
     hh_temp = [];
     zz_temp = [];
-    % ½«·Öµ½Ä³Ò»ÀàµÄstixel·ÅÔÚxx£¬yyÖĞ£¬¼´¶şÎ¬Æ½ÃæÉÏ
+    % å°†åˆ†åˆ°æŸä¸€ç±»çš„stixelæ”¾åœ¨xxï¼Œyyä¸­ï¼Œå³äºŒç»´å¹³é¢ä¸Š
     for s = 1:Stixel_number
         if(cluster_flag(s) == f)
             xx = [xx Stixel_result_x(s)];
@@ -675,7 +675,7 @@ for f = 1:cluster_number
     while (isempty(xx) == 0)
             
             [one_temp,number_exist] = size(xx);
-            % µ¥¶ÀÒ»¸öµãµÄ´¦Àí£¬ÒªÃ´½áºÏµ½Ö®Ç°µÄÖ±ÏßÖĞ£¬Èç¹ûÎŞ·¨½áºÏ¾ÍÓëÏàÁÚ×î½üµÄstixelĞÎ³ÉĞ¡µÄÆ½Ãæ
+            % å•ç‹¬ä¸€ä¸ªç‚¹çš„å¤„ç†ï¼Œè¦ä¹ˆç»“åˆåˆ°ä¹‹å‰çš„ç›´çº¿ä¸­ï¼Œå¦‚æœæ— æ³•ç»“åˆå°±ä¸ç›¸é‚»æœ€è¿‘çš„stixelå½¢æˆå°çš„å¹³é¢
             if (number_exist == 1)
                 hold on;
                 xx = [];
@@ -691,10 +691,10 @@ for f = 1:cluster_number
                     plane_y_min = [plane_y_min yy_temp(1)];
                     plane_y_max = [plane_y_max yy_temp(size_temp)];
                     plane_z_min = [plane_z_min min(zz_temp)];
-                    plane_z_max = [plane_z_max max(hh_temp)];    % ´Ë´¦Ó¦¸ÃÊÇĞ¡ÓÚ1£¬ÔòµÈÓÚ0
+                    plane_z_max = [plane_z_max max(hh_temp)];    % æ­¤å¤„åº”è¯¥æ˜¯å°äº1ï¼Œåˆ™ç­‰äº0
                     plane_number = plane_number + 1;
                 end
-                % ½öÓĞÒ»¸öµã£¬²»×ãÒÔĞÎ³ÉÆ½Ãæ£¬¿¼ÂÇ²ÉÓÃÁ¬½ÓÉÏÒ»¸öµãµÄ·½Ê½¹¹³ÉÆ½Ãæ
+                % ä»…æœ‰ä¸€ä¸ªç‚¹ï¼Œä¸è¶³ä»¥å½¢æˆå¹³é¢ï¼Œè€ƒè™‘é‡‡ç”¨è¿æ¥ä¸Šä¸€ä¸ªç‚¹çš„æ–¹å¼æ„æˆå¹³é¢
                 last_p = [];
                 xx_temp = [];
                 yy_temp = [];
@@ -717,27 +717,27 @@ for f = 1:cluster_number
                 [one,size_temp] = size(xx_temp);
                 error = zeros(size_temp,1);
                 error_diff = zeros(size_temp,1);
-                error_number = 0; % ¼ÇÂ¼Îó²îÊıÁ¿£¬ÈôÎó²îÊıÁ¿½ÏÉÙÔò²»Ğè¿¼ÂÇ£¨ÔëÉù£©
+                error_number = 0; % è®°å½•è¯¯å·®æ•°é‡ï¼Œè‹¥è¯¯å·®æ•°é‡è¾ƒå°‘åˆ™ä¸éœ€è€ƒè™‘ï¼ˆå™ªå£°ï¼‰
                 n = size_temp;
                 
                 if ((max(xx_temp)-min(xx_temp))<0.1)
                     p(1) = nan;
                     p(2) = nan;
                 else
-                    % ÓÃ×îĞ¡¶ş³Ë·¨ÄâºÏÖ±Ïß¶Î
-                    x_2=sum(xx_temp.^2);              % Çó¦²(xi^2)
-                    x_1=sum(xx_temp);                 % Çó¦²(xi)
-                    x_1y_1=sum(xx_temp.*yy_temp);     % Çó¦²(xi*yi)
-                    y_1=sum(yy_temp);                 % Çó¦²(yi)
+                    % ç”¨æœ€å°äºŒä¹˜æ³•æ‹Ÿåˆç›´çº¿æ®µ
+                    x_2=sum(xx_temp.^2);              % æ±‚Î£(xi^2)
+                    x_1=sum(xx_temp);                 % æ±‚Î£(xi)
+                    x_1y_1=sum(xx_temp.*yy_temp);     % æ±‚Î£(xi*yi)
+                    y_1=sum(yy_temp);                 % æ±‚Î£(yi)
 
-                    a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %½â³öÖ±ÏßĞ±ÂÊb=(y1-a*x1)/n
-                    b=(y_1-a*x_1)/n;                      %½â³öÖ±Ïß½Ø¾à
+                    a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %è§£å‡ºç›´çº¿æ–œç‡b=(y1-a*x1)/n
+                    b=(y_1-a*x_1)/n;                      %è§£å‡ºç›´çº¿æˆªè·
 
                     p(1) = a;
                     p(2) = b;
                 end
                 average_x = mean(xx_temp);
-                % µ±Ö±ÏßĞ±ÂÊ¹ı´ó£¬Ö±½Ó¼ÆËãxÖá×ø±ê²î¼´¿É
+                % å½“ç›´çº¿æ–œç‡è¿‡å¤§ï¼Œç›´æ¥è®¡ç®—xè½´åæ ‡å·®å³å¯
                 if ((p(1)>2000)||(isnan(p(1))))
                      for e = 1:size_temp
                         error(e) = abs(xx_temp(e) - average_x);
@@ -763,7 +763,7 @@ for f = 1:cluster_number
                     end
                     last_p = p;
                 else
-                    % µ±Ö±Ïß¶ÎÎó²î½Ï´óÊ±³öÏÖ×ªÕÛµã£¬¼ÆËã×ªÕÛµãÎ»ÖÃ
+                    % å½“ç›´çº¿æ®µè¯¯å·®è¾ƒå¤§æ—¶å‡ºç°è½¬æŠ˜ç‚¹ï¼Œè®¡ç®—è½¬æŠ˜ç‚¹ä½ç½®
                     turn_point = 0;
                     for e = 2:size_temp-1
                         if (error(e)>error(e-1)&&(error(e)>error(e+1))&&(error(e)>0.1))
@@ -780,11 +780,11 @@ for f = 1:cluster_number
                             end
                         end
                     end
-                    % ³£¹æ·½·¨Ã»ÓĞÕÒµ½ºÏÊÊµÄÕÛ¶Ïµã£¬¼´¿ÉÄÜµÚÒ»µãÎó²î½Ï´ó£¬»òÌØ±ğÌØÊâÎ»ÖÃÎó²î½Ï´ó£¬ÉèÎª1£¬µ¥¸öµã´¦Àí
+                    % å¸¸è§„æ–¹æ³•æ²¡æœ‰æ‰¾åˆ°åˆé€‚çš„æŠ˜æ–­ç‚¹ï¼Œå³å¯èƒ½ç¬¬ä¸€ç‚¹è¯¯å·®è¾ƒå¤§ï¼Œæˆ–ç‰¹åˆ«ç‰¹æ®Šä½ç½®è¯¯å·®è¾ƒå¤§ï¼Œè®¾ä¸º1ï¼Œå•ä¸ªç‚¹å¤„ç†
                     if (turn_point == 0)
                         turn_point = 1;
                     end
-                    % ´Ë´¦ĞŞ²¹Îó²î£¬µ±×ªÕÛµãÔÚ3¸öÒÔÉÏW_lineÊ±£¬ĞèÒªÎªxx»Ö¸´£¬¿ÉÒÔÖØĞÂÉè¼ÆxxÓëxx_temp¹ØÏµ
+                    % æ­¤å¤„ä¿®è¡¥è¯¯å·®ï¼Œå½“è½¬æŠ˜ç‚¹åœ¨3ä¸ªä»¥ä¸ŠW_lineæ—¶ï¼Œéœ€è¦ä¸ºxxæ¢å¤ï¼Œå¯ä»¥é‡æ–°è®¾è®¡xxä¸xx_tempå…³ç³»
                     if ((size_temp - turn_point)>= W_line)
                         for add = 1:(size_temp - turn_point - W_line)
                            xx = [xx_temp(size_temp +1 - add - W_line) xx];
@@ -800,7 +800,7 @@ for f = 1:cluster_number
                             zz(1) = [];                            
                         end
                     end
-                    % ½«×ªÕÛµãºóµÄµã´Óxx_tempÖĞÉ¾³ı
+                    % å°†è½¬æŠ˜ç‚¹åçš„ç‚¹ä»xx_tempä¸­åˆ é™¤
                     for delate = 1:size_temp-turn_point
                         xx_temp(size_temp-delate + 1) = [];
                         yy_temp(size_temp-delate + 1) = [];
@@ -810,13 +810,13 @@ for f = 1:cluster_number
                     
                     [one,size_temp] = size(xx_temp);
                     n = size_temp;
-                    % ¶Ô¸üĞÂ¹ıµÄµãÓÃ×îĞ¡¶ş³Ë·¨ÄâºÏÖ±Ïß¶Î
-                    x_2=sum(xx_temp.^2);              % Çó¦²(xi^2)
-                    x_1=sum(xx_temp);                 % Çó¦²(xi)
-                    x_1y_1=sum(xx_temp.*yy_temp);     % Çó¦²(xi*yi)
-                    y_1=sum(yy_temp);                 % Çó¦²(yi)
-                    a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %½â³öÖ±ÏßĞ±ÂÊb=(y1-a*x1)/n
-                    b=(y_1-a*x_1)/n;                      %½â³öÖ±Ïß½Ø¾à
+                    % å¯¹æ›´æ–°è¿‡çš„ç‚¹ç”¨æœ€å°äºŒä¹˜æ³•æ‹Ÿåˆç›´çº¿æ®µ
+                    x_2=sum(xx_temp.^2);              % æ±‚Î£(xi^2)
+                    x_1=sum(xx_temp);                 % æ±‚Î£(xi)
+                    x_1y_1=sum(xx_temp.*yy_temp);     % æ±‚Î£(xi*yi)
+                    y_1=sum(yy_temp);                 % æ±‚Î£(yi)
+                    a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %è§£å‡ºç›´çº¿æ–œç‡b=(y1-a*x1)/n
+                    b=(y_1-a*x_1)/n;                      %è§£å‡ºç›´çº¿æˆªè·
                     p(1) = a;
                     p(2) = b;
                 
@@ -824,7 +824,7 @@ for f = 1:cluster_number
                         
                         plot(xx_temp,yy_temp,'o',xx_temp,polyval(p,xx_temp));
                         hold on;
-                        % ¼ÇÂ¼Æ½ÃæµÄËÄ¸öµã×ø±ê²ÎÊı
+                        % è®°å½•å¹³é¢çš„å››ä¸ªç‚¹åæ ‡å‚æ•°
                         [one,size_temp] = size(xx_temp);
                         plane_x_min = [plane_x_min xx_temp(1)];
                         plane_x_max = [plane_x_max xx_temp(size_temp)];
@@ -862,13 +862,13 @@ for f = 1:cluster_number
                 hh_temp = [];
                 zz_temp = [];        
             end
-        % ÕÒ³öÎó²îeµÄ½Ø¶Ïµã£¬È»ºó½«Ïß¶Î·Ö¿ª£¬Ö®Ç°µÄ·ÖÎªÒ»¸ö£¬Ö®ºóµÄ·ÖÎªÒ»¸ö
+        % æ‰¾å‡ºè¯¯å·®eçš„æˆªæ–­ç‚¹ï¼Œç„¶åå°†çº¿æ®µåˆ†å¼€ï¼Œä¹‹å‰çš„åˆ†ä¸ºä¸€ä¸ªï¼Œä¹‹åçš„åˆ†ä¸ºä¸€ä¸ª
     end
     
 end
 
 figure(12);
-% »æÖÆ
+% ç»˜åˆ¶
 for s = 1:Stixel_number
     plot3([Stixel_result_x(s) Stixel_result_x(s)],[Stixel_result_y(s) Stixel_result_y(s)], ...
         [Stixel_result_h(s) Stixel_result_z(s)], 'LineWidth',2);

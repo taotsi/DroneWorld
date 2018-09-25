@@ -13,4 +13,3 @@ Put this repo beside Airsim dir, not inside. Then add this project to the AirSim
 - add necessary opencv libs
 - expose rpc server api
 - pack rpc client api
-- 商讨数据格式
