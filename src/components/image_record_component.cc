@@ -16,9 +16,9 @@ ImageRecordComponent::~ImageRecordComponent() {
     //       with thread_handle_  has stopped. 
 }
 void ImageRecordComponent::Begin() {
-	//client_.confirmConnection();
+	client_.confirmConnection();
     Behave();
-	//RetreiveFrame();
+	RetreiveFrame();
 }
 void ImageRecordComponent::Update(double DeltaTime) {
 	//RetreiveFrame();

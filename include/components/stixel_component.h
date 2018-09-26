@@ -13,6 +13,7 @@ public:
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
 	std::queue<std::vector<std::vector<float>>> kde_frame;
+	std::vector<std::vector<float>> frame_temp;
 private:
 	/* methods */
 	void Stixel();
@@ -21,8 +22,8 @@ private:
 	std::thread thread_handle_;
 	/* data */
 	int width = 640;
-	int height = 480;
-	int kde_width_ = 1000;
+	int height = 320;
+	int kde_width_ = 100;
 	int stixel_width = 7;
 	float base = 0.25;
 	float fov = 90;
