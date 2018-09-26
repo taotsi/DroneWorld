@@ -9,20 +9,20 @@ namespace fs = std::experimental::filesystem;
 
 ImageRecordComponent::ImageRecordComponent(){
 }
-
 ImageRecordComponent::~ImageRecordComponent() {
     std::cout << "ImageRecordComponent destroyed\n";
     is_busy_ = false;
     // TODO: wait until the thread associated 
     //       with thread_handle_  has stopped. 
 }
-
 void ImageRecordComponent::Begin() {
+	client_.confirmConnection();
     Behave();
 }
-
+void ImageRecordComponent::Update(double DeltaTime) {
+	RetreiveFrame();
+}
 void ImageRecordComponent::Record(bool save_as_file=false) {
-    client_.confirmConnection();
     typedef common_utils::FileSystem FileSystem;
 
     fs::path data_dir = ".\\DataSet\\Disparity";
@@ -71,7 +71,13 @@ void ImageRecordComponent::Record(bool save_as_file=false) {
 			std::chrono::milliseconds(500));
     }
 }
-
+void ImageRecordComponent::RetreiveFrame() {
+	std::vector<ImageRequest> request{
+		ImageRequest("0", ImageType::DisparityNormalized, true) };
+	const std::vector<ImageResponse> &response =
+		client_.simGetImages(request);
+	disparity_retreived_.push(response[0]);
+}
 void ImageRecordComponent::Behave() {
     is_busy_ = true;
     /*thread_handle_ = std::thread{ 

@@ -10,6 +10,7 @@ public:
 	std::queue<ImageResponse>* disparity_retreived_;
 private:
 	void Stixel();
+	void Kde();
 	void Behave();
 	std::thread thread_handle_;
 };

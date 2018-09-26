@@ -2,11 +2,11 @@
 #include <vector>
 
 struct Pillar {
-	double x_;
-	double y_;
-	double z1_;
-	double z2_;
-	double disp;
+	float x_;
+	float y_;
+	float z1_;
+	float z2_;
+	float disp;
 };
 class PillarStixel{
 public:
@@ -18,9 +18,9 @@ public:
 };
 
 struct Point3D {
-	double x_;
-	double y_;
-	double z_;
+	float x_;
+	float y_;
+	float z_;
 };
 struct Plane {
 	Point3D p_min_;
