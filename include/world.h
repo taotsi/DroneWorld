@@ -16,7 +16,8 @@ public:
     virtual ~World();
     void Loop();
     friend class Drone;
-
+	/* data */
+	static std::map<std::string, Drone*> drone_list_;
 	void test();
 
 private:
@@ -29,5 +30,5 @@ private:
     bool isDone = false;
     const std::chrono::duration<double, std::ratio<1, 1000>> MS_PER_UPDATE { 50.0 }; // in milliseconds
     friend class Drone;
-    static std::map<std::string, Drone*> drone_list_;
+    
 };

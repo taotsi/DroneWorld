@@ -26,8 +26,9 @@ public:
     static std::set<Drone*> drone_set_;
     void Begin();
     virtual void Update(double DeltaTime);
-private:
-    std::string name_;
+	/* data */
+	std::string name_;
+	/* components */
     std::unique_ptr<MovementComponent> movement_;
 	std::unique_ptr<ImageRecordComponent> image_record_;
 	std::unique_ptr<StixelComponent> stixel_;

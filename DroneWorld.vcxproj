@@ -736,6 +736,7 @@
     <ClInclude Include="include\components\image_process_component.h" />
     <ClInclude Include="include\components\image_record_component.h" />
     <ClInclude Include="include\components\movement_component.h" />
+    <ClInclude Include="include\math_utility.h" />
     <ClInclude Include="include\rpc_server.h" />
     <ClInclude Include="include\utility.h" />
     <ClInclude Include="include\world.h" />
@@ -744,6 +745,7 @@
     <None Include="deps\rpclib\include\rpc\client.inl" />
     <None Include="deps\rpclib\include\rpc\dispatcher.inl" />
     <None Include="deps\rpclib\include\rpc\this_handler.inl" />
+    <None Include="py_client\rpc_client.py" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{94EA17EE-430F-4FDB-93C0-E38FD8938928}</ProjectGuid>

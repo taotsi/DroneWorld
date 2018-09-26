@@ -16,11 +16,12 @@ ImageRecordComponent::~ImageRecordComponent() {
     //       with thread_handle_  has stopped. 
 }
 void ImageRecordComponent::Begin() {
-	client_.confirmConnection();
+	//client_.confirmConnection();
     Behave();
+	//RetreiveFrame();
 }
 void ImageRecordComponent::Update(double DeltaTime) {
-	RetreiveFrame();
+	//RetreiveFrame();
 }
 void ImageRecordComponent::Record(bool save_as_file=false) {
     typedef common_utils::FileSystem FileSystem;
@@ -77,6 +78,18 @@ void ImageRecordComponent::RetreiveFrame() {
 	const std::vector<ImageResponse> &response =
 		client_.simGetImages(request);
 	disparity_retreived_.push(response[0]);
+	/* test
+	float min = response[0].image_data_float[0];
+	float max = min;
+	for (int i = 0; i < response[0].width*response[0].height; i++) {
+		if (response[0].image_data_float[i] < min) {
+			min = response[0].image_data_float[i];
+		}
+		if (response[0].image_data_float[i] > max) {
+			max = response[0].image_data_float[i];
+		}
+	}
+	std::cout << min << "    " << max << "\n";*/
 }
 void ImageRecordComponent::Behave() {
     is_busy_ = true;
