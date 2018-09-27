@@ -12,7 +12,7 @@ Put this repo beside Airsim dir, not inside. Right-click the solution in vs2017 
 
 ## How to run
 
-run the built .exe and the python script in py_client/.
+First you have to run a Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
 
 ## Python Client
 
@@ -63,3 +63,4 @@ here are the steps to take for python users
 - add necessary opencv libs
 - expose rpc server api
 - pack rpc client api
+- a thread for input process
