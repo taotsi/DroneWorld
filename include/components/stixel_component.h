@@ -11,6 +11,7 @@ public:
 	std::vector<float> GetKde();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
+	// kde for disparity
 	std::queue<std::vector<std::vector<float>>> kde_frame_queue_;
 	std::queue<std::vector<std::vector<int>>> kde_peak_pos_frame_queue_;
 private:

@@ -10,15 +10,28 @@ StixelComponent::~StixelComponent() {
 
 }
 void StixelComponent::Begin() {
-	Kde(); // test
+	Stixel();
+	// test
+	if (!kde_peak_pos_frame_queue_.empty()) {
+		auto &peak = kde_peak_pos_frame_queue_.front()[45];
+		for (auto itr : peak) {
+			std::cout << "peak pos: " << itr << "  ";
+		}
+		std::cout << "\n";
+	}
+	else {
+		std::cout << "kde_peak_pos_frame_queue_ is empty\n";
+	}
 }
+
+
 void StixelComponent::Update(double DeltaTime) {
 
 }
 
 void StixelComponent::Stixel() {
 	Kde();
-	FindKdePeakPos();
+	FindKdePeakPos(0.5);
 }
 
 void StixelComponent::Kde() {
@@ -61,10 +74,10 @@ void StixelComponent::Kde() {
 }
 
 /* returns the position of peaks that meets certain conditions */
-void StixelComponent::FindKdePeakPos(float delta_y = 0.5) {
+void StixelComponent::FindKdePeakPos(float delta_y) {
 	if (!kde_frame_queue_.empty()) {
 		auto kde_frame = kde_frame_queue_.front();
-		kde_frame_queue_.pop();
+		//kde_frame_queue_.pop(); // don't pop now, still need it later
 		std::vector<std::vector<int>> kde_peak_pos_frame;
 		for (int i = 0; i < kde_frame.size(); i++) {
 			int prev_dir = 
@@ -80,15 +93,19 @@ void StixelComponent::FindKdePeakPos(float delta_y = 0.5) {
 					// b is baseline;
 					// kw is kde_width; 
 					// k is j here, or x-coordinate of kde;
-					// dmax is disparity max
+					// dmax is disparity max, = desp_max*width
 					if (kde_frame[i][j] * base_line_ * kde_width_ /
-						j / disp_max_ > 0.5) {
+						(j * (disp_max_ * width_)) > delta_y) {
 						kde_peak_pos.push_back(j);
 					}
 				}
 				prev_dir = temp_dir;
 			}
-			kde_peak_pos_frame.push_back(kde_peak_pos);
+			if (kde_peak_pos.empty()) {
+				kde_peak_pos_frame.push_back(std::vector<int>());
+			} else {
+				kde_peak_pos_frame.push_back(kde_peak_pos);
+			}
 		}
 		kde_peak_pos_frame_queue_.push(kde_peak_pos_frame);
 	}
