@@ -29,7 +29,7 @@
     <ClCompile Include="src\components\movement_component.cc" />
     <ClCompile Include="src\components\stixel_component.cc" />
     <ClCompile Include="src\drone.cc" />
-    <ClCompile Include="main.cc" />
+    <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\rpc_server.cc" />
     <ClCompile Include="src\utility.cc" />
     <ClCompile Include="src\world.cc" />
