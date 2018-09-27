@@ -1,12 +1,20 @@
 # Drone World
 
+[中文](./docs/readme_cn.md)
+
 ## Intro
 
 Simulation program for our lab's project, base on Airsim.
 
-Put this repo beside Airsim dir, not inside. Then add this project to the AirSim solution.
+## How to build
 
-## About Python Client
+Put this repo beside Airsim dir, not inside. Right-click the solution in vs2017 solution explorer, click "Add", find the .vcxproj file for this project and add it. Right-click this project in vs2017 solution explorer, click "Build". Remember to build this project(as well as the whole solution) in x64 mode.
+
+## How to run
+
+run the built .exe and the python script in py_client/.
+
+## Python Client
 
 all you need to checkout are `DroneWorld/src/rpc_server.cc` and `DroneWorld/py_client/rpc_client.py`. Here's a example:
 
@@ -31,18 +39,26 @@ plt.plot(kde)
 plt.show()
 ```
 
-here are the steps to take for python users:
+### Quick steps
 
-- run a airsim simulation program
-  which you can download in the Airsim github repo's releases.
-- run DroneWorld executable
+here are the steps to take for python users
+
+#### run a airsim simulation program
+
+ which you can download in the Airsim github repo's releases.
+ 
+#### run DroneWorld executable
+
   which you should build in advance in vs2017(x64, debug or release), find the exe file in build/
-- run your python programs
+  
+#### run your python scripts
+
   rpc_client.py for example
   code in rpc_client.py is not very elegant, I'll pack them in classes later.
 
 ## TODO
 
+- sliding-block filter(object detector)
 - thread competition for disparity queue and other queue
 - add necessary opencv libs
 - expose rpc server api
