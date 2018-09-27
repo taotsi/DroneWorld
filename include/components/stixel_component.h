@@ -8,12 +8,10 @@ public:
 	~StixelComponent();
 	void Update(double DeltaTime);
 	void Begin();
-	std::vector<float> GetKde(int pos);
-	int test() { return 42; };
+	std::vector<float> GetKde();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
-	std::queue<std::vector<std::vector<float>>> kde_frame;
-	std::vector<std::vector<float>> frame_temp;
+	std::queue<std::vector<std::vector<float>>> kde_frame_queue_;
 private:
 	/* methods */
 	void Stixel();
@@ -21,15 +19,15 @@ private:
 	void Behave();
 	std::thread thread_handle_;
 	/* data */
-	int width = 640;
-	int height = 320;
-	int kde_width_ = 100;
-	int stixel_width = 7;
-	float base = 0.25;
-	float fov = 90;
+	int width_ = 640;
+	int height_ = 320;
+	int kde_width_ = 1000;
+	int stixel_width_ = 7;
+	float base_ = 0.25;
+	float fov_ = 90;
 	// normalized disparity
-	float disp_max = 0.25f;   // 0.5m
-	float disp_min = 0.0625f; // 20m
+	float disp_max_ = 0.25f;   // 0.5m
+	float disp_min_ = 0.00625f; // 20m
 
 
 	std::vector<float> W17_GAUSS =

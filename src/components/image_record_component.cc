@@ -24,21 +24,21 @@ void ImageRecordComponent::Update(double DeltaTime) {
 	//RetreiveFrame();
 }
 void ImageRecordComponent::Record(bool save_as_file=false) {
-    typedef common_utils::FileSystem FileSystem;
+	if (save_as_file) {
+		typedef common_utils::FileSystem FileSystem;
 
-    fs::path data_dir = ".\\DataSet\\Disparity";
-    fs::create_directories(data_dir);
-    fs::path index_file_path = ".\\DataSet\\index.txt";
-    if (fs::exists(index_file_path)) {
-        fs::remove(index_file_path);
-    }
-    std::fstream index_file(index_file_path,
-        std::ios::out | std::ios::app);
-
-    std::vector<ImageRequest> request{ 
-        ImageRequest("0", ImageType::DisparityNormalized, true) };
-    int index = 0;
-    
+		fs::path data_dir = ".\\DataSet\\Disparity";
+		fs::create_directories(data_dir);
+		fs::path index_file_path = ".\\DataSet\\index.txt";
+		if (fs::exists(index_file_path)) {
+			fs::remove(index_file_path);
+		}
+		std::fstream index_file(index_file_path,
+			std::ios::out | std::ios::app);
+	}
+	std::vector<ImageRequest> request{
+			ImageRequest("0", ImageType::DisparityNormalized, true) };
+	int index = 0;
     while (is_busy_) {
         const std::vector<ImageResponse> &response =
             client_.simGetImages(request); 
@@ -67,9 +67,6 @@ void ImageRecordComponent::Record(bool save_as_file=false) {
 			++index;
 		}
 		disparity_retreived_.push(response[0]);
-		// temporary test
-		std::this_thread::sleep_for(
-			std::chrono::milliseconds(500));
     }
 }
 void ImageRecordComponent::RetreiveFrame() {
@@ -78,18 +75,6 @@ void ImageRecordComponent::RetreiveFrame() {
 	const std::vector<ImageResponse> &response =
 		client_.simGetImages(request);
 	disparity_retreived_.push(response[0]);
-	/* test
-	float min = response[0].image_data_float[0];
-	float max = min;
-	for (int i = 0; i < response[0].width*response[0].height; i++) {
-		if (response[0].image_data_float[i] < min) {
-			min = response[0].image_data_float[i];
-		}
-		if (response[0].image_data_float[i] > max) {
-			max = response[0].image_data_float[i];
-		}
-	}
-	std::cout << min << "    " << max << "\n";*/
 }
 void ImageRecordComponent::Behave() {
     is_busy_ = true;

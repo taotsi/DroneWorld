@@ -41,15 +41,6 @@ void World::Begin() {
 }
 
 void World::Update(double DeltaTime) {
-    //int min = 200;
-    //int max = 800;
-    //std::random_device rd;     // only used once to initialise (seed) engine
-    //std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-    //std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
-    //int randint = uni(rng);
-
-    //std::this_thread::sleep_for(std::chrono::milliseconds(randint));
-    //std::cout << randint << "ms, update\n";
     if (drone_list_.empty()) {
         std::cout << "No drones in drone_map_!\n";
     } else {
@@ -66,7 +57,3 @@ void World::SpawnDrones() {
 
 std::map<std::string, Drone*> World::drone_list_ = 
 	std::map<std::string, Drone*>();
-
-void World::test() {
-	std::cout << "server test\n";
-}
