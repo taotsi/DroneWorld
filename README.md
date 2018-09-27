@@ -12,7 +12,7 @@ Put this repo beside Airsim dir, not inside. Right-click the solution in vs2017 
 
 ## How to run
 
-First you have to run a Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
+First you have to run an Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
 
 ## Python Client
 
