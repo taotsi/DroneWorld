@@ -41,11 +41,11 @@ struct EulerAngle {
 			1 - 2*quat.x_*quat.x_ - 2*quat.y_*quat.y_);
 
 	};
+	/* data */
 	double pitch_ = 0.0;
 	double yaw_ = 0.0;
 	double roll_ = 0.0;
 };
-
 struct ScaledDisparityFrame {
 	ScaledDisparityFrame() {};
 	ScaledDisparityFrame(
@@ -53,9 +53,11 @@ struct ScaledDisparityFrame {
 		SetPosition(position);
 		SetEulerAngle(quaternion);
 	}
+	/* data */
 	std::vector<std::vector<double>> data_;
 	Point3D pos_camera_;
 	EulerAngle angle_camera_;
+	/* methods */
 	void PushStixel(std::vector<double> stixel) {
 		data_.push_back(stixel);
 	};
@@ -73,6 +75,7 @@ struct KdePeak {
 		p_world_.y_ = y;
 		pos_ = pos;
 	};
+	/* data */
 	//Point2D p_camera_;
 	Point2D p_world_;
 	// pos in a scaled disparity frame

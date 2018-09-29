@@ -59,12 +59,19 @@ void StixelComponent::Kde() {
 	// TODO: if roll != 0, correction needs to be done
 	// won't check out if disparity_retreived_ is empty
 	auto frame_raw = disparity_retreived_->front();
-	// TODO: add position and euler angle to frame_raw
 	disparity_retreived_->pop();
-	
-
-
-	ScaledDisparityFrame frame_scaled;
+	// retreive data for frame_scaled
+	// wrong matching
+	double pos_x = frame_raw.camera_position.y;
+	double pos_y = frame_raw.camera_position.x;
+	double pos_z = - frame_raw.camera_position.z;
+	Point3D pos_camera{ pos_x, pos_y, pos_z };
+	double quat_w = frame_raw.camera_orientation.w;
+	double quat_x = frame_raw.camera_orientation.x;
+	double quat_y = frame_raw.camera_orientation.y;
+	double quat_z = frame_raw.camera_orientation.z;
+	Quaternion angle_camera{ quat_w, quat_x, quat_y, quat_z };
+	ScaledDisparityFrame frame_scaled{ pos_camera, angle_camera };
 	int i_start = stixel_width_ / 2;
 	for (int i = i_start; i < width_; i += stixel_width_) {
 		std::vector<double> stixel;
@@ -173,10 +180,10 @@ Point3D StixelComponent::TransformAirsimCoor(
 Point3D StixelComponent::GetCameraCoor(
 	double disp_normalized, int x_pixel_scaled, int y_pixel) {
 	Point3D p_camera;
-	double focus = baseline_ / (disp_normalized * 2 * tan(fov_/2));
-	p_camera.y_ = focus * baseline_ / (disp_normalized * width_);
+	double focus = baseline_ / (2*disp_normalized*tan(fov_/2));
+	p_camera.y_ = focus*baseline_ / (disp_normalized*width_);
 	p_camera.z_ = (y_pixel - height_/2) * p_camera.y_ / focus;
-	int x_pixel = stixel_width_ * (x_pixel_scaled) + stixel_width_/2;
+	int x_pixel = stixel_width_*x_pixel_scaled + stixel_width_/2;
 	p_camera.x_ = (x_pixel - width_/2) * p_camera.y_ / focus;
 	return p_camera;
 }
