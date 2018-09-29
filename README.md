@@ -8,11 +8,15 @@ Simulation program for our lab's project, base on Airsim.
 
 ## How to build
 
-Put this repo beside Airsim dir, not inside. Right-click the solution in vs2017 solution explorer, click "Add", find the .vcxproj file for this project and add it. Right-click this project in vs2017 solution explorer, click "Build". Remember to build this project(as well as the whole solution) in x64 mode.
+Put this repo beside the Airsim directory, not inside! Right-click the solution in vs2017 solution explorer, click "Add", find the .vcxproj file for this project and add it. Right-click this project in vs2017 solution explorer, click "Build". Remember to build this project(as well as the whole solution) in x64 mode.
 
 ## How to run
 
 First you have to run an Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
+
+## How to checkout the code
+
+For start, see for all the code inside `Begin()` and `Update()` in each classes. Most work is done in various component classes, checkout them and go to `Begin()` and `Update()` first. Then you'll know what to look at next. The code is a mess, sorry~
 
 ## Python Client
 
@@ -54,6 +58,7 @@ here are the steps to take for python users
 #### run your python scripts
 
   rpc_client.py for example
+  
   code in rpc_client.py is not very elegant, I'll pack them in classes later.
 
 ## TODO
@@ -61,7 +66,6 @@ here are the steps to take for python users
 - roll correction for disparity frame
 - sliding-block filter(object detector)
 - thread competition for disparity queue and other queue
-- add necessary opencv libs
-- expose rpc server api
+- add necessary opencv libs if needed
 - pack rpc client api
 - a thread for input process
