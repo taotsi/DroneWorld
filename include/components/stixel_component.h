@@ -4,17 +4,21 @@
 class StixelComponent :public BaseComponent {
 public:
 	/* methods */
-	StixelComponent(std::queue<ImageResponse>* disparity_retreived);
+	StixelComponent(
+		std::queue<ImageResponse>* disparity_retreived);
 	~StixelComponent();
 	void Update(double DeltaTime);
 	void Begin();
 	std::vector<double> GetKde();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
-	std::queue<ScaledDisparityFrame> scaled_disparity_frame_queue_;
+	std::queue<ScaledDisparityFrame> 
+		scaled_disparity_frame_queue_;
 	// kde for disparity
-	std::queue<std::vector<std::vector<double>>> kde_frame_queue_;
-	std::queue<std::vector<std::vector<KdePeak>>> kde_peak_pos_frame_queue_;
+	std::queue<std::vector<std::vector<double>>> 
+		kde_frame_queue_;
+	std::queue<std::vector<std::vector<KdePeak>>> 
+		kde_peak_pos_frame_queue_;
 private:
 	/* methods */
 	void Stixel();
@@ -22,7 +26,8 @@ private:
 	void FindKdePeakPos(float delta_y = 0.5);
 	void DetectObject();
 	Point3D TransformAirsimCoor(double x, double y, double z);
-	Point3D GetCameraCoor(double disp_normalized, int x_pixel_scaled, int y_pixel);
+	Point3D GetCameraCoor(
+		double disp_normalized, int x_pixel_scaled, int y_pixel);
 	Point3D CameraToWorldCoor(
 		Point3D  camera_pos, Point3D p_camera, EulerAngle angle);
 	void Behave();

@@ -18,6 +18,8 @@ typedef ImageCaptureBase::ImageRequest ImageRequest;
 typedef ImageCaptureBase::ImageResponse ImageResponse;
 typedef ImageCaptureBase::ImageType ImageType;
 
+using namespace droneworld;
+
 class BaseComponent {
 public:
     BaseComponent();

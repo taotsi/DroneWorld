@@ -61,6 +61,9 @@ void StixelComponent::Kde() {
 	auto frame_raw = disparity_retreived_->front();
 	// TODO: add position and euler angle to frame_raw
 	disparity_retreived_->pop();
+	
+
+
 	ScaledDisparityFrame frame_scaled;
 	int i_start = stixel_width_ / 2;
 	for (int i = i_start; i < width_; i += stixel_width_) {
@@ -142,11 +145,12 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 void StixelComponent::DetectObject() {
 	// won't check out if either scaled_disparity_frame_queue_
 	// or kde_peak_pos_frame_queue_ is empty
-	auto stixel_scaled_frame = scaled_disparity_frame_queue_.front();
+	auto scaled_disparity_frame =
+		scaled_disparity_frame_queue_.front();
 	scaled_disparity_frame_queue_.pop();
 	auto kde_peak_pos_frame = kde_peak_pos_frame_queue_.front();
 	kde_peak_pos_frame_queue_.pop();
-	auto n_stixel = stixel_scaled_frame.size();
+	auto n_stixel = scaled_disparity_frame.data_.size();
 	for (int i = 0; i < n_stixel; i++) {
 
 	}
