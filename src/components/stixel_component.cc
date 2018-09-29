@@ -17,13 +17,14 @@ StixelComponent::StixelComponent
 		0.00678462 / width_ };
 	fov_ = PI / 4;
 }
+
 StixelComponent::~StixelComponent() {
 
 }
+
 void StixelComponent::Begin() {
 	Stixel();
 }
-
 
 void StixelComponent::Update(double DeltaTime) {
 
@@ -61,15 +62,14 @@ void StixelComponent::Kde() {
 	auto frame_raw = disparity_retreived_->front();
 	disparity_retreived_->pop();
 	// retreive data for frame_scaled
-	// wrong matching
-	double pos_x = frame_raw.camera_position.y;
-	double pos_y = frame_raw.camera_position.x;
-	double pos_z = - frame_raw.camera_position.z;
+	double pos_x = frame_raw.camera_position.y();
+	double pos_y = frame_raw.camera_position.x();
+	double pos_z = - frame_raw.camera_position.z();
 	Point3D pos_camera{ pos_x, pos_y, pos_z };
-	double quat_w = frame_raw.camera_orientation.w;
-	double quat_x = frame_raw.camera_orientation.x;
-	double quat_y = frame_raw.camera_orientation.y;
-	double quat_z = frame_raw.camera_orientation.z;
+	double quat_w = frame_raw.camera_orientation.w();
+	double quat_x = frame_raw.camera_orientation.x();
+	double quat_y = frame_raw.camera_orientation.y();
+	double quat_z = frame_raw.camera_orientation.z();
 	Quaternion angle_camera{ quat_w, quat_x, quat_y, quat_z };
 	ScaledDisparityFrame frame_scaled{ pos_camera, angle_camera };
 	int i_start = stixel_width_ / 2;
@@ -130,8 +130,10 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 				// dmax is disparity max, = disp_max * width_
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > delta_y) {
-					auto x_airsim = 
-					kde_peak_pos.push_back(j);
+
+					// TODO:
+
+					//kde_peak_pos.push_back(j);
 				}
 			}
 			prev_dir = temp_dir;
@@ -139,12 +141,71 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 		if (kde_peak_pos.empty()) {
 			kde_peak_pos_frame.push_back(
 				std::vector<KdePeak>());
-		}
-		else {
+		} else {
 			kde_peak_pos_frame.push_back(kde_peak_pos);
 		}
 	}
 	kde_peak_pos_frame_queue_.push(kde_peak_pos_frame);
+}
+
+/*
+our coordinate system:
+z
+| y
+|/
+0----x
+yet in Airsim, +X is North, +Y is East and +Z is Down(NED system)
+ours is also different with dual-camera's coordinate
+*/
+Point3D StixelComponent::TransformAirsimCoor(
+	double x, double y, double z) {
+	return Point3D{ y, x, -z };
+}
+
+Point3D StixelComponent::GetCameraCoor(
+	double disp_normalized, int x_pixel_scaled, int y_pixel) {
+	Point3D p_camera;
+	double focus = baseline_ / (2 * disp_normalized*tan(fov_ / 2));
+	p_camera.y_ = focus * baseline_ / (disp_normalized*width_);
+	p_camera.z_ = (y_pixel - height_ / 2) * p_camera.y_ / focus;
+	int x_pixel = stixel_width_ * x_pixel_scaled + stixel_width_ / 2;
+	p_camera.x_ = (x_pixel - width_ / 2) * p_camera.y_ / focus;
+	return p_camera;
+}
+
+/* returns world coordinate position */
+// use rad instead of degree
+Point3D StixelComponent::CameraToWorldCoor(
+	Point3D camera_pos, Point3D p_camera, EulerAngle angle) {
+	Point3D p_world;
+	double cos_theta = cos(angle.roll_);
+	double sin_theta = sin(angle.roll_);
+	double cos_omega = cos(angle.yaw_);
+	double sin_omega = sin(angle.yaw_);
+	double cos_phi = cos(angle.pitch_);
+	double sin_phi = sin(angle.pitch_);
+	// rotation
+	p_world.x_ =
+		p_camera.x_ * (cos_theta * cos_omega
+			- sin_theta * sin_phi * sin_omega)
+		- p_camera.y_ * (sin_theta * sin_phi)
+		- p_camera.z_ * (cos_theta * sin_omega
+			+ sin_theta * sin_phi*cos_omega);
+	p_world.y_ =
+		p_camera.x_ * (sin_theta * cos_omega
+			+ sin_omega * cos_theta*sin_phi)
+		+ p_camera.y_ * (cos_theta * cos_phi)
+		+ p_camera.z_ * (-sin_theta * sin_omega
+			+ cos_theta * sin_phi * cos_omega);
+	p_world.y_ =
+		p_camera.x_ * (sin_omega * cos_phi)
+		- p_camera.y_ * (sin_phi)
+		+p_camera.z_ * (cos_phi * cos_omega);
+	// translation
+	p_world.x_ += camera_pos.x_;
+	p_world.y_ += camera_pos.y_;
+	p_world.z_ += camera_pos.z_;
+	return p_world;
 }
 
 /* Sliding-block filter */
@@ -161,66 +222,6 @@ void StixelComponent::DetectObject() {
 	for (int i = 0; i < n_stixel; i++) {
 
 	}
-}
-
-/*
-our coordinate system:
-z
-| y
-|/
-0----x
-yet in Airsim, +X is North, +Y is East and +Z is Down
-ours is also different with dual-camera's coordinate
-*/
-Point3D StixelComponent::TransformAirsimCoor(
-	double x, double y, double z) {
-	return Point3D{ y, x, -z };
-}
-
-Point3D StixelComponent::GetCameraCoor(
-	double disp_normalized, int x_pixel_scaled, int y_pixel) {
-	Point3D p_camera;
-	double focus = baseline_ / (2*disp_normalized*tan(fov_/2));
-	p_camera.y_ = focus*baseline_ / (disp_normalized*width_);
-	p_camera.z_ = (y_pixel - height_/2) * p_camera.y_ / focus;
-	int x_pixel = stixel_width_*x_pixel_scaled + stixel_width_/2;
-	p_camera.x_ = (x_pixel - width_/2) * p_camera.y_ / focus;
-	return p_camera;
-}
-
-/* returns world coordinate position */
-// use rad instead of degree
-Point3D StixelComponent::CameraToWorldCoor(
-	Point3D camera_pos, Point3D p_camera, EulerAngle angle) {
-	Point3D p_world;
-	double cos_theta = cos(angle.roll_);
-	double sin_theta = sin(angle.roll_);
-	double cos_omega = cos(angle.yaw_);
-	double sin_omega = sin(angle.yaw_);
-	double cos_phi = cos(angle.pitch_);
-	double sin_phi = sin(angle.pitch_);
-	// rotation
-	p_world.x_ = 
-		p_camera.x_ * (cos_theta * cos_omega 
-			- sin_theta * sin_phi * sin_omega) 
-		- p_camera.y_ * (sin_theta * sin_phi) 
-		- p_camera.z_ * (cos_theta * sin_omega 
-			+ sin_theta*sin_phi*cos_omega);
-	p_world.y_ =
-		p_camera.x_ * (sin_theta * cos_omega 
-			+ sin_omega * cos_theta*sin_phi)
-		+ p_camera.y_ * (cos_theta * cos_phi)
-		+ p_camera.z_ * (- sin_theta * sin_omega 
-			+ cos_theta * sin_phi * cos_omega);
-	p_world.y_ =
-		p_camera.x_ * (sin_omega * cos_phi)
-		- p_camera.y_ * (sin_phi)
-		+ p_camera.z_ * (cos_phi * cos_omega);
-	// translation
-	p_world.x_ += camera_pos.x_;
-	p_world.y_ += camera_pos.y_;
-	p_world.z_ += camera_pos.z_;
-	return p_world;
 }
 
 void StixelComponent::Behave() {

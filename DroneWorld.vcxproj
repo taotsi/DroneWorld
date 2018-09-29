@@ -731,7 +731,7 @@
     <ClInclude Include="include\components\communication_component.h" />
     <ClInclude Include="include\components\base_component.h" />
     <ClInclude Include="include\components\stixel_component.h" />
-    <ClInclude Include="include\data_structure.h" />
+    <ClInclude Include="include\data_type.h" />
     <ClInclude Include="include\drone.h" />
     <ClInclude Include="include\components\image_process_component.h" />
     <ClInclude Include="include\components\image_record_component.h" />
