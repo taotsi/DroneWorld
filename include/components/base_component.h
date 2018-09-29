@@ -12,7 +12,7 @@ STRICT_MODE_ON
 #include "common/common_utils/FileSystem.hpp"
 #include <thread>
 #include "utility.h"
-#include "data_structure.h"
+#include "data_type.h"
 
 typedef ImageCaptureBase::ImageRequest ImageRequest;
 typedef ImageCaptureBase::ImageResponse ImageResponse;

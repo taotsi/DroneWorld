@@ -32,7 +32,7 @@ void StixelComponent::Update(double DeltaTime) {
 void StixelComponent::Stixel() {
 	if (!disparity_retreived_->empty()) {
 		// POP	disparity_retreived_; 
-		// PUSH stixel_scaled_frame_queue_
+		// PUSH scaled_disparity_frame_queue_
 		// PUSH kde_frame_queue_
 		Kde();				
 	}
@@ -41,10 +41,10 @@ void StixelComponent::Stixel() {
 		FindKdePeakPos(0.5);
 	}
 	if (!kde_frame_queue_.empty()
-		&& !stixel_scaled_frame_queue_.empty()
+		&& !scaled_disparity_frame_queue_.empty()
 		&& !kde_peak_pos_frame_queue_.empty()) {
 		// POP	kde_frame_queue_
-		// POP	stixel_scaled_frame_queue_
+		// POP	scaled_disparity_frame_queue_
 		// POP	kde_peak_pos_frame_queue_
 		// PUSH ??
 		DetectObject();
@@ -59,28 +59,29 @@ void StixelComponent::Kde() {
 	// TODO: if roll != 0, correction needs to be done
 	// won't check out if disparity_retreived_ is empty
 	auto frame_raw = disparity_retreived_->front();
+	// TODO: add position and euler angle to frame_raw
 	disparity_retreived_->pop();
-	std::vector<std::vector<double>> frame_scaled;
+	ScaledDisparityFrame frame_scaled;
 	int i_start = stixel_width_ / 2;
 	for (int i = i_start; i < width_; i += stixel_width_) {
-		std::vector<double> pix_col;
+		std::vector<double> stixel;
 		for (int j = 0; j < height_; j++) {
 			double pix_val = frame_raw.
 				image_data_float[j*width_ + i];
-			pix_col.push_back(pix_val);
+			stixel.push_back(pix_val);
 		}
-		frame_scaled.push_back(pix_col);
+		frame_scaled.PushStixel(stixel);
 	}
-	stixel_scaled_frame_queue_.push(frame_scaled);
+	scaled_disparity_frame_queue_.push(frame_scaled);
 	/* kernel density estimate */
 	std::vector<std::vector<double>> temp_frame;
-	for (int i = 0; i < frame_scaled.size(); i++) {
+	for (int i = 0; i < frame_scaled.data_.size(); i++) {
 		std::vector<double> temp_stixel(kde_width_, 0);
 		for (int j = 0; j < height_; j++) {
-			if (frame_scaled[i][j] <= disp_max_ &&
-				frame_scaled[i][j] >= disp_min_) {
+			if (frame_scaled.data_[i][j] <= disp_max_ &&
+				frame_scaled.data_[i][j] >= disp_min_) {
 				int kde_val = static_cast<int>(
-					frame_scaled[i][j] * kde_width_ / disp_max_);
+					frame_scaled.data_[i][j] * kde_width_ / disp_max_);
 				for (int k = 0; k < 17; k++) {
 					if (kde_val - 8 >= 0 &&
 						kde_val + 8 <= kde_width_ - 1) {
@@ -101,12 +102,12 @@ void StixelComponent::Kde() {
 void StixelComponent::FindKdePeakPos(float delta_y) {
 	// won't check out if kde_frame_queue_ is empty
 	auto kde_frame = kde_frame_queue_.front();
-	std::vector<std::vector<int>> kde_peak_pos_frame;
+	std::vector<std::vector<KdePeak>> kde_peak_pos_frame;
 	for (int i = 0; i < kde_frame.size(); i++) {
 		// 1 for ascending and -1 for descending
 		int prev_dir =
 			kde_frame[i][1] > kde_frame[i][0] ? 1 : -1;
-		std::vector<int> kde_peak_pos;
+		std::vector<KdePeak> kde_peak_pos;
 		for (int j = 1; j < kde_width_ - 1; j++) {
 			int temp_dir =
 				kde_frame[i][j + 1] > kde_frame[i][j] ? 1 : -1;
@@ -119,13 +120,15 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 				// dmax is disparity max, = disp_max * width_
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > delta_y) {
+					auto x_airsim = 
 					kde_peak_pos.push_back(j);
 				}
 			}
 			prev_dir = temp_dir;
 		}
 		if (kde_peak_pos.empty()) {
-			kde_peak_pos_frame.push_back(std::vector<int>());
+			kde_peak_pos_frame.push_back(
+				std::vector<KdePeak>());
 		}
 		else {
 			kde_peak_pos_frame.push_back(kde_peak_pos);
@@ -137,10 +140,10 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 /* Sliding-block filter */
 // do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::DetectObject() {
-	// won't check out if either stixel_scaled_frame_queue_
+	// won't check out if either scaled_disparity_frame_queue_
 	// or kde_peak_pos_frame_queue_ is empty
-	auto stixel_scaled_frame = stixel_scaled_frame_queue_.front();
-	stixel_scaled_frame_queue_.pop();
+	auto stixel_scaled_frame = scaled_disparity_frame_queue_.front();
+	scaled_disparity_frame_queue_.pop();
 	auto kde_peak_pos_frame = kde_peak_pos_frame_queue_.front();
 	kde_peak_pos_frame_queue_.pop();
 	auto n_stixel = stixel_scaled_frame.size();

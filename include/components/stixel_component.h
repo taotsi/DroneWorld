@@ -11,10 +11,10 @@ public:
 	std::vector<double> GetKde();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
-	std::queue<std::vector<std::vector<double>>> stixel_scaled_frame_queue_;
+	std::queue<ScaledDisparityFrame> scaled_disparity_frame_queue_;
 	// kde for disparity
 	std::queue<std::vector<std::vector<double>>> kde_frame_queue_;
-	std::queue<std::vector<std::vector<int>>> kde_peak_pos_frame_queue_;
+	std::queue<std::vector<std::vector<KdePeak>>> kde_peak_pos_frame_queue_;
 private:
 	/* methods */
 	void Stixel();
