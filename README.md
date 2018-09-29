@@ -58,6 +58,10 @@ here are the steps to take for python users
 
 ## TODO
 
+- roll correction for disparity frame
+- ImageResponse returns position and Quaternionr, save them
+- struct for kde peak, including peak_pos and world position(x and y)
+- coordinate transform
 - sliding-block filter(object detector)
 - thread competition for disparity queue and other queue
 - add necessary opencv libs
