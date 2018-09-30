@@ -62,10 +62,11 @@ void StixelComponent::Kde() {
 	auto frame_raw = disparity_retreived_->front();
 	disparity_retreived_->pop();
 	// retreive data for frame_scaled
-	double pos_x = frame_raw.camera_position.y();
-	double pos_y = frame_raw.camera_position.x();
-	double pos_z = - frame_raw.camera_position.z();
-	Point3D pos_camera{ pos_x, pos_y, pos_z };
+    Point3D pos_camera = TransformAirsimCoor(
+        frame_raw.camera_position.x(),
+        frame_raw.camera_position.y(),
+        frame_raw.camera_position.z()
+    );
 	double quat_w = frame_raw.camera_orientation.w();
 	double quat_x = frame_raw.camera_orientation.x();
 	double quat_y = frame_raw.camera_orientation.y();
@@ -124,14 +125,22 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 			if (prev_dir == 1 && temp_dir == -1) {
 				// y = yl * b * kw / k / dmax,
 				// y is physical vertical length
-				// yl is pixel quantity, aka y-coordinate of kde; 
+				// yl is the y-coordinate value of kde; 
 				// b is baseline; kw is kde_width; 
 				// k is j here, or x-coordinate of kde;
 				// dmax is disparity max, = disp_max * width_
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > delta_y) {
-
-					// TODO:
+                    Point3D p_camera = GetCameraCoor(
+                        j/kde_width_*disp_max_, i, height_/2
+                    );
+                    Point3D p_world = CameraToWorldCoor(
+                        scaled_disparity_frame_queue_.front().pos_camera_,
+                        p_camera,
+                        scaled_disparity_frame_queue_.front().angle_camera_
+                    );
+                    scaled_disparity_frame_queue_.pop();
+                    KdePeak peak{p_world.x_, p_world.y_, j};
 
 					//kde_peak_pos.push_back(j);
 				}
@@ -163,11 +172,11 @@ Point3D StixelComponent::TransformAirsimCoor(
 }
 
 Point3D StixelComponent::GetCameraCoor(
-	double disp_normalized, int x_pixel_scaled, int y_pixel) {
+	double disp_normalized, int x_pixel_scaled, int z_pixel) {
 	Point3D p_camera;
 	double focus = baseline_ / (2 * disp_normalized*tan(fov_ / 2));
 	p_camera.y_ = focus * baseline_ / (disp_normalized*width_);
-	p_camera.z_ = (y_pixel - height_ / 2) * p_camera.y_ / focus;
+	p_camera.z_ = (z_pixel - height_ / 2) * p_camera.y_ / focus;
 	int x_pixel = stixel_width_ * x_pixel_scaled + stixel_width_ / 2;
 	p_camera.x_ = (x_pixel - width_ / 2) * p_camera.y_ / focus;
 	return p_camera;
@@ -176,7 +185,7 @@ Point3D StixelComponent::GetCameraCoor(
 /* returns world coordinate position */
 // use rad instead of degree
 Point3D StixelComponent::CameraToWorldCoor(
-	Point3D camera_pos, Point3D p_camera, EulerAngle angle) {
+	Point3D &pos_camera, Point3D &p_camera, EulerAngle &angle) {
 	Point3D p_world;
 	double cos_theta = cos(angle.roll_);
 	double sin_theta = sin(angle.roll_);
@@ -202,9 +211,9 @@ Point3D StixelComponent::CameraToWorldCoor(
 		- p_camera.y_ * (sin_phi)
 		+p_camera.z_ * (cos_phi * cos_omega);
 	// translation
-	p_world.x_ += camera_pos.x_;
-	p_world.y_ += camera_pos.y_;
-	p_world.z_ += camera_pos.z_;
+	p_world.x_ += pos_camera.x_;
+	p_world.y_ += pos_camera.y_;
+	p_world.z_ += pos_camera.z_;
 	return p_world;
 }
 

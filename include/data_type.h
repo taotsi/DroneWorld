@@ -15,7 +15,7 @@ struct Point3D {
 	Point3D() {};
 	Point3D(double x, double y, double z)
 		: x_(x), y_(y), z_(z) {};
-	Point3D(Point2D p, double z)
+	Point3D(Point2D &p, double z)
 		:x_(p.x_), y_(p.y_), z_(z) {};
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -33,7 +33,7 @@ struct EulerAngle {
 	EulerAngle() {};
 	EulerAngle(double pitch, double yaw, double roll)
 		: pitch_(pitch), yaw_(yaw), roll_(roll) {};
-	EulerAngle(Quaternion quat) {
+	EulerAngle(Quaternion &quat) {
 		pitch_ = asin(2*quat.w_*quat.y_ - 2*quat.x_*quat.z_);
 		yaw_ = atan2(2 * quat.w_*quat.z_,
 			1 - 2 * quat.y_*quat.y_ - 2 * quat.z_*quat.z_);
@@ -49,7 +49,7 @@ struct EulerAngle {
 struct ScaledDisparityFrame {
 	ScaledDisparityFrame() {};
 	ScaledDisparityFrame(
-		Point3D position, Quaternion quaternion) {
+		Point3D &position, Quaternion &quaternion) {
 		SetPosition(position);
 		SetEulerAngle(quaternion);
 	}
@@ -61,10 +61,10 @@ struct ScaledDisparityFrame {
 	void PushStixel(std::vector<double> stixel) {
 		data_.push_back(stixel);
 	};
-	void SetPosition(Point3D position) {
+	void SetPosition(Point3D &position) {
 		pos_camera_ = position;
 	};
-	void SetEulerAngle(Quaternion quaternion) {
+	void SetEulerAngle(Quaternion &quaternion) {
 		angle_camera_ = EulerAngle(quaternion);
 	};
 };
@@ -75,6 +75,8 @@ struct KdePeak {
 		p_world_.y_ = y;
 		pos_ = pos;
 	};
+    KdePeak(Point2D p, int pos)
+        : p_world_(p), pos_(pos) {};
 	/* data */
 	//Point2D p_camera_;
 	Point2D p_world_;

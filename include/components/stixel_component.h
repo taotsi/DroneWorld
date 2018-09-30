@@ -29,7 +29,7 @@ private:
 	Point3D GetCameraCoor(
 		double disp_normalized, int x_pixel_scaled, int y_pixel);
 	Point3D CameraToWorldCoor(
-		Point3D  camera_pos, Point3D p_camera, EulerAngle angle);
+		Point3D  &camera_pos, Point3D &p_camera, EulerAngle &angle);
 	void Behave();
 	std::thread thread_handle_;
 	/* data */
