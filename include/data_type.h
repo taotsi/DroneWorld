@@ -82,6 +82,15 @@ struct KdePeak {
 	Point2D p_world_;
 	// pos in a scaled disparity frame
 	int pos_ = 0;
+    int window_left_ = 0;
+    int window_right_ = 0;
+    int windoe_height_ = 1;
+    /* methods */
+    void SetWindow(int left, int right, int height){
+        window_left_ = left;
+        window_right_ = right;
+        windoe_height_ = height;
+    };
 };
 struct Pillar {
 	double x_;
