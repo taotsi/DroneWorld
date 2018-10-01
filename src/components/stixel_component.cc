@@ -131,14 +131,13 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 				// dmax is disparity max, = disp_max * width_
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > delta_y) {
-                    auto disp_temp = j/k*disp_max;
+                    auto disp_temp = j/kde_width_*disp_max_;
                     Point3D p_camera = GetCameraCoor(
-                        dist_temp, i, height_/2);
+                        disp_temp, i, height_/2);
                     Point3D p_world = CameraToWorldCoor(
                         scaled_disparity_frame_queue_.front().pos_camera_,
                         p_camera,
                         scaled_disparity_frame_queue_.front().angle_camera_);
-                    scaled_disparity_frame_queue_.pop();
                     KdePeak peak{p_world.x_, p_world.y_, j};
                     // filter window
                     auto thh = kde_frame[i][j] * 0.707;
@@ -148,9 +147,10 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
                     }
                     while(kde_frame[i][jr] > thh){
                         jr++;
-                    
-                    double delta_y_m = 0.3; // 0.3m for window height
-                    int delta_y_pix = delta_y_m*j/kde_width_*disp_max_/baseline_;
+                    }
+                    double delta_y_m = 0.1; // 0.1m for window height
+                    int delta_y_pix = static_cast<int>(
+                        delta_y_m*j/kde_width_*disp_max_/baseline_);
                     peak.SetWindow(jl, jr, delta_y_pix);
                     kde_peak_pos.push_back(peak);
 				}

@@ -1,7 +1,13 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <utility>
+#include <algorithm>
 
+// data types here are only responsible for storation,
+// not calculations or algorithms. So make sure the data
+// is correct before storing it.
+ 
 namespace droneworld{
 
 struct Point2D {
@@ -90,6 +96,64 @@ struct KdePeak {
         window_left_ = left;
         window_right_ = right;
         windoe_height_ = height;
+    };
+};
+struct BlockedIndex {
+    /* data */
+    std::vector<std::pair<int, int>> index_;
+    /* methods */
+    void AddSegment(int start, int end){
+        if(start > end){
+            std::cout << "wrong input for BlockedIndex.AddSegment, swapped start and end already\n";
+            auto temp = start;
+            start = end;
+            end = temp;
+        }
+        int idx_l = 0;
+        int idx_r = static_cast<int>(index_.size())-1;
+        int idx_mid = (idx_l+idx_r) / 2;
+        if(index_.empty()){
+            index_.push_back(std::pair<int, int>(start, end));
+            return;
+        }else if(start < index_[0].first){
+            index_.insert(index_.begin(), std::pair<int, int>(start, end));
+            return;
+        }else if(start > index_[index_.size()-1].first){
+            index_.push_back(std::pair<int, int>(start, end));
+            return;
+        }else{
+            while(idx_l < idx_r-1){
+                if(start < index_[idx_mid].first){
+                    idx_r = idx_mid;
+                    idx_mid = (idx_l+idx_r) / 2;
+                }else if(start > index_[idx_mid].first){
+                    idx_l = idx_mid;
+                    idx_mid = (idx_l+idx_r) / 2;
+                }else{ // start == index_[idx_mid].first
+                    idx_r = idx_mid;
+                    break;
+                }
+            }
+        }
+        std::pair<int, int> pair;
+        if(start >= index_[idx_r].first 
+            || start < index_[idx_r-1].second){
+            return;
+        }else{
+            if(end > index_[idx_r].first){
+                // std::cout << "new segment'end(" << end << ") for BlockedIndex is bigger than next segment's start,  truncated it already\n";
+                pair = std::pair<int, int>{start, index_[idx_r].first};
+            }else{
+                pair = std::pair<int, int>{start, end};
+            }
+        }
+        index_.insert(index_.begin()+idx_r, pair);
+    };
+    void Print(){
+        for(auto itr : index_){
+            std::cout << "(" << itr.first << ", " << itr.second << ")  ";
+        }
+        std::cout << std::endl;
     };
 };
 struct Pillar {
