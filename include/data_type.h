@@ -164,6 +164,31 @@ struct BlockedIndex {
         }
         std::cout << std::endl;
     };
+    std::pair<int, int>& operator[](unsigned int pos){
+        if(pos >= index_.size()){
+            std::cout << "BlockedIndex: index out of bounds" << std::endl;
+            return index_[index_.size()-1];
+        }
+        return index_[pos];
+    };
+};
+enum FilterFlag{
+    kCompliant,
+    kNotCompliant,
+    kEndPoint,
+    kEndPointMaybe,
+    kGap
+};
+struct FilterStatus{
+    FilterStatus(FilterFlag &flag){
+        flag_ = flag;
+    }
+    FilterStatus(FilterFlag &flag, int val){
+        int value_ = val;
+        flag_ = flag;
+    }
+    int value_ = 0;
+    FilterFlag flag_ = kCompliant;
 };
 struct Pillar {
 	double x_;
