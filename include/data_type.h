@@ -99,6 +99,15 @@ struct KdePeak {
     };
 };
 struct BlockedIndex {
+    BlockedIndex(unsigned int range_length){
+        index_.push_back(std::pair<int, int>(0, 0));
+        index_.push_back(std::pair<int, int>(
+            range_length-1, range_length-1));
+    }
+    BlockedIndex(int start, int end){
+        index_.push_back(std::pair<int, int>(0, start));
+        index_.push_back(std::pair<int, int>(end, end));
+    }
     /* data */
     std::vector<std::pair<int, int>> index_;
     /* methods */

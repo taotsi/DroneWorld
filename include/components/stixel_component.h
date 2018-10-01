@@ -18,7 +18,7 @@ public:
 	std::queue<std::vector<std::vector<double>>> 
 		kde_frame_queue_;
 	std::queue<std::vector<std::vector<KdePeak>>> 
-		kde_peak_pos_frame_queue_;
+		kde_peak_frame_queue_;
 private:
 	/* methods */
 	void Stixel();

@@ -38,15 +38,15 @@ void StixelComponent::Stixel() {
 		Kde();				
 	}
 	if (!kde_frame_queue_.empty()) {
-		// PUSH kde_peak_pos_frame_queue_
+		// PUSH kde_peak_frame_queue_
 		FindKdePeakPos(0.5);
 	}
 	if (!kde_frame_queue_.empty()
 		&& !scaled_disparity_frame_queue_.empty()
-		&& !kde_peak_pos_frame_queue_.empty()) {
+		&& !kde_peak_frame_queue_.empty()) {
 		// POP	kde_frame_queue_
 		// POP	scaled_disparity_frame_queue_
-		// POP	kde_peak_pos_frame_queue_
+		// POP	kde_peak_frame_queue_
 		// PUSH ??
 		DetectObject();
 	}
@@ -113,12 +113,12 @@ void StixelComponent::Kde() {
 void StixelComponent::FindKdePeakPos(float delta_y) {
 	// won't check out if kde_frame_queue_ is empty
 	auto kde_frame = kde_frame_queue_.front();
-	std::vector<std::vector<KdePeak>> kde_peak_pos_frame;
+	std::vector<std::vector<KdePeak>> kde_peak_frame;
 	for (int i = 0; i < kde_frame.size(); i++) {
 		// 1 for ascending and -1 for descending
 		int prev_dir =
 			kde_frame[i][1] > kde_frame[i][0] ? 1 : -1;
-		std::vector<KdePeak> kde_peak_pos;
+		std::vector<KdePeak> kde_peak;
 		for (int j = 1; j < kde_width_ - 1; j++) {
 			int temp_dir =
 				kde_frame[i][j + 1] > kde_frame[i][j] ? 1 : -1;
@@ -152,19 +152,19 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
                     int delta_y_pix = static_cast<int>(
                         delta_y_m*j/kde_width_*disp_max_/baseline_);
                     peak.SetWindow(jl, jr, delta_y_pix);
-                    kde_peak_pos.push_back(peak);
+                    kde_peak.push_back(peak);
 				}
 			}
 			prev_dir = temp_dir;
 		}
-		if (kde_peak_pos.empty()) {
-			kde_peak_pos_frame.push_back(
+		if (kde_peak.empty()) {
+			kde_peak_frame.push_back(
 				std::vector<KdePeak>());
 		} else {
-			kde_peak_pos_frame.push_back(kde_peak_pos);
+			kde_peak_frame.push_back(kde_peak);
 		}
 	}
-	kde_peak_pos_frame_queue_.push(kde_peak_pos_frame);
+	kde_peak_frame_queue_.push(kde_peak_frame);
 }
 
 /*
@@ -231,16 +231,29 @@ Point3D StixelComponent::CameraToWorldCoor(
 // do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::DetectObject() {
 	// won't check out if either scaled_disparity_frame_queue_
-	// or kde_peak_pos_frame_queue_ is empty
+	// or kde_peak_frame_queue_ is empty
 	auto scaled_disparity_frame =
 		scaled_disparity_frame_queue_.front();
 	scaled_disparity_frame_queue_.pop();
-	auto kde_peak_pos_frame = kde_peak_pos_frame_queue_.front();
-	kde_peak_pos_frame_queue_.pop();
+	auto kde_peak_frame = kde_peak_frame_queue_.front();
+	kde_peak_frame_queue_.pop();
 	auto n_stixel = scaled_disparity_frame.data_.size();
-	for (int i = 0; i < n_stixel; i++) {
+    // for each stixel in one frame
+    for(auto frame_i=0; frame_i<kde_peak_frame.size(); frame_i++){
+        BlockedIndex index {n_stixel};
+        auto n_peak = kde_peak_frame[frame_i].size();
+        // for each peak in one stixel
+        for(auto peak_i=n_peak-1; peak_i>=0; peak_i--){
+            auto n_idx = index.size()-1;
+            // for each unblocked segment
+            for(auto idx=0; idx<n_idx; idx++){
+                for(auto i=index[idx].second; i<=index[idx+1].first; i++){
+                    
+                }
+            }
+        }
+    }
 
-	}
 }
 
 void StixelComponent::Behave() {
