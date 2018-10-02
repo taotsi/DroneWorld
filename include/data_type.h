@@ -64,6 +64,9 @@ struct ScaledDisparityFrame {
 	Point3D pos_camera_;
 	EulerAngle angle_camera_;
 	/* methods */
+    std::vector<double>& operator[](int pos){
+        return data_[pos];
+    }
 	void PushStixel(std::vector<double> stixel) {
 		data_.push_back(stixel);
 	};
@@ -100,7 +103,7 @@ struct KdePeak {
     };
 };
 struct BlockedIndex {
-    BlockedIndex(unsigned int range_length){
+    BlockedIndex(int range_length){
         index_.push_back(std::pair<int, int>(0, 0));
         index_.push_back(std::pair<int, int>(
             range_length-1, range_length-1));
@@ -172,6 +175,9 @@ struct BlockedIndex {
         }
         return index_[pos];
     };
+    int size(){
+        return static_cast<int>(index_.size());
+    }
 };
 enum FilterFlag{
     kCompliant,
@@ -185,7 +191,7 @@ struct FilterStatus{
         flag_ = flag;
     }
     FilterStatus(FilterFlag &flag, int val){
-        int value_ = val;
+        value_ = val;
         flag_ = flag;
     }
     int value_ = 0;
@@ -193,6 +199,7 @@ struct FilterStatus{
 };
 class Pillar {
 public:
+    Pillar() {};
     Pillar(double x, double y, double z1, double z2)
         : x_(x), y_(y), z1_(z1), z2_(z2) {};
     Pillar(Point3D p){
@@ -220,10 +227,13 @@ public:
 	std::vector<std::vector<Pillar>> data_;
     /* methods */
     auto& operator[](unsigned int pos){
-        return data[pos];
+        return data_[pos];
     }
     void PushPillar(unsigned int pos, Pillar pl){
         data_[pos].push_back(pl);
+    }
+    void Push(std::vector<Pillar> pillar_col){
+        data_.push_back(pillar_col);
     }
 };
 class PillarClustered {

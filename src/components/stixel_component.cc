@@ -229,6 +229,31 @@ Point3D StixelComponent::CameraToWorldCoor(
 	return p_world;
 }
 
+// needs to be perfected
+FilterStatus StixelComponent::Filter(
+    std::vector<double> vec, int start, int step, 
+    double mean, double min, double max){
+    double sum = 0.0;
+    double average = 0.0;
+    double count = 0.0;
+    for(int i=start; i<start+step; i++){
+        sum += vec[i];
+        count += 1.0;
+    }
+    average = sum/count;
+    if(average <= max && average >= min){
+        auto flag = kCompliant;
+        FilterStatus stat{flag};
+        return stat;
+    }else{
+        // temporary code
+        int pos = start+step/2;
+        auto flag = kNotCompliant;
+        FilterStatus stat{flag, pos};
+        return stat; 
+    }
+}
+
 /* Sliding-block filter */
 // do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::DetectObject() {
@@ -239,7 +264,8 @@ void StixelComponent::DetectObject() {
 	scaled_disparity_frame_queue_.pop();
 	auto kde_peak_frame = kde_peak_frame_queue_.front();
 	kde_peak_frame_queue_.pop();
-	auto n_stixel = scaled_disparity_frame.data_.size();
+	auto n_stixel = static_cast<int>(
+        scaled_disparity_frame.data_.size());
     PillarFrame pillar_frame;
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
@@ -259,11 +285,11 @@ void StixelComponent::DetectObject() {
                 auto step_size = window_height/2;
                 if(window_height < end - start){
                     double mean = kde_peak_frame[stx_i][peak_i].pos_
-                        /kde_width_*disp_max;
+                        /kde_width_*disp_max_;
                     double min = kde_peak_frame[stx_i][peak_i].window_left_
-                        /kde_width_*disp_max;
+                        /kde_width_*disp_max_;
                     double max = kde_peak_frame[stx_i][peak_i].window_right_
-                        /kde_width_*disp_max;
+                        /kde_width_*disp_max_;
                     auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, mean, min, max);
                     start += (end-start) % step_size;
@@ -272,9 +298,9 @@ void StixelComponent::DetectObject() {
                     while(start < end){
                         auto stat = Filter(scaled_disparity_frame[stx_i],
                         start, step_size, mean, min, max);
-                        Pillar 
                         if(index_flag == 1){
-                            if(prev_stat == kNotCompliant && stat == kCompliant){
+                            if(prev_stat.flag_ == kNotCompliant 
+                                && stat.flag_ == kCompliant){
                                 auto p_camera = GetCameraCoor(
                                     mean, stx_i, prev_stat.value_);
                                 auto p_world = CameraToWorldCoor(
@@ -285,7 +311,8 @@ void StixelComponent::DetectObject() {
                                 index_flag = -1;
                             }
                         }else if(index_flag == -1){
-                            if(prev_stat == kCompliant && stat == kNotCompliant){
+                            if(prev_stat.flag_ == kCompliant 
+                                && stat.flag_ == kNotCompliant){
                                 auto p_camera = GetCameraCoor(
                                     mean, stx_i, stat.value_);
                                 auto p_world = CameraToWorldCoor(
@@ -294,7 +321,7 @@ void StixelComponent::DetectObject() {
                                     scaled_disparity_frame.angle_camera_);
                                 pillar_temp.SetZ2(p_world.z_);
                                 pillar_col.push_back(pillar_temp);
-                                index_flag == 1;
+                                index_flag = 1;
                             }
                         }
                         prev_stat = stat;
@@ -303,30 +330,11 @@ void StixelComponent::DetectObject() {
                 }
             }
         }
-        pillar_frame.push_back(pillar_col);
+        pillar_frame.Push(pillar_col);
     }
-    pillar_frame_queue_.push_back(pillar_frame);
+    pillar_frame_queue_.push(pillar_frame);
 }
 
-// needs to be perfected
-FilterStatus Filter(std::vector<double> vec, int start, int step, 
-    double mean, double min, double max){
-    double sum = 0.0;
-    double average = 0.0;
-    double count = 0.0;
-    for(int i=start; i<start+step; i++){
-        sum += vec[i];
-        count += 1.0;
-    }
-    average = sum/count;
-    if(average <= max && average >= min){
-        return FilterStatus(kCompliant);
-    }else{
-        // temporary code
-        int pos = start+step/2;
-        return FilterStatus(kNotCompliant, pos); 
-    }
-}
 void StixelComponent::Behave() {
 	is_busy_ = true;
 	thread_handle_ = std::thread{ 
