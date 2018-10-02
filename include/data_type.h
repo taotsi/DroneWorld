@@ -94,12 +94,15 @@ struct KdePeak {
 	int pos_ = 0;
     int window_left_ = 0;
     int window_right_ = 0;
-    int windoe_height_ = 1;
+    int window_height_ = 1;
     /* methods */
     void SetWindow(int left, int right, int height){
         window_left_ = left;
         window_right_ = right;
-        windoe_height_ = height;
+        window_height_ = height;
+    };
+    void PrintWindow(){
+        std::cout << "left, mid, right, height = " << window_left_ << "  " << pos_ << "  " << window_right_ << "  " << window_height_ << "\n";
     };
 };
 struct BlockedIndex {
@@ -213,6 +216,9 @@ public:
         z1_ = p.z_;
     };
     void SetZ2(double z2) { z2_ = z2; };
+    void Print(){
+        std::cout << "(" << x_ << ", " << y_ << ", " << z1_ << ", " << z2_ << ")\n";
+    };
 private:
     /* data */
 	double x_ = 0.0;
@@ -234,6 +240,10 @@ public:
     }
     void Push(std::vector<Pillar> pillar_col){
         data_.push_back(pillar_col);
+    }
+    int size(){
+        int size = static_cast<int>(data_.size());
+        return size;
     }
 };
 class PillarClustered {

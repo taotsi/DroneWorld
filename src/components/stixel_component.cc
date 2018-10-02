@@ -5,16 +5,16 @@
 StixelComponent::StixelComponent
 	(std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
-	W17_GAUSS = {
-		0.00678462 / width_,	0.0133395 / width_, 
-		0.0239336 / width_,		0.0392686 / width_, 
-		0.0588726 / width_,		0.0806656 / width_, 
-		0.101032 / width_,		0.115629 / width_, 
-		0.12095 / width_,		0.115629 / width_, 
-		0.101032 / width_,		0.0806656 / width_, 
-		0.0588726 / width_,		0.0392686 / width_, 
-		0.0239336 / width_,		0.0133395 / width_, 
-		0.00678462 / width_ };
+    W17_GAUSS = {
+    	0.00678462,	   0.0133395, 
+    	0.0239336,		0.0392686, 
+    	0.0588726,		0.0806656, 
+    	0.101032,		0.115629, 
+    	0.12095,		0.115629, 
+		0.101032,		0.0806656, 
+		0.0588726,		0.0392686, 
+		0.0239336,		0.0133395, 
+    	0.00678462};
 	fov_ = PI / 4;
 }
 
@@ -24,6 +24,9 @@ StixelComponent::~StixelComponent() {
 
 void StixelComponent::Begin() {
 	Stixel();
+    //auto pillar_frame = pillar_frame_queue_.front();
+    //std::cout << pillar_frame.size() << std::endl;
+    //pillar_frame[45][0].Print();
 }
 
 void StixelComponent::Update(double DeltaTime) {
@@ -104,6 +107,7 @@ void StixelComponent::Kde() {
 
 /* finds and saves the position of peaks meeting certain conditions */
 void StixelComponent::FindKdePeakPos(float delta_y) {
+    //int count = 0;
 	auto &kde_frame = kde_frame_queue_.front();
 	std::vector<std::vector<KdePeak>> kde_peak_frame;
 	for (int i = 0; i < kde_frame.size(); i++) {
@@ -112,17 +116,22 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 			kde_frame[i][1] > kde_frame[i][0] ? 1 : -1;
 		std::vector<KdePeak> kde_peak;
 		for (int j = 1; j < kde_width_ - 1; j++) {
-			int temp_dir =
+			int crt_dir =
 				kde_frame[i][j + 1] > kde_frame[i][j] ? 1 : -1;
-			if (prev_dir == 1 && temp_dir == -1) {
+			if (prev_dir == 1 && crt_dir == -1) {
 				// y = yl * b * kw / k / dmax,
 				// y is physical vertical length
 				// yl is the y-coordinate value of kde; 
 				// b is baseline; kw is kde_width; 
 				// k is j here, or x-coordinate of kde;
 				// dmax is disparity max, = disp_max * width_
+                //std::cout << "find a peak " << i << "\n";
+                //std::cout << kde_frame[i][j] * baseline_ * kde_width_ /
+				//	(j * disp_max_) << std::endl;
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
-					(j * disp_max_ * width_) > delta_y) {
+					(j * disp_max_ * width_) > 0.01) { // 0.01 is a exp value
+                    //std::cout << count <<" peak is good\n";
+                    //count++;
                     /*auto disp_temp = j/kde_width_*disp_max_;
                     Point3D p_camera = GetCameraCoor(
                         disp_temp, i, height_/2);
@@ -143,12 +152,12 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
                     }
                     double delta_y_meter = 0.2; // 0.2m for window height
                     int delta_y_pix = static_cast<int>(
-                        delta_y_meter*j/kde_width_*disp_max_/baseline_);
+                        delta_y_meter*j/kde_width_*disp_max_/baseline_*width_);
                     peak.SetWindow(jl, jr, delta_y_pix);
                     kde_peak.push_back(peak);
 				}
 			}
-			prev_dir = temp_dir;
+			prev_dir = crt_dir;
 		}
 		if (kde_peak.empty()) {
 			kde_peak_frame.push_back(
@@ -163,7 +172,7 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 /*
 our coordinate system:
 z
-| y
+|  y
 |/
 0----x
 yet in Airsim, +X is North, +Y is East and +Z is Down(NED system)
@@ -220,6 +229,100 @@ Point3D StixelComponent::CameraToWorldCoor(
 	return p_world;
 }
 
+/* Sliding-block filter */
+void StixelComponent::DetectObject() {
+	auto &scaled_disparity_frame =
+		scaled_disparity_frame_queue_.front();
+	auto &kde_peak_frame = kde_peak_frame_queue_.front();
+	auto n_stixel = static_cast<int>(
+        scaled_disparity_frame.data_[0].size());
+    PillarFrame pillar_frame;
+    // for each stixel in one frame
+    for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
+        std::cout << "-------------- column " << stx_i << " ---------------\n";
+        std::vector<Pillar> pillar_col;
+        BlockedIndex index {n_stixel};
+        int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
+        if(n_peak == 0){
+            std::cout << "oops, no peak at all, gonna collape~\n";
+        }else{
+            std::cout << "----- peak number: " << n_peak << " -----\n";
+        }
+        // for each peak in one stixel
+        for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
+            Pillar pillar_temp;
+            auto n_idx = index.size()-1;
+            index.Print();
+            std::cout << "peak " << peak_i << "\n";
+            std::vector<int> idx_of_object;
+            // for each unblocked segment
+            for(auto idx=0; idx<n_idx; idx++){
+                std::cout << "unblocked idx pos: " << idx << "  ; ";
+                auto start = index[idx].second;
+                auto end = index[idx+1].first;
+                std::cout << "start, end = " << start << ", " << end << "  ; ";
+                auto window_height = 
+                    kde_peak_frame[stx_i][peak_i].window_height_;
+                kde_peak_frame[stx_i][peak_i].PrintWindow();
+                auto step_size = window_height/2;
+                if(window_height < end - start){
+                    double mean = static_cast<double>(
+                        kde_peak_frame[stx_i][peak_i].pos_)
+                        /kde_width_*disp_max_;
+                    double min = static_cast<double>(
+                        kde_peak_frame[stx_i][peak_i].window_left_)
+                        /kde_width_*disp_max_;
+                    double max = static_cast<double>(
+                        kde_peak_frame[stx_i][peak_i].window_right_)
+                        /kde_width_*disp_max_;
+                    std::cout << "mean, min, max = " << mean << ", " << min << ", " << max << "\n";
+                    auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
+                            start, (end-start) % step_size, mean, min, max);
+                    if(prev_stat.flag_ == kCompliant){
+                        idx_of_object.push_back(start);
+                        idx_of_object.push_back(start + (end-start) % step_size);
+                    }
+                    start += (end-start) % step_size;
+                    while(start < end){
+                        auto stat = Filter(scaled_disparity_frame[stx_i],
+                        start, step_size, mean, min, max);
+                        if(stat.flag_ == kCompliant){
+                            idx_of_object.push_back(start);
+                            idx_of_object.push_back(start+step_size);
+                        }/*else if(stat.flag_ == kNotCompliant){
+                            idx_of_object.push_back(stat.value_);
+                        }*/
+                        prev_stat = stat;
+                        start += step_size;
+                    }
+                    if(!idx_of_object.empty()){
+                        auto y_start = std::min_element(
+                            idx_of_object.begin(), idx_of_object.end());
+                        auto y_end = std::max_element(
+                            idx_of_object.begin(), idx_of_object.end());
+                        std::cout << "pillar end from " << *y_start << " to " << *y_end << "\n";
+                        auto p_camera = GetCameraCoor(mean, stx_i, *y_start);
+                        auto p_world =
+                            CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
+                                p_camera, scaled_disparity_frame.angle_camera_);
+                        pillar_temp.SetPoint(p_world);
+                        pillar_temp.SetZ2(*y_end);
+                        pillar_col.push_back(pillar_temp);
+                    }    
+                }
+            }
+        }
+        pillar_frame.Push(pillar_col);
+    }
+    pillar_frame_queue_.push(pillar_frame);
+}
+
+void StixelComponent::Behave() {
+	is_busy_ = true;
+	thread_handle_ = std::thread{ 
+		&StixelComponent::Stixel, this };
+}
+
 // TODO: needs to be perfected
 FilterStatus StixelComponent::Filter(
     std::vector<double> vec, int start, int step, 
@@ -240,91 +343,10 @@ FilterStatus StixelComponent::Filter(
         // temporary code
         int pos = start+step/2;
         auto flag = kNotCompliant;
+        //std::cout << "not compliant\n";
         FilterStatus stat{flag, pos};
         return stat; 
     }
-}
-
-/* Sliding-block filter */
-void StixelComponent::DetectObject() {
-	auto &scaled_disparity_frame =
-		scaled_disparity_frame_queue_.front();
-	auto &kde_peak_frame = kde_peak_frame_queue_.front();
-	auto n_stixel = static_cast<int>(
-        scaled_disparity_frame.data_.size());
-    PillarFrame pillar_frame;
-    // for each stixel in one frame
-    for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
-        std::vector<Pillar> pillar_col;
-        BlockedIndex index {n_stixel};
-        auto n_peak = kde_peak_frame[stx_i].size();
-        // for each peak in one stixel
-        for(auto peak_i=n_peak-1; peak_i>=0; peak_i--){
-            Pillar pillar_temp;
-            auto n_idx = index.size()-1;
-            // for each unblocked segment
-            for(auto idx=0; idx<n_idx; idx++){
-                auto start = index[idx].second;
-                auto end = index[idx+1].first;
-                auto window_height = 
-                    kde_peak_frame[stx_i][peak_i].windoe_height_;
-                auto step_size = window_height/2;
-                if(window_height < end - start){
-                    double mean = kde_peak_frame[stx_i][peak_i].pos_
-                        /kde_width_*disp_max_;
-                    double min = kde_peak_frame[stx_i][peak_i].window_left_
-                        /kde_width_*disp_max_;
-                    double max = kde_peak_frame[stx_i][peak_i].window_right_
-                        /kde_width_*disp_max_;
-                    auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
-                            start, (end-start) % step_size, mean, min, max);
-                    start += (end-start) % step_size;
-                    int index_flag = 1;  // 1 for being seeking pillar head, 
-                                            // -1 for being seeking pillar tai
-                    while(start < end){
-                        auto stat = Filter(scaled_disparity_frame[stx_i],
-                        start, step_size, mean, min, max);
-                        if(index_flag == 1){
-                            if(prev_stat.flag_ == kNotCompliant 
-                                && stat.flag_ == kCompliant){
-                                auto p_camera = GetCameraCoor(
-                                    mean, stx_i, prev_stat.value_);
-                                auto p_world = CameraToWorldCoor(
-                                    scaled_disparity_frame.pos_camera_,
-                                    p_camera,
-                                    scaled_disparity_frame.angle_camera_);
-                                pillar_temp.SetPoint(p_world);
-                                index_flag = -1;
-                            }
-                        }else if(index_flag == -1){
-                            if(prev_stat.flag_ == kCompliant 
-                                && stat.flag_ == kNotCompliant){
-                                auto p_camera = GetCameraCoor(
-                                    mean, stx_i, stat.value_);
-                                auto p_world = CameraToWorldCoor(
-                                    scaled_disparity_frame.pos_camera_,
-                                    p_camera,
-                                    scaled_disparity_frame.angle_camera_);
-                                pillar_temp.SetZ2(p_world.z_);
-                                pillar_col.push_back(pillar_temp);
-                                index_flag = 1;
-                            }
-                        }
-                        prev_stat = stat;
-                        start += step_size;
-                    }
-                }
-            }
-        }
-        pillar_frame.Push(pillar_col);
-    }
-    pillar_frame_queue_.push(pillar_frame);
-}
-
-void StixelComponent::Behave() {
-	is_busy_ = true;
-	thread_handle_ = std::thread{ 
-		&StixelComponent::Stixel, this };
 }
 
 /* for rpclib server */
