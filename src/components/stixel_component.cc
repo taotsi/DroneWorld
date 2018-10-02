@@ -132,14 +132,15 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 				// dmax is disparity max, = disp_max * width_
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > delta_y) {
-                    auto disp_temp = j/kde_width_*disp_max_;
+                    /*auto disp_temp = j/kde_width_*disp_max_;
                     Point3D p_camera = GetCameraCoor(
                         disp_temp, i, height_/2);
                     Point3D p_world = CameraToWorldCoor(
                         scaled_disparity_frame_queue_.front().pos_camera_,
                         p_camera,
                         scaled_disparity_frame_queue_.front().angle_camera_);
-                    KdePeak peak{p_world.x_, p_world.y_, j};
+                    KdePeak peak{p_world.x_, p_world.y_, j};*/
+                    KdePeak peak {j};
                     // filter window
                     auto thh = kde_frame[i][j] * 0.85; // or 0.707 maybe
                     int jl = j, jr = j;
@@ -217,7 +218,7 @@ Point3D StixelComponent::CameraToWorldCoor(
 		+ p_camera.y_ * (cos_theta * cos_phi)
 		+ p_camera.z_ * (-sin_theta * sin_omega
 			+ cos_theta * sin_phi * cos_omega);
-	p_world.y_ =
+	p_world.z_ =
 		p_camera.x_ * (sin_omega * cos_phi)
 		- p_camera.y_ * (sin_phi)
 		+p_camera.z_ * (cos_phi * cos_omega);
@@ -239,39 +240,72 @@ void StixelComponent::DetectObject() {
 	auto kde_peak_frame = kde_peak_frame_queue_.front();
 	kde_peak_frame_queue_.pop();
 	auto n_stixel = scaled_disparity_frame.data_.size();
+    PillarFrame pillar_frame;
     // for each stixel in one frame
-    for(auto frame_i=0; frame_i<kde_peak_frame.size(); frame_i++){
+    for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
+        std::vector<Pillar> pillar_col;
         BlockedIndex index {n_stixel};
-        auto n_peak = kde_peak_frame[frame_i].size();
+        auto n_peak = kde_peak_frame[stx_i].size();
         // for each peak in one stixel
         for(auto peak_i=n_peak-1; peak_i>=0; peak_i--){
+            Pillar pillar_temp;
             auto n_idx = index.size()-1;
             // for each unblocked segment
             for(auto idx=0; idx<n_idx; idx++){
                 auto start = index[idx].second;
                 auto end = index[idx+1].first;
                 auto window_height = 
-                    kde_peak_frame[frame_i][peak_i].windoe_height_;
+                    kde_peak_frame[stx_i][peak_i].windoe_height_;
                 auto step_size = window_height/2;
                 if(window_height < end - start){
-                    double mean = kde_peak_frame[frame_i][peak_i].pos_
+                    double mean = kde_peak_frame[stx_i][peak_i].pos_
                         /kde_width_*disp_max;
-                    double min = kde_peak_frame[frame_i][peak_i].window_left_
+                    double min = kde_peak_frame[stx_i][peak_i].window_left_
                         /kde_width_*disp_max;
-                    double max = kde_peak_frame[frame_i][peak_i].window_right_
+                    double max = kde_peak_frame[stx_i][peak_i].window_right_
                         /kde_width_*disp_max;
-                    auto prev_stat = Filter(scaled_disparity_frame[frame_i], 
+                    auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, mean, min, max);
                     start += (end-start) % step_size;
+                    int index_flag = 1;  // 1 for being seeking pillar head, 
+                                            // -1 for being seeking pillar tai
                     while(start < end){
-                        auto stat = Filter()
-                        // TODO: add code here
+                        auto stat = Filter(scaled_disparity_frame[stx_i],
+                        start, step_size, mean, min, max);
+                        Pillar 
+                        if(index_flag == 1){
+                            if(prev_stat == kNotCompliant && stat == kCompliant){
+                                auto p_camera = GetCameraCoor(
+                                    mean, stx_i, prev_stat.value_);
+                                auto p_world = CameraToWorldCoor(
+                                    scaled_disparity_frame.pos_camera_,
+                                    p_camera,
+                                    scaled_disparity_frame.angle_camera_);
+                                pillar_temp.SetPoint(p_world);
+                                index_flag = -1;
+                            }
+                        }else if(index_flag == -1){
+                            if(prev_stat == kCompliant && stat == kNotCompliant){
+                                auto p_camera = GetCameraCoor(
+                                    mean, stx_i, stat.value_);
+                                auto p_world = CameraToWorldCoor(
+                                    scaled_disparity_frame.pos_camera_,
+                                    p_camera,
+                                    scaled_disparity_frame.angle_camera_);
+                                pillar_temp.SetZ2(p_world.z_);
+                                pillar_col.push_back(pillar_temp);
+                                index_flag == 1;
+                            }
+                        }
+                        prev_stat = stat;
                         start += step_size;
                     }
                 }
             }
         }
+        pillar_frame.push_back(pillar_col);
     }
+    pillar_frame_queue_.push_back(pillar_frame);
 }
 
 // needs to be perfected

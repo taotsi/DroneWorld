@@ -75,7 +75,8 @@ struct ScaledDisparityFrame {
 	};
 };
 struct KdePeak {
-	KdePeak() {};
+	KdePeak(int pos) 
+        : pos_(pos) {};
 	KdePeak(double x, double y, int pos) {
 		p_world_.x_ = x;
 		p_world_.y_ = y;
@@ -190,18 +191,42 @@ struct FilterStatus{
     int value_ = 0;
     FilterFlag flag_ = kCompliant;
 };
-struct Pillar {
-	double x_;
-	double y_;
-	double z1_;
-	double z2_;
-	double disp;
-};
-class PillarStixel{
+class Pillar {
 public:
-	std::vector<std::vector<Pillar>> data_;
+    Pillar(double x, double y, double z1, double z2)
+        : x_(x), y_(y), z1_(z1), z2_(z2) {};
+    Pillar(Point3D p){
+        x_ = p.x_;
+        y_ = p.y_;
+        z1_ = p.z_;
+    };
+    void SetPoint(Point3D p){
+        x_ = p.x_;
+        y_ = p.y_;
+        z1_ = p.z_;
+    };
+    void SetZ2(double z2) { z2_ = z2; };
+private:
+    /* data */
+	double x_ = 0.0;
+	double y_ = 0.0;
+	double z1_ = 0.0;
+	double z2_ = 0.0;
+	double disp = 0.0;
 };
-class PillarCluster {
+class PillarFrame{
+public:
+    /* data */
+	std::vector<std::vector<Pillar>> data_;
+    /* methods */
+    auto& operator[](unsigned int pos){
+        return data[pos];
+    }
+    void PushPillar(unsigned int pos, Pillar pl){
+        data_[pos].push_back(pl);
+    }
+};
+class PillarClustered {
 public:
 	std::vector<std::vector<Pillar>> data_;
 };
