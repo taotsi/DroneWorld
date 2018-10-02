@@ -29,40 +29,33 @@ void StixelComponent::Begin() {
 void StixelComponent::Update(double DeltaTime) {
 
 }
-// TODO: use reference to get queue's front, 
-//        and pop in Stixel()
+
 void StixelComponent::Stixel() {
 	if (!disparity_retreived_->empty()) {
-		// POP	disparity_retreived_; 
-		// PUSH scaled_disparity_frame_queue_
+        // PUSH scaled_disparity_frame_queue_
 		// PUSH kde_frame_queue_
-		Kde();				
+		Kde();
+        disparity_retreived_->pop();				
 	}
 	if (!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeakPos(0.5);
+        kde_frame_queue_.pop();
 	}
-	if (!kde_frame_queue_.empty()
-		&& !scaled_disparity_frame_queue_.empty()
+	if (!scaled_disparity_frame_queue_.empty()
 		&& !kde_peak_frame_queue_.empty()) {
-		// POP	kde_frame_queue_
-		// POP	scaled_disparity_frame_queue_
-		// POP	kde_peak_frame_queue_
-		// PUSH ??
+		// PUSH pillar_frame_queue_
 		DetectObject();
+        scaled_disparity_frame_queue_.pop();
+        kde_peak_frame_queue_.pop();
 	}
-  				
 }
 
 /* gets kde and saves them */
-// do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::Kde() {
 	/* get a frame of disparity if available */
 	// TODO: if roll != 0, correction needs to be done
-	// won't check out if disparity_retreived_ is empty
-	auto frame_raw = disparity_retreived_->front();
-	disparity_retreived_->pop();
-	// retreive data for frame_scaled
+	auto &frame_raw = disparity_retreived_->front();
     Point3D pos_camera = TransformAirsimCoor(
         frame_raw.camera_position.x(),
         frame_raw.camera_position.y(),
@@ -110,10 +103,8 @@ void StixelComponent::Kde() {
 }
 
 /* finds and saves the position of peaks meeting certain conditions */
-// do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::FindKdePeakPos(float delta_y) {
-	// won't check out if kde_frame_queue_ is empty
-	auto kde_frame = kde_frame_queue_.front();
+	auto &kde_frame = kde_frame_queue_.front();
 	std::vector<std::vector<KdePeak>> kde_peak_frame;
 	for (int i = 0; i < kde_frame.size(); i++) {
 		// 1 for ascending and -1 for descending
@@ -229,7 +220,7 @@ Point3D StixelComponent::CameraToWorldCoor(
 	return p_world;
 }
 
-// needs to be perfected
+// TODO: needs to be perfected
 FilterStatus StixelComponent::Filter(
     std::vector<double> vec, int start, int step, 
     double mean, double min, double max){
@@ -255,15 +246,10 @@ FilterStatus StixelComponent::Filter(
 }
 
 /* Sliding-block filter */
-// do NOT call this alone, it's put in Stixel() in order
 void StixelComponent::DetectObject() {
-	// won't check out if either scaled_disparity_frame_queue_
-	// or kde_peak_frame_queue_ is empty
-	auto scaled_disparity_frame =
+	auto &scaled_disparity_frame =
 		scaled_disparity_frame_queue_.front();
-	scaled_disparity_frame_queue_.pop();
-	auto kde_peak_frame = kde_peak_frame_queue_.front();
-	kde_peak_frame_queue_.pop();
+	auto &kde_peak_frame = kde_peak_frame_queue_.front();
 	auto n_stixel = static_cast<int>(
         scaled_disparity_frame.data_.size());
     PillarFrame pillar_frame;
