@@ -52,6 +52,7 @@ void StixelComponent::Stixel() {
         scaled_disparity_frame_queue_.pop();
         kde_peak_frame_queue_.pop();
 	}
+    std::cout << "ready\n";
 }
 
 /* gets kde and saves them */
@@ -239,31 +240,23 @@ void StixelComponent::DetectObject() {
     PillarFrame pillar_frame;
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
-        std::cout << "-------------- column " << stx_i << " ---------------\n";
         std::vector<Pillar> pillar_col;
         BlockedIndex index {n_stixel};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         if(n_peak == 0){
             std::cout << "oops, no peak at all, gonna collape~\n";
-        }else{
-            std::cout << "----- peak number: " << n_peak << " -----\n";
         }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
-            index.Print();
-            std::cout << "peak " << peak_i << "\n";
             std::vector<int> idx_of_object;
             // for each unblocked segment
             for(auto idx=0; idx<n_idx; idx++){
-                std::cout << "unblocked idx pos: " << idx << "  ; ";
                 auto start = index[idx].second;
                 auto end = index[idx+1].first;
-                std::cout << "start, end = " << start << ", " << end << "  ; ";
                 auto window_height = 
                     kde_peak_frame[stx_i][peak_i].window_height_;
-                kde_peak_frame[stx_i][peak_i].PrintWindow();
                 auto step_size = window_height/2;
                 if(window_height < end - start){
                     double mean = static_cast<double>(
@@ -275,7 +268,6 @@ void StixelComponent::DetectObject() {
                     double max = static_cast<double>(
                         kde_peak_frame[stx_i][peak_i].window_right_)
                         /kde_width_*disp_max_;
-                    std::cout << "mean, min, max = " << mean << ", " << min << ", " << max << "\n";
                     auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, mean, min, max);
                     if(prev_stat.flag_ == kCompliant){
@@ -300,15 +292,18 @@ void StixelComponent::DetectObject() {
                             idx_of_object.begin(), idx_of_object.end());
                         auto y_end = std::max_element(
                             idx_of_object.begin(), idx_of_object.end());
-                        std::cout << "pillar end from " << *y_start << " to " << *y_end << "\n";
-                        auto p_camera = GetCameraCoor(mean, stx_i, *y_start);
-                        auto p_world =
+                        auto p_camera1 = GetCameraCoor(mean, stx_i, *y_start);
+                        auto p_world1 =
                             CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
-                                p_camera, scaled_disparity_frame.angle_camera_);
-                        pillar_temp.SetPoint(p_world);
-                        pillar_temp.SetZ2(*y_end);
+                                p_camera1, scaled_disparity_frame.angle_camera_);
+                        auto p_camera2 = GetCameraCoor(mean, stx_i, *y_end);
+                        auto p_world2 =
+                            CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
+                                p_camera2, scaled_disparity_frame.angle_camera_);
+                        pillar_temp.SetPoint(p_world1);
+                        pillar_temp.SetZ2(p_world2.z_);
                         pillar_col.push_back(pillar_temp);
-                    }    
+                    }
                 }
             }
         }
@@ -357,4 +352,19 @@ std::vector<double> StixelComponent::GetKde() {
 	} else {
 		return std::vector<double>(width_/stixel_width_, 0.0);
 	}
+}
+std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
+    std::vector<std::vector<double>> pillars;
+    if(!pillar_frame_queue_.empty()){
+        auto pillar_frame = pillar_frame_queue_.front();
+        for(auto i=0; i<pillar_frame.size(); i++){
+            for(auto j=0; j<pillar_frame[i].size(); j++){
+                auto temp = pillar_frame[i][j].GetCoor();
+                pillars.push_back(temp);
+            }
+        }
+        return pillars;
+    }else{
+        return std::vector<std::vector<double>>();
+    }
 }

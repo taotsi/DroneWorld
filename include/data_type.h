@@ -166,8 +166,8 @@ struct BlockedIndex {
         index_.insert(index_.begin()+idx_r, pair);
     };
     void Print(){
-        for(auto itr : index_){
-            std::cout << "(" << itr.first << ", " << itr.second << ")  ";
+        for(auto seg : index_){
+            std::cout << "(" << seg.first << ", " << seg.second << ")  ";
         }
         std::cout << std::endl;
     };
@@ -219,6 +219,9 @@ public:
     void Print(){
         std::cout << "(" << x_ << ", " << y_ << ", " << z1_ << ", " << z2_ << ")\n";
     };
+    std::vector<double> GetCoor(){
+        return std::vector<double>{x_, y_, z1_, z2_};
+    }
 private:
     /* data */
 	double x_ = 0.0;
@@ -232,10 +235,10 @@ public:
     /* data */
 	std::vector<std::vector<Pillar>> data_;
     /* methods */
-    auto& operator[](unsigned int pos){
+    auto& operator[](int pos){
         return data_[pos];
     }
-    void PushPillar(unsigned int pos, Pillar pl){
+    void PushPillar(int pos, Pillar pl){
         data_[pos].push_back(pl);
     }
     void Push(std::vector<Pillar> pillar_col){
