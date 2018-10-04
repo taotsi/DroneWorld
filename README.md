@@ -63,9 +63,8 @@ here are the steps to take for python users
 
 ## TODO
 
+- pillar cluster
 - roll correction for disparity frame
-- sliding-block filter(object detector)
 - thread competition for disparity queue and other queue
 - add necessary opencv libs if needed
-- pack rpc client api
 - a thread for input process
