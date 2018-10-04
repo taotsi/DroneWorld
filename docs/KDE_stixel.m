@@ -3,45 +3,73 @@
 clearvars -EXCEPT pict
 close all;clc
 % 记录障碍物列提取的结果，（x,y）为二维映射坐标，h为障碍物下端的世界坐标高度，z为上端世界坐标高度
+pict =3; 
 Stixel_result_x = [];
 Stixel_result_y = [];
 % 坐标位置(x,y)
 Stixel_result_z = [];
 Stixel_result_h = [];
+
+Stixel_result_vb = [];
+Stixel_result_vt = [];
 %记录该stixel是否超出视野，超出记为1 ，下面两个变量分别记录上方和下方超出视野
 Beyond_view_flag = [];
 below_view_flag = [];
 % 记录障碍物提取个数
 Stixel_number = 0;
-D = imread('4disparity_screenshot_12.09.2019.png');
-D = rgb2gray(D);
-figure(2);
-[rows,cols] = size(D);
-imshow(D);
-D = 64*im2double(D);
-%w2=fspecial('average',[1 3]);
+
+% 读取并转换深度数据（数据原格式为物体像平面的距离，单位m）
+%pict = 1;
+RGBshow = imread('ZED采集/7/1.png');
+Filename = strcat('ZED采集/7/',num2str(pict), '.pfm');
+Picture_num = pict + 1;
+pict = pict + 1;
+fid = fopen(Filename);
+fscanf(fid,'%c',[1,3]);
+cols = fscanf(fid,'%f',1);
+rows = fscanf(fid,'%f',1);
+fscanf(fid,'%f',1);
+fscanf(fid,'%c',1);
+DEPTH = fread(fid,[cols,rows],'single');
+DEPTH(DEPTH == Inf) = 0;
+DEPTH = rot90(DEPTH);
+D = zeros(rows,cols);
+for v = 1:cols
+    for u = 1:rows
+        if (DEPTH(u,v) > 1)
+            D(u,v) = 448.1328 * 0.12  / (DEPTH(rows-u+1,v))  + 0*rand(1);
+        else
+            D(u,v) = 0;    
+        end
+    end
+end
+%w2=fspecial('average',[1 20]);
 %D=imfilter(D,w2,'replicate');
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %读取txt中存储的无人机状态数据
-%w2=fspecial('average',[5 5]);
-%D=imfilter(D,w2,'replicate');
+
 uav_x = 0;
 uav_y = 0;
-uav_z = 1.73;
+uav_z = 0;
+UAV_z = ones(200,1);
+UAV_roll = zeros(200,1);
+UAV_pitch = zeros(200,1);
+UAV_yaw = zeros(200,1);
 
-
-RGBshow = imread('0000000092.png');
-figure(20);hold on;
-imshow(RGBshow);
 % 计算像素坐标向世界坐标变换的变量,此处的角度需要确定正负号
-CosValue = 1;
-SinValue = 0;
+CosValue = cos(UAV_pitch(Picture_num));
+SinValue = -sin(UAV_pitch(Picture_num));
+figure(1);
+% 旋转深度图像，校正roll角度，由于角度参数不准确，此处先不做修正....
+histeqSample = histeq(D);
+imshow(histeqSample);
 
 
+[rows,cols] = size(D);
 %for n = 200:1:201
 %绘图选择列坐标
-w=796;
+w=100;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(3);
 plot(D(1:rows,w));
 %axis([0 375 0 260])
@@ -55,17 +83,17 @@ width=64;
 
 
 %设置相机参数
-fx = 984.2439;
-fy = 980.8;
-v0 = 233.2;
-u0 = 690;
-Baseline = 0.25;
+fx = 448.1328;
+fy = 448.1328;
+v0 = rows/2;
+u0 = cols/2;
+Baseline = 0.12;
 
 
 % 由于是仿真数据，需要自己限定范围
 % 根据相机参数和视差计算最小分辨率和最大探测距离范围
 Z_min = 0.5;
-Z_max = 20;
+Z_max = 30;
 Disparity_min = fx * Baseline / Z_max;
 Disparity_max = fx * Baseline / Z_min;
 % 设置物体有效高度，最小物体的高度
@@ -104,10 +132,10 @@ plot(f);
         if ((D(v,u)>Disparity_min)&&(D(v,u)<Disparity_max))
             A = [A D(v,u)];
             kde_cnt = round(D(v,u) * Kernel_width / Disparity_max);
-            for k = -8:8
+            for k = -9:9
                 if ((k + kde_cnt) > 1)
                     % 此处 -1 的主要原因是 
-                    KDE_D(k + kde_cnt) = KDE_D(k + kde_cnt) + W17_guass(k+9);
+                    KDE_D(k + kde_cnt) = KDE_D(k + kde_cnt) + W19_trian(k+10);
                 end
             end
         end
@@ -115,28 +143,30 @@ plot(f);
     figure(6);
     plot(KDE_D);
     
-%     % 若噪声太大可以采用IIR滤波器过滤毛刺噪声
-%     B = zeros(3,1);
-%     A = zeros(3,1);
-%     B(1)=1;B(2)=2;B(3)=1;
-% 	A(1)=1;A(2)=-0.837000;A(3)=0.42398;
-% 	Gain=0.146747;
-%     w_x = zeros(3,1);
-%     w_y = zeros(3,1);
-%     KDE_filter = zeros(Kernel_width,1);
-% 	for i = 1:1:Kernel_width
-% 		w_x(1)=KDE_D(i);
-% 		w_y(1)=(B(1)*w_x(1)+B(2)*w_x(2)+B(3)*w_x(3))*Gain-w_y(2)*A(2)-w_y(3)*A(3);
-% 		KDE_filter(i)=w_y(1)/A(1);
-% 		w_x(3)=w_x(2);w_x(2)=w_x(1);
-% 		w_y(3)=w_y(2);w_y(2)=w_y(1);
-%     end
-%     
-%     figure(7);
-%     plot(KDE_filter);
+    % 若噪声太大可以采用IIR滤波器过滤毛刺噪声
+    B = zeros(3,1);
+    A = zeros(3,1);
+    B(1)=1;B(2)=2;B(3)=1;
+	A(1)=1;A(2)=-0.837000;A(3)=0.42398;
+	Gain=0.146747;
+    w_x = zeros(3,1);
+    w_y = zeros(3,1);
+    KDE_filter = zeros(Kernel_width,1);
+	for i = 1:1:Kernel_width
+		w_x(1)=KDE_D(i);
+		w_y(1)=(B(1)*w_x(1)+B(2)*w_x(2)+B(3)*w_x(3))*Gain-w_y(2)*A(2)-w_y(3)*A(3);
+		KDE_filter(i)=w_y(1)/A(1);
+		w_x(3)=w_x(2);w_x(2)=w_x(1);
+		w_y(3)=w_y(2);w_y(2)=w_y(1);
+    end
+ 
     
     
-figure(20);hold on;
+% Filename1 = strcat('Image/',num2str(pict-5), '.png');
+
+ figure(2);hold on;
+ imshow(RGBshow);
+%figure(8);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 提取障碍物列
 for u = 3:stixel_width:cols
@@ -150,9 +180,10 @@ for u = 3:stixel_width:cols
         if ((D(v,u)>Disparity_min)&&(D(v,u)<Disparity_max))
             A = [A D(v,u)];
             kde_cnt = round(D(v,u) * Kernel_width / Disparity_max);
-            for k = -8:8
-                if ((k + kde_cnt) > 0)
-                    KDE_D(k + kde_cnt) = KDE_D(k + kde_cnt) + W17_guass(k+9);
+            for k = -9:9
+                if ((k + kde_cnt) > 1)
+                    % 此处 -1 的主要原因是 
+                    KDE_D(k + kde_cnt) = KDE_D(k + kde_cnt) + W19_trian(k+10);
                 end
             end
         end
@@ -164,7 +195,8 @@ for u = 3:stixel_width:cols
     Object_mean = zeros(6,1);
     Object_depth_value = zeros(6,1);
     Object_detla = zeros(6,1);
-    for t=2:Kernel_width-1
+    t = 3;
+    while (t < Kernel_width-2 )
         % 需要计算确切的结果
         %delt_y = (v1-v2)*baseline/disparity;
         if ((KDE_D(t)*Baseline) > (0.5 * t * Disparity_max / Kernel_width))
@@ -173,20 +205,21 @@ for u = 3:stixel_width:cols
                     if ((KDE_D(t)>KDE_D(t-3))&&(KDE_D(t)>KDE_D(t+3)))
                         Object_cnt = Object_cnt + 1;
                         Object_mean(Object_cnt) = t;
+                        % 离散后的数据转换为真实值
                         Object_depth_value(Object_cnt) = t * Disparity_max / Kernel_width;
                     end
                 end
             end
         end
+        t = t + 1;
     end
     % 检测物体的数量Object_cnt个
     for o=1:Object_cnt
         detla_cnt = 1;
-        while(( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( max(Object_mean(o)-detla_cnt ,1))) || ( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( max(Object_mean(o) + detla_cnt,1))) )
+        while(( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( Object_mean(o)-detla_cnt )) || ( 0.7 * KDE_D(Object_mean(o))  <  KDE_D( Object_mean(o) + detla_cnt)) )
             detla_cnt = detla_cnt + 1;
         end
-        % 此处的系数是由障碍物计算得到的宽度决定，最好略大一些
-        Object_detla(Object_cnt) = 1 * detla_cnt * Disparity_max / Kernel_width;
+        Object_detla(Object_cnt) = 2.0 * detla_cnt * Disparity_max / Kernel_width;
     end
     
     % 计算detal_y(30cm)的高度在对应视差上的像素高度，作为物体筛选的最小值。
@@ -224,81 +257,126 @@ for u = 3:stixel_width:cols
                 v = v + 1;
             %计算属于该物体的像素个数
             case filter_object
-                h_filter = ceil(Disparity_temp * Kernel_width / Disparity_max);
                 if (abs(A(v)-Disparity_temp) < Detla_temp)
                     judge_cnt =judge_cnt + 1;
                     v = v + 1;
                     if (v>=(rows))
-                        line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
+                        Stixel_result_vb = [Stixel_result_vb (v-judge_cnt)];
+                        Stixel_result_vt = [Stixel_result_vt (v)];
+                        
                         %rectangle('position',[u,rows-v,stixel_width,judge_cnt],'facecolor','g');
+                        sum_temp = 0;
+                        for l=(v-judge_cnt+2):v-4
+                            sum_temp = sum_temp + D(l,u);
+                        end
+                        Disparity_temp = sum_temp / (judge_cnt-7);
+                        
                         x_temp = (u-u0) * Baseline / Disparity_temp;
                         % 计算的高度数据为的h轴3下方
-                        h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
+                        h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + UAV_z(Picture_num);
                         % 障碍物低端的纵坐标
-                        y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
+                        y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + UAV_z(Picture_num);
                         z_temp = (fx * CosValue - (v-judge_cnt-v0) * SinValue) * Baseline / Disparity_temp;
                         % 计算相机坐标位置，转换到世界坐标系下
                         Position_camera = [x_temp z_temp h_temp 1];
-                       
-                        Position_world = Position_camera';
+                        Position_world = Position_camera;
                         x_world = Position_world(1);
                         y_world = Position_world(2);
                         z_world = Position_world(3);
-                
+                        if (z_world<1)
+                            z_world = 0;
+                        end
                         if (y_temp<1)
                             y_temp = 0;
                         end
-                        if (abs(x_world)<5)
-                             if ((h_temp>0)&&(abs(z_world-y_temp)>1))
+                        if (abs(x_world)<10)
+                            if ((v-judge_cnt)<3)  
+                                Beyond_view_flag = [Beyond_view_flag 1];
+                            else
+                                Beyond_view_flag = [Beyond_view_flag 0];
+                            end      
+                            if (v>=rows-2)  
+                                below_view_flag = [below_view_flag 1];
+                            else
+                                below_view_flag = [below_view_flag 0];
+                            end
+                            if ((h_temp>0)&&((z_world-y_temp)>0.5))
                                 Stixel_result_x = [Stixel_result_x x_world];
                                 Stixel_result_y = [Stixel_result_y y_world];
                                 Stixel_result_z = [Stixel_result_z z_world];
                                 Stixel_result_h = [Stixel_result_h y_temp];
                                 Stixel_number = Stixel_number + 1;
+                                line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
                             end                           
                         end
-
                         v = v + 1;
                         judge_cnt = 0;
                     end
-                elseif (judge_cnt>20)
+                elseif (judge_cnt>10)
                     tempcnt = 0;
+                    h_filter = ceil(1 * Disparity_temp / Baseline);
+
                     for h=v:min(v+h_filter,rows)
                         if (abs(A(h)-Disparity_temp) < Detla_temp)
                             tempcnt = tempcnt + 1;
                         end
                     end
-                    if (tempcnt <= (h_filter/2))
-                        line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
+                    if (tempcnt <= h_filter/2)
+                        
+                        Stixel_result_vb = [Stixel_result_vb (v-judge_cnt)];
+                        Stixel_result_vt = [Stixel_result_vt (v)];
+                        
+                        sum_temp = 0;
+                        for l=(v-judge_cnt+2):v-4
+                            sum_temp = sum_temp + D(l,u);
+                        end
+                        Disparity_temp = sum_temp / (judge_cnt-7);
+                        
                         %rectangle('position',[u,rows-v,stixel_width,judge_cnt],'facecolor','g');
                         x_temp = (u-u0) * Baseline / Disparity_temp;
                         % 计算的高度数据为的h轴3下方  y_temp 是列像素低端  h_temp是列像素障碍物顶端
-                        h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
+                        h_temp = -(fx * SinValue + (v-judge_cnt-v0) * CosValue) * Baseline / Disparity_temp + UAV_z(Picture_num);
                         % 障碍物低端的纵坐标
-                        y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + uav_z;
+                        y_temp = -(fx * SinValue + (v-v0) * CosValue) * Baseline / Disparity_temp + UAV_z(Picture_num);
                         z_temp = (fx * CosValue - (v-judge_cnt-v0) * SinValue) * Baseline / Disparity_temp;
                         Position_camera = [x_temp z_temp h_temp 1];
-                
-                        Position_world = Position_camera';
+                        Position_world = Position_camera;
                         x_world = Position_world(1);
                         y_world = Position_world(2);
                         z_world = Position_world(3);
+
+                        if (z_world<1)
+                            z_world = 0;
+                        end
                         if (y_temp<1)
                             y_temp = 0;
                         end
-                        if (abs(x_world)<5)
-                             if ((h_temp>0)&&(abs(z_world-y_temp)>1))
+                        if (abs(x_world)<10)
+                             if ((h_temp>0)&&(abs(z_world-y_temp)>0.5))
+                                if ((v-judge_cnt)<3)  
+                                    Beyond_view_flag = [Beyond_view_flag 1];
+                                else
+                                    Beyond_view_flag = [Beyond_view_flag 0];
+                                end
+                                if (v>=rows-2)  
+                                    below_view_flag = [below_view_flag 1];
+                                else
+                                    below_view_flag = [below_view_flag 0];
+                                end
+                                
                                 Stixel_result_x = [Stixel_result_x x_world];
                                 Stixel_result_y = [Stixel_result_y y_world];
                                 Stixel_result_z = [Stixel_result_z z_world];
                                 Stixel_result_h = [Stixel_result_h y_temp];
                                 Stixel_number = Stixel_number + 1;
+                                line([u,u],[v,v-judge_cnt],'linestyle','-', 'LineWidth',2);
                             end                           
                         end
                         judge_cnt = 0;
                         choose_case = judge_object;
                     else 
-                        v = v + h_filter;
+                        v = min(v+h_filter,rows);
+                        judge_cnt = min(judge_cnt+h_filter,rows);
                     end
                     
                 else
@@ -307,10 +385,10 @@ for u = 3:stixel_width:cols
                 end               
         end      
     end
-    if (u>80)
+    if (u>1000)
+        
     end
 end
-
 
 figure(11);
 % 绘制
@@ -321,6 +399,10 @@ for s = 1:Stixel_number
     grid on
 end
 
+
+%& 聚类分三个步骤，首先在聚集上进行聚类，不管高度范围，仅考虑x,y方向，然后将聚类一类的看做一个墙体，在高度范围上寻找窗口
+%  窗口可以通过无人机的话进行聚类拆分，即最终的到的结果是同一类内部高度相同。
+%  采用的主要方法是用cluster_flag 标记该stixel属于哪儿一类
 %% 距离聚类
 cluster_flag = [1];
 cluster_number = 1;
@@ -334,6 +416,7 @@ result_cluster_tempz = [Stixel_result_z(1)];
 
 for p = 2:Stixel_number
     for c = 1:1:cluster_number
+        % 记录聚类对比点，即从左向右不断搜索聚类距离，以当前最靠右方的作为聚类中心
         cluster_center_x = result_cluster_tempx(c);
         cluster_center_y = result_cluster_tempy(c);
         cluster_center_h = result_cluster_temph(c);
@@ -349,6 +432,7 @@ for p = 2:Stixel_number
             result_cluster_tempz(cluster_number) = Stixel_result_z(p);
             break;
         elseif (c == cluster_number)
+            % 当聚类出现大于聚类中心的，则加入新的聚类，聚类数量加一
             cluster_number = cluster_number + 1;
             cluster_flag = [cluster_flag cluster_number];
             result_cluster_tempx = [result_cluster_tempx Stixel_result_x(p)];
@@ -360,12 +444,17 @@ for p = 2:Stixel_number
     end
 end
 
-
-Height_safe = 2;
+% 设置无人机飞行的安全高度和宽度，从而进行高度范围内的滤波处理
+Height_safe = 1;
 Width_safe  = 2;
 
 %（x,y）为二维映射坐标，h为障碍物下端的世界坐标高度，z为上端世界坐标高度
 %% 高度滤波
+% 核心思想是聚类内部以高度的最大值和最小值作为该聚类“墙体”的高度最大值和最小值，对比其他pillar的高度，计算补集
+% 补集的结果与周围进行相邻求交集，若交集大于无人机可通行高度，则继续向两边搜索，若无法通过则认为该pillar是堵死的
+% 用Z_max,Z_min表达其高度。
+% 为简化搜索次数，采用二分法搜索，即首先查找最中间的一个pillar，若大于则直接拆分，若小于无人机高度则堵死，拆分为两个待搜索块，继续针对两个待搜索块查找中间pillar是否存在无人机可穿行的高度
+
 for f = 1:cluster_number
     Bef_filter_xx = [];
     Bef_filter_yy = [];
@@ -376,6 +465,7 @@ for f = 1:cluster_number
     serial_number_stixel = [];
     for s = 1:Stixel_number
         if(cluster_flag(s) == f)
+            % 将同一聚类的stixel提取出来，存在Bef_filter中，即滤波前存储
             Bef_filter_xx = [Bef_filter_xx Stixel_result_x(s)];
             Bef_filter_yy = [Bef_filter_yy Stixel_result_y(s)];
             Bef_filter_hh = [Bef_filter_hh Stixel_result_z(s)];    % 转变后hh表达高度，即上方坐标
@@ -445,8 +535,13 @@ for f = 1:cluster_number
             end
         end
     end
-
-
+   
+    % 对正在处理的数据进行高度视野有限产生误差进行填补
+    for s = 1:BefCluster_number(2)
+        if (Beyond_view_flag(s) == 1)
+            Bef_filter_hh(s) = max_beyongd_temp;
+        end
+    end
     % 对填补视野有限导致的偏差，求解补集。
     for Bef_cnt = 1:BefCluster_number(2)
         if ((Zmax_temp-Bef_filter_hh(Bef_cnt))>Height_safe)
@@ -458,6 +553,8 @@ for f = 1:cluster_number
             Complement_Bef_z2(Bef_cnt,2) = Zmin_temp;
         end
     end
+    
+    % 前面是对高度超出视野的进行填补，填补后进一步计算补集与相邻的交集
     i = 1;
     while ( i < BefCluster_number(2)-1 ) 
         test_zmax = Complement_Bef_z1(i,1);
@@ -599,6 +696,7 @@ for f = 1:cluster_number
     end
 end
 
+
 %% 高度滤波 ， 将同一类别的的高度进行统一
 for f = 1:cluster_number
     serial_number_stixel = [];
@@ -645,6 +743,8 @@ plane_number = 0;
 last_p = [];
 p = zeros(2,1);
 figure(13);
+line_k = [];
+line_b = [];
 for f = 1:cluster_number
     xx = [];
     yy = [];
@@ -667,11 +767,10 @@ for f = 1:cluster_number
 %     p = polyfit(xx,yy,1);
 %     plot(xx,yy,'o',xx,polyval(p,xx));
 %     hold on;
-    Width_minLine = 10;
+    Width_minLine = 5;
     W_line = Width_minLine;
     cnt_i = 1;
-    line_k = [];
-    line_b = [];
+
     while (isempty(xx) == 0)
             
             [one_temp,number_exist] = size(xx);
@@ -688,11 +787,13 @@ for f = 1:cluster_number
                 if (size_temp>1)
                     plane_x_min = [plane_x_min xx_temp(1)];
                     plane_x_max = [plane_x_max xx_temp(size_temp)];
-                    plane_y_min = [plane_y_min yy_temp(1)];
-                    plane_y_max = [plane_y_max yy_temp(size_temp)];
+                    plane_y_min = [plane_y_min xx_temp(1)*p(1)+p(2)];
+                    plane_y_max = [plane_y_max xx_temp(size_temp)*p(1)+p(2)];
                     plane_z_min = [plane_z_min min(zz_temp)];
                     plane_z_max = [plane_z_max max(hh_temp)];    % 此处应该是小于1，则等于0
                     plane_number = plane_number + 1;
+                    line_k = [line_k p(1)];
+                    line_b = [line_b p(2)];
                 end
                 % 仅有一个点，不足以形成平面，考虑采用连接上一个点的方式构成平面
                 last_p = [];
@@ -740,123 +841,199 @@ for f = 1:cluster_number
                 % 当直线斜率过大，直接计算x轴坐标差即可
                 if ((p(1)>2000)||(isnan(p(1))))
                      for e = 1:size_temp
-                        error(e) = abs(xx_temp(e) - average_x);
+                        error(e) = (xx_temp(e) - average_x);
                     end
                 else
                     for e = 1:size_temp
-                        %error(e) = abs(yy_temp(e) - (p(1)*xx_temp(e)+p(2)));
-                        error(e) = abs(p(1)*xx_temp(e)+p(2)-yy_temp(e))/sqrt(1+p(1)^2);
-                        
-                    end
-                    for e = 2:size_temp
-                        error_diff = error(e) - error(e-1);
+                        error(e) = (p(1)*xx_temp(e)+p(2)-yy_temp(e))/sqrt(1+p(1)^2);                      
                     end
                 end
+                % 统计障碍物的凹凸性
+                line_concavity = zeros(size_temp,1);
+                for e = 1:W_line-1
+                    if (error(e)*error(e+1)<0)
+                        line_concavity(e) = 1;
+                    end
+                end
+                sum_concavity = sum(line_concavity);
+                if (sum_concavity>(3))
+                    concavity_flag = 1;
+                else
+                    concavity_flag = 0;
+                end
+                for e = 1:size_temp
+                    error(e) = abs(error(e));                      
+                end
                 [I,N] = max(error);
-                if (max(error)<0.2)
+                if (max(error)<=0.2)
                     for delate = 1:W_line
                         xx(1) = [];
                         yy(1) = [];
                         zz(1) = [];
                         hh(1) = [];
-                        
                     end
                     last_p = p;
                 else
-                    % 当直线段误差较大时出现转折点，计算转折点位置
-                    turn_point = 0;
-                    for e = 2:size_temp-1
-                        if (error(e)>error(e-1)&&(error(e)>error(e+1))&&(error(e)>0.1))
-                            turn_point = e;
-                            break;
-                        end
-                        if (e == (size_temp-1))
-                            average_error = 2 * mean(error);
-                            for point_cnt = 2:size_temp
-                                if (error(point_cnt) > average_error)
-                                    turn_point = max(point_cnt,1);
-                                    break;
-                                end    
+                    % 填补凹凸
+                    if (concavity_flag == 1)
+                        finish_flag = 1;
+                        while(finish_flag == 1)
+                            finish_flag = 0;
+                            [one,size_temp] = size(xx_temp);
+                            delate_flag = zeros(size_temp,1);
+                            for e = 2:size_temp-1
+                                BA_vector_X = xx_temp(e) - xx_temp(e-1);
+                                BA_vector_Y = yy_temp(e) - yy_temp(e-1);
+                                BC_vector_X = xx_temp(e) - xx_temp(e+1);
+                                BC_vector_Y = yy_temp(e) - yy_temp(e+1);
+                                judge_concavity = BA_vector_X * BC_vector_Y - BA_vector_Y * BC_vector_X;
+                                distance_AC = sqrt((xx_temp(e-1)-xx_temp(e+1))^2 +  ...
+                                    (yy_temp(e-1)-yy_temp(e+1))^2);
+                                if ((judge_concavity>0) && (distance_AC < 2))
+                                    delate_flag(e) = 1;
+                                    finish_flag = 1;
+                                end
+                            end
+                            for e = size_temp-1:-1:2
+                                if (delate_flag(e) == 1)
+                                    xx_temp(e) = [];
+                                    yy_temp(e) = [];
+                                    hh_temp(e) = [];
+                                    zz_temp(e) = [];
+                                end
                             end
                         end
-                    end
-                    % 常规方法没有找到合适的折断点，即可能第一点误差较大，或特别特殊位置误差较大，设为1，单个点处理
-                    if (turn_point == 0)
-                        turn_point = 1;
-                    end
-                    % 此处修补误差，当转折点在3个以上W_line时，需要为xx恢复，可以重新设计xx与xx_temp关系
-                    if ((size_temp - turn_point)>= W_line)
-                        for add = 1:(size_temp - turn_point - W_line)
-                           xx = [xx_temp(size_temp +1 - add - W_line) xx];
-                           yy = [yy_temp(size_temp +1 - add - W_line) yy];
-                           hh = [hh_temp(size_temp +1 - add - W_line) hh];
-                           zz = [zz_temp(size_temp +1 - add - W_line) zz];                         
-                        end
-                    elseif (turn_point >=1)
-                        for delate = 1:W_line - (size_temp - turn_point)
-                            xx(1) = [];
-                            yy(1) = [];
-                            hh(1) = [];
-                            zz(1) = [];                            
-                        end
-                    end
-                    % 将转折点后的点从xx_temp中删除
-                    for delate = 1:size_temp-turn_point
-                        xx_temp(size_temp-delate + 1) = [];
-                        yy_temp(size_temp-delate + 1) = [];
-                        hh_temp(size_temp-delate + 1) = [];
-                        zz_temp(size_temp-delate + 1) = [];
-                    end
-                    
-                    [one,size_temp] = size(xx_temp);
-                    n = size_temp;
-                    % 对更新过的点用最小二乘法拟合直线段
-                    x_2=sum(xx_temp.^2);              % 求Σ(xi^2)
-                    x_1=sum(xx_temp);                 % 求Σ(xi)
-                    x_1y_1=sum(xx_temp.*yy_temp);     % 求Σ(xi*yi)
-                    y_1=sum(yy_temp);                 % 求Σ(yi)
-                    a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %解出直线斜率b=(y1-a*x1)/n
-                    b=(y_1-a*x_1)/n;                      %解出直线截距
-                    p(1) = a;
-                    p(2) = b;
-                
-                    if (isempty(xx_temp) == 0)
-                        
-                        plot(xx_temp,yy_temp,'o',xx_temp,polyval(p,xx_temp));
-                        hold on;
-                        % 记录平面的四个点坐标参数
                         [one,size_temp] = size(xx_temp);
-                        plane_x_min = [plane_x_min xx_temp(1)];
-                        plane_x_max = [plane_x_max xx_temp(size_temp)];
-                        plane_y_min = [plane_y_min yy_temp(1)];
-                        plane_y_max = [plane_y_max yy_temp(size_temp)];
-                        plane_z_min = [plane_z_min min(zz_temp)];
-                        plane_z_max = [plane_z_max max(hh_temp)];     
-                        plane_number = plane_number + 1;
+                        for e = 1:size_temp-1
+                            p(1) = (yy_temp(e) - yy_temp(e+1))/(xx_temp(e) - xx_temp(e+1));
+                            p(2) = (xx_temp(e)*yy_temp(e+1)-xx_temp(e+1)*yy_temp(e))/(xx_temp(e)-xx_temp(e+1));
+                            
+                            plot(xx_temp(e:e+1),yy_temp(e:e+1),'o',xx_temp(e:e+1),polyval(p,xx_temp(e:e+1)));
+                            hold on;
+                            % 记录平面的四个点坐标参数
+                            [one,size_temp] = size(xx_temp);
+                            plane_x_min = [plane_x_min xx_temp(e)];
+                            plane_x_max = [plane_x_max xx_temp(e+1)];
+                            plane_y_min = [plane_y_min xx_temp(1)*p(1)+p(2)];
+                            plane_y_max = [plane_y_max xx_temp(size_temp)*p(1)+p(2)];
+                            plane_z_min = [plane_z_min min(zz_temp)];
+                            plane_z_max = [plane_z_max max(hh_temp)];     
+                            plane_number = plane_number + 1;
 
-                        last_p = [];
+                            last_p = [];                   
+                            line_k = [line_k p(1)];
+                            line_b = [line_b p(2)];
+                        end
                         xx_temp = [];
                         yy_temp = [];
                         hh_temp = [];
-                        zz_temp = [];                        
-                        line_k = [line_k p(1)];
-                        line_b = [line_b p(2)];
+                        zz_temp = [];    
+                        for delate = 1:W_line
+                            xx(1) = [];
+                            yy(1) = [];
+                            zz(1) = [];
+                            hh(1) = [];
+                        end
+                    else
+                        % 当直线段误差较大时出现转折点，计算转折点位置
+                        turn_point = 0;
+                        for e = 2:size_temp-1
+                            if (error(e)>error(e-1)&&(error(e)>error(e+1))&&(error(e)>0.1))
+                                turn_point = e;
+                                break;
+                            end
+                            if (e == (size_temp-1))
+                                average_error = 2 * mean(error);
+                                for point_cnt = 2:size_temp
+                                    if (error(point_cnt) > average_error)
+                                        turn_point = max(point_cnt,1);
+                                        break;
+                                    end    
+                                end
+                            end
+                        end
+                        % 常规方法没有找到合适的折断点，即可能第一点误差较大，或特别特殊位置误差较大，设为1，单个点处理
+                        if (turn_point == 0)
+                            turn_point = 1;
+                        end
+                        % 此处修补误差，当转折点在3个以上W_line时，需要为xx恢复，可以重新设计xx与xx_temp关系
+                        if ((size_temp - turn_point)>= W_line)
+                            for add = 1:(size_temp - turn_point - W_line)
+                               xx = [xx_temp(size_temp +1 - add - W_line) xx];
+                               yy = [yy_temp(size_temp +1 - add - W_line) yy];
+                               hh = [hh_temp(size_temp +1 - add - W_line) hh];
+                               zz = [zz_temp(size_temp +1 - add - W_line) zz];                         
+                            end
+                        elseif (turn_point >=1)
+                            for delate = 1:W_line - (size_temp - turn_point)
+                                xx(1) = [];
+                                yy(1) = [];
+                                hh(1) = [];
+                                zz(1) = [];                            
+                            end
+                        end
+                        % 将转折点后的点从xx_temp中删除
+                        for delate = 1:size_temp-turn_point
+                            xx_temp(size_temp-delate + 1) = [];
+                            yy_temp(size_temp-delate + 1) = [];
+                            hh_temp(size_temp-delate + 1) = [];
+                            zz_temp(size_temp-delate + 1) = [];
+                        end
+
+                        [one,size_temp] = size(xx_temp);
+                        n = size_temp;
+                        % 对更新过的点用最小二乘法拟合直线段
+                        x_2=sum(xx_temp.^2);              % 求Σ(xi^2)
+                        x_1=sum(xx_temp);                 % 求Σ(xi)
+                        x_1y_1=sum(xx_temp.*yy_temp);     % 求Σ(xi*yi)
+                        y_1=sum(yy_temp);                 % 求Σ(yi)
+                        a=(n*x_1y_1-x_1*y_1)/(n*x_2-x_1*x_1);      %解出直线斜率b=(y1-a*x1)/n
+                        b=(y_1-a*x_1)/n;                      %解出直线截距
+                        p(1) = a;
+                        p(2) = b;
+
+                        if (isempty(xx_temp) == 0)
+
+                            plot(xx_temp,yy_temp,'o',xx_temp,polyval(p,xx_temp));
+                            hold on;
+                            % 记录平面的四个点坐标参数
+                            [one,size_temp] = size(xx_temp);
+                            plane_x_min = [plane_x_min xx_temp(1)];
+                            plane_x_max = [plane_x_max xx_temp(size_temp)];
+                            plane_y_min = [plane_y_min xx_temp(1)*p(1)+p(2)];
+                            plane_y_max = [plane_y_max xx_temp(size_temp)*p(1)+p(2)];
+                            plane_z_min = [plane_z_min min(zz_temp)];
+                            plane_z_max = [plane_z_max max(hh_temp)];     
+                            plane_number = plane_number + 1;
+
+                            last_p = [];
+                            xx_temp = [];
+                            yy_temp = [];
+                            hh_temp = [];
+                            zz_temp = [];                        
+                            line_k = [line_k p(1)];
+                            line_b = [line_b p(2)];
+                        end
                     end
                 end
             end
             
-            if ((isempty(xx) == 1))
+            if ((isempty(xx) == 1)&&(~isempty(xx_temp)))
                 plot(xx_temp,yy_temp,'o',xx_temp,polyval(p,xx_temp));
                 hold on;
                 plane_x_min = [plane_x_min xx_temp(1)];
                 plane_x_max = [plane_x_max xx_temp(size_temp)];
-                plane_y_min = [plane_y_min yy_temp(1)];
-                plane_y_max = [plane_y_max yy_temp(size_temp)];
+                plane_y_min = [plane_y_min xx_temp(1)*p(1)+p(2)];
+                plane_y_max = [plane_y_max xx_temp(size_temp)*p(1)+p(2)];
                 plane_z_min = [plane_z_min min(zz_temp)];
                 plane_z_max = [plane_z_max max(hh_temp)];  
                 plane_number = plane_number + 1;
+                line_k = [line_k p(1)];
+                line_b = [line_b p(2)];
 
                 last_p = [];
+                line_k = [line_k p(1)];
+                line_b = [line_b p(2)];
                 xx_temp = [];
                 yy_temp = [];
                 hh_temp = [];
@@ -900,7 +1077,96 @@ for p = 1:plane_number
     %shading interp
 end
 
+%% 相邻平面再次合并，若无法合并则填补缝隙
+delate_plane_flag = zeros(plane_number,1);
+for p = 1:1:(plane_number-1)
+    x1 = plane_x_max(p);
+    x2 = plane_x_min(p+1);
+    
+    y1 = plane_y_max(p);
+    y2 = plane_y_min(p+1);
 
+    % 相邻平面的最小距离
+    distance_12  = sqrt((x1-x2)^2+(y1-y2)^2);
+    if (distance_12 < Width_safe)
+        k1 = line_k(p);
+        k2 = line_k(p+1);
+        cos_k1k2 = (1+k1*k2)/(sqrt(1+k1^2)*sqrt(1+k2^2));
+        theta_k1k2 = acos(cos_k1k2);
+        
+        plane_k1k2_x = plane_x_max(p) - plane_x_min(p+1);
+        plane_k1k2_y = plane_y_max(p) - plane_y_min(p+1);
+        commom_plane = ((plane_k1k2_x * 1) + (plane_k1k2_y*k1))/(sqrt(plane_k1k2_x^2+plane_k1k2_y^2)*sqrt(k1^2+k2^2));
+        % 若两个平面近似共面，则直接合并两个平面
+        if ((commom_plane<0.1)&&(theta_k1k2<0.1)&&(plane_z_min(p)-plane_z_min(p+1))<0.5&&(plane_z_max(p)-plane_z_max(p+1))<0.5) 
+            % 满足共面
+            plane_x_max(p) = plane_x_max(p+1);
+            plane_y_max(p) = plane_y_max(p+1);
+            plane_z_min(p) = min(plane_z_min(p),plane_z_min(p+1));
+            plane_z_max(p) = max(plane_z_max(p),plane_z_max(p+1));
+            
+            delate_plane_flag(p+1) = 1;
+        else
+            intersect_x = (line_b(p)-line_b(p+1))/(line_k(p+1)-line_k(p));
+            intersect_y = (line_k(p)*line_b(p+1)-line_k(p+1)*line_b(p))/(line_k(p)-line_k(p+1));
+            distance_intersect1 = sqrt((intersect_x-plane_x_max(p))^2 + (intersect_y-plane_y_max(p))^2);
+            distance_intersect2 = sqrt((intersect_x-plane_x_min(p+1))^2 + (intersect_y-plane_y_min(p+1))^2);
+            if (distance_intersect1<6*distance_12)||(distance_intersect2<6*distance_12)
+                plane_x_max(p) = intersect_x;
+                plane_x_min(p+1) = intersect_x;
+                plane_y_max(p) = intersect_y;
+                plane_y_min(p+1) = intersect_y;
+                if ((plane_z_min(p)-plane_z_min(p+1))<0.5&&(plane_z_max(p)-plane_z_max(p+1))<0.5)
+                    plane_z_min(p) = min(plane_z_min(p),plane_z_min(p+1));
+                    plane_z_max(p) = max(plane_z_max(p),plane_z_max(p+1));
+                    plane_z_min(p) = min(plane_z_min(p),plane_z_min(p+1));
+                    plane_z_max(p) = max(plane_z_max(p),plane_z_max(p+1));
+                end
+            else 
+                plane_x_min = [plane_x_min plane_x_max(p)];
+                plane_x_max = [plane_x_max plane_x_min(p+1)];
+                plane_y_min = [plane_y_min plane_y_max(p)];
+                plane_y_max = [plane_y_max plane_y_min(p+1)];
+                plane_z_min = [plane_z_min min(plane_z_min(p),plane_z_min(p+1))];
+                plane_z_max = [plane_z_max max(plane_z_max(p),plane_z_max(p+1))];  
+                plane_number = plane_number + 1;
+            end
 
+        end
+    end
+    
+end
 
+figure(16);
+hold on;
+grid on;
+delate_panle = zeros(plane_number,1);
+size_delate_number = size(delate_plane_flag);
+for p = 1:size_delate_number(1)
+    delate_panle(p) = delate_plane_flag(p);
+end
+for p = 1:plane_number
+    if (delate_panle(p) == 0)
+        x1 = plane_x_min(p);
+        x2 = plane_x_max(p);
+        x3 = plane_x_max(p);
+        x4 = plane_x_min(p);
 
+        y1 = plane_y_min(p);
+        y2 = plane_y_max(p);
+        y3 = plane_y_max(p);
+        y4 = plane_y_min(p);
+
+        z1 = plane_z_max(p);
+        z2 = plane_z_max(p);
+        z3 = plane_z_min(p);
+        z4 = plane_z_min(p);
+        hold on;
+        fill3([x1 x2 x3 x4],[ y1 y2 y3 y4],[z1 z2 z3 z4],'b');
+        alpha(.5);
+        %shading interp
+    end
+end
+% hold on;
+% fill3([-5 -5 5 5],[ 0 10 10 0],[0 0 0 0],'k');
+% alpha(.5);
