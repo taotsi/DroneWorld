@@ -1,4 +1,5 @@
 #include "components\stixel_component.h"
+#include "kde.h"
 #include <algorithm>
 #include <cmath>
 
@@ -43,18 +44,18 @@ void StixelComponent::RunStixel() {
         // PUSH kde_frame_queue_
         Kde();
     }
-	if (!kde_frame_queue_.empty()) {
+	if(!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
-		FindKdePeakPos(0.5);
+		FindKdePeak(0.5);
         kde_frame_queue_.pop();
 	}
-	if (!scaled_disparity_frame_queue_.empty()
-		&& !kde_peak_frame_queue_.empty()) {
-		// PUSH pillar_frame_queue_
-		DetectObject();
+    if(!scaled_disparity_frame_queue_.empty()
+        && !kde_peak_frame_queue_.empty()){
+        // PUSH pillar_frame_queue_
+        DetectObject();
         scaled_disparity_frame_queue_.pop();
         kde_peak_frame_queue_.pop();
-	}
+    }
     std::cout << "ready\n";
 }
 
@@ -90,68 +91,32 @@ void StixelComponent::Kde() {
     auto &frame_scaled = scaled_disparity_frame_queue_.front();
 	std::vector<std::vector<double>> kde_frame;
 	for (int i = 0; i < frame_scaled.size(); i++) {
-		std::vector<double> temp_stixel(kde_width_, 0);
-		for (int j = 0; j < height_; j++) {
-			if (frame_scaled.data_[i][j] <= disp_max_ &&
-				frame_scaled.data_[i][j] >= disp_min_) {
-				int kde_val = static_cast<int>(
-					frame_scaled.data_[i][j] * kde_width_ / disp_max_);
-				for (int k = 0; k < 17; k++) {
-					if (kde_val - 8 >= 0 &&
-						kde_val + 8 <= kde_width_ - 1) {
-						// W17_GAUSS is the discreted kernel function
-						temp_stixel[kde_val - 8 + k] +=
-							W17_GAUSS[k];
-					}
-				}
-			}
-		}
-		kde_frame.push_back(temp_stixel);
+        std::vector<double> kde_col;
+        kde::RetreiveKde(frame_scaled[i], kde_col, 
+            disp_max_, disp_min_, 1000);
+		kde_frame.push_back(kde_col);
 	}
 	kde_frame_queue_.push(kde_frame);
 }
 
 /* finds and saves the position of peaks meeting certain conditions */
-void StixelComponent::FindKdePeakPos(float delta_y) {
-    //int count = 0;
+void StixelComponent::FindKdePeak(float delta_y) {
 	auto &kde_frame = kde_frame_queue_.front();
 	std::vector<std::vector<KdePeak>> kde_peak_frame;
 	for (int i = 0; i < kde_frame.size(); i++) {
-		// 1 for ascending and -1 for descending
-		int prev_dir =
-			kde_frame[i][1] > kde_frame[i][0] ? 1 : -1;
-		std::vector<KdePeak> kde_peak;
-		for (int j = 1; j < kde_width_ - 1; j++) {
-			int crt_dir =
-				kde_frame[i][j + 1] > kde_frame[i][j] ? 1 : -1;
-			if (prev_dir == 1 && crt_dir == -1) {
-				// y = yl * b * kw / k / dmax,
-				// y is physical vertical length
-				// yl is the y-coordinate value of kde; 
-				// b is baseline; kw is kde_width; 
-				// k is j here, or x-coordinate of kde;
-				// dmax is disparity max, = disp_max * width_
-				if (kde_frame[i][j] * baseline_ * kde_width_ /
-					(j * disp_max_ * width_) > 0.01) { // 0.01 is a exp value
-                    KdePeak peak {j};
-                    // filter window
-                    auto thh = kde_frame[i][j] * 0.85; // or 0.707 maybe
-                    int jl = j, jr = j;
-                    while(kde_frame[i][jl] > thh){
-                        jl--;
-                    }
-                    while(kde_frame[i][jr] > thh){
-                        jr++;
-                    }
-                    double delta_y_meter = 0.2; // 0.2m for window height
-                    int delta_y_pix = static_cast<int>(
-                        delta_y_meter*j/kde_width_*disp_max_/baseline_*width_);
-                    peak.SetWindow(jl, jr, delta_y_pix);
-                    kde_peak.push_back(peak);
-				}
-			}
-			prev_dir = crt_dir;
-		}
+        std::vector<KdePeak> kde_peak;
+        // yl = y * k * dmax / b / kw
+        // y is physical vertical length
+        // yl is the y-coordinate value of kde; 
+        // b is baseline; kw is kde_width; 
+        // k is j here, or x-coordinate of kde;
+        // dmax is disparity max, = disp_max * width_
+        // 0.01 is an exp value
+        double slop = disp_max_*width_/baseline_/kde_width_*0.01;
+        // 0.2m for filter window height
+        double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
+        kde::RetreiveKdePeak(kde_frame[i], kde_peak, 0.7, 
+            slop, 0.0, window_h_weight);
 		if (kde_peak.empty()) {
 			kde_peak_frame.push_back(
 				std::vector<KdePeak>());
@@ -236,7 +201,7 @@ void StixelComponent::DetectObject() {
         BlockedIndex index {n_stixel};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         if(n_peak == 0){
-            std::cout << "oops, no peak at all, gonna collape~\n";
+            std::cout << "oops, no peak at all\n";
         }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
@@ -348,7 +313,7 @@ std::vector<double> StixelComponent::GetKde() {
 std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
     std::vector<std::vector<double>> pillars;
     if(!pillar_frame_queue_.empty()){
-        auto pillar_frame = pillar_frame_queue_.front();
+        auto &pillar_frame = pillar_frame_queue_.front();
         for(auto i=0; i<pillar_frame.size(); i++){
             for(auto j=0; j<pillar_frame[i].size(); j++){
                 auto temp = pillar_frame[i][j].GetCoor();
@@ -357,6 +322,7 @@ std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
         }
         return pillars;
     }else{
+        std::cout << "pillar_frame_queue_ is empty\n";
         return std::vector<std::vector<double>>();
     }
 }

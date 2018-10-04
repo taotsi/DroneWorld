@@ -83,16 +83,7 @@ struct ScaledDisparityFrame {
 struct KdePeak {
 	KdePeak(int pos) 
         : pos_(pos) {};
-	KdePeak(double x, double y, int pos) {
-		p_world_.x_ = x;
-		p_world_.y_ = y;
-		pos_ = pos;
-	};
-    KdePeak(Point2D p, int pos)
-        : p_world_(p), pos_(pos) {};
 	/* data */
-	//Point2D p_camera_;
-	Point2D p_world_;
 	// pos in a scaled disparity frame
 	int pos_ = 0;
     int window_left_ = 0;

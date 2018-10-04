@@ -736,6 +736,7 @@
     <ClInclude Include="include\drone.h" />
     <ClInclude Include="include\components\image_record_component.h" />
     <ClInclude Include="include\components\movement_component.h" />
+    <ClInclude Include="include\kde.h" />
     <ClInclude Include="include\math_utility.h" />
     <ClInclude Include="include\rpc_server.h" />
     <ClInclude Include="include\utility.h" />

@@ -10,6 +10,8 @@ Simulation program for our lab's project, base on Airsim.
 
 Put this repo beside the Airsim directory, not inside! Right-click the solution in vs2017 solution explorer, click "Add", find the .vcxproj file for this project and add it. Right-click this project in vs2017 solution explorer, click "Build". Remember to build this project(as well as the whole solution) in x64 mode.
 
+If you were to add or delete .cc or .h files, the easiest way is to do this in the airsim solution. Otherwise you'll have to modify the content in  DroneWorld.vcxproj and the AirSim.sln.
+
 ## How to run
 
 First you have to run an Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.

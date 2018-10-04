@@ -27,7 +27,7 @@ private:
 	void RunStixel();
     void RetreiveStixel();
 	void Kde();
-	void FindKdePeakPos(float delta_y = 0.5);
+	void FindKdePeak(float delta_y = 0.5);
 	void DetectObject();
     FilterStatus Filter(std::vector<double> vec, int start, int step, double mean, double min, double max);
 	Point3D TransformAirsimCoor(double x, double y, double z);
