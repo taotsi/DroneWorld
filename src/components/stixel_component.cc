@@ -23,7 +23,7 @@ StixelComponent::~StixelComponent() {
 }
 
 void StixelComponent::Begin() {
-	Stixel();
+	RunStixel();
     //auto pillar_frame = pillar_frame_queue_.front();
     //std::cout << pillar_frame.size() << std::endl;
     //pillar_frame[45][0].Print();
@@ -33,13 +33,16 @@ void StixelComponent::Update(double DeltaTime) {
 
 }
 
-void StixelComponent::Stixel() {
+void StixelComponent::RunStixel() {
 	if (!disparity_retreived_->empty()) {
         // PUSH scaled_disparity_frame_queue_
-		// PUSH kde_frame_queue_
-		Kde();
+		RetreiveStixel();
         disparity_retreived_->pop();				
 	}
+    if(!scaled_disparity_frame_queue_.empty()){
+        // PUSH kde_frame_queue_
+        Kde();
+    }
 	if (!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeakPos(0.5);
@@ -55,36 +58,38 @@ void StixelComponent::Stixel() {
     std::cout << "ready\n";
 }
 
-/* gets kde and saves them */
-void StixelComponent::Kde() {
-	/* get a frame of disparity if available */
-	// TODO: if roll != 0, correction needs to be done
-	auto &frame_raw = disparity_retreived_->front();
+void StixelComponent::RetreiveStixel(){
+    // TODO: if roll != 0, correction needs to be done
+    auto &frame_raw = disparity_retreived_->front();
     Point3D pos_camera = TransformAirsimCoor(
         frame_raw.camera_position.x(),
         frame_raw.camera_position.y(),
         frame_raw.camera_position.z()
     );
-	double quat_w = frame_raw.camera_orientation.w();
-	double quat_x = frame_raw.camera_orientation.x();
-	double quat_y = frame_raw.camera_orientation.y();
-	double quat_z = frame_raw.camera_orientation.z();
-	Quaternion angle_camera{ quat_w, quat_x, quat_y, quat_z };
-	ScaledDisparityFrame frame_scaled{ pos_camera, angle_camera };
-	int i_start = stixel_width_ / 2;
-	for (int i = i_start; i < width_; i += stixel_width_) {
-		std::vector<double> stixel;
-		for (int j = 0; j < height_; j++) {
-			double pix_val = frame_raw.
-				image_data_float[j*width_ + i];
-			stixel.push_back(pix_val);
-		}
-		frame_scaled.PushStixel(stixel);
-	}
-	scaled_disparity_frame_queue_.push(frame_scaled);
-	/* kernel density estimate */
-	std::vector<std::vector<double>> temp_frame;
-	for (int i = 0; i < frame_scaled.data_.size(); i++) {
+    double quat_w = frame_raw.camera_orientation.w();
+    double quat_x = frame_raw.camera_orientation.x();
+    double quat_y = frame_raw.camera_orientation.y();
+    double quat_z = frame_raw.camera_orientation.z();
+    Quaternion angle_camera{ quat_w, quat_x, quat_y, quat_z };
+    ScaledDisparityFrame frame_scaled{ pos_camera, angle_camera };
+    int i_start = stixel_width_ / 2;
+    for (int i = i_start; i < width_; i += stixel_width_) {
+        std::vector<double> stixel;
+        for (int j = 0; j < height_; j++) {
+            double pix_val = frame_raw.
+                image_data_float[j*width_ + i];
+            stixel.push_back(pix_val);
+        }
+        frame_scaled.PushStixel(stixel);
+    }
+    scaled_disparity_frame_queue_.push(frame_scaled);
+}
+
+/* gets kde and saves them */
+void StixelComponent::Kde() {
+    auto &frame_scaled = scaled_disparity_frame_queue_.front();
+	std::vector<std::vector<double>> kde_frame;
+	for (int i = 0; i < frame_scaled.size(); i++) {
 		std::vector<double> temp_stixel(kde_width_, 0);
 		for (int j = 0; j < height_; j++) {
 			if (frame_scaled.data_[i][j] <= disp_max_ &&
@@ -101,9 +106,9 @@ void StixelComponent::Kde() {
 				}
 			}
 		}
-		temp_frame.push_back(temp_stixel);
+		kde_frame.push_back(temp_stixel);
 	}
-	kde_frame_queue_.push(temp_frame);
+	kde_frame_queue_.push(kde_frame);
 }
 
 /* finds and saves the position of peaks meeting certain conditions */
@@ -126,21 +131,8 @@ void StixelComponent::FindKdePeakPos(float delta_y) {
 				// b is baseline; kw is kde_width; 
 				// k is j here, or x-coordinate of kde;
 				// dmax is disparity max, = disp_max * width_
-                //std::cout << "find a peak " << i << "\n";
-                //std::cout << kde_frame[i][j] * baseline_ * kde_width_ /
-				//	(j * disp_max_) << std::endl;
 				if (kde_frame[i][j] * baseline_ * kde_width_ /
 					(j * disp_max_ * width_) > 0.01) { // 0.01 is a exp value
-                    //std::cout << count <<" peak is good\n";
-                    //count++;
-                    /*auto disp_temp = j/kde_width_*disp_max_;
-                    Point3D p_camera = GetCameraCoor(
-                        disp_temp, i, height_/2);
-                    Point3D p_world = CameraToWorldCoor(
-                        scaled_disparity_frame_queue_.front().pos_camera_,
-                        p_camera,
-                        scaled_disparity_frame_queue_.front().angle_camera_);
-                    KdePeak peak{p_world.x_, p_world.y_, j};*/
                     KdePeak peak {j};
                     // filter window
                     auto thh = kde_frame[i][j] * 0.85; // or 0.707 maybe
@@ -315,7 +307,7 @@ void StixelComponent::DetectObject() {
 void StixelComponent::Behave() {
 	is_busy_ = true;
 	thread_handle_ = std::thread{ 
-		&StixelComponent::Stixel, this };
+		&StixelComponent::RunStixel, this };
 }
 
 // TODO: needs to be perfected

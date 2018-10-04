@@ -24,7 +24,8 @@ public:
     std::queue<PillarFrame> pillar_frame_queue_;
 private:
 	/* methods */
-	void Stixel();
+	void RunStixel();
+    void RetreiveStixel();
 	void Kde();
 	void FindKdePeakPos(float delta_y = 0.5);
 	void DetectObject();

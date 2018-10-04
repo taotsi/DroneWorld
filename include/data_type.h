@@ -76,6 +76,9 @@ struct ScaledDisparityFrame {
 	void SetEulerAngle(Quaternion &quaternion) {
 		angle_camera_ = EulerAngle(quaternion);
 	};
+    int size(){
+        return static_cast<int>(data_.size());
+    }
 };
 struct KdePeak {
 	KdePeak(int pos) 

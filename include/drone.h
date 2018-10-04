@@ -13,9 +13,9 @@ STRICT_MODE_ON
 
 #include <map>
 #include "components/movement_component.h"
-#include "components/image_process_component.h"
-#include "components/stixel_component.h"
 #include "components/image_record_component.h"
+#include "components/stixel_component.h"
+#include "components/pillar_cluster_component.h"
 #include "components/communication_component.h"
 
 class World;
