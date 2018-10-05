@@ -224,6 +224,10 @@ public:
     std::vector<double> GetCoor(){
         return std::vector<double>{x_, y_, z1_, z2_};
     }
+    double x() {return x_;};
+    double y() {return y_;};
+    double z1() {return z1_;};
+    double z2() {return z2_;};
 private:
     /* data */
 	double x_ = 0.0;
@@ -250,6 +254,17 @@ public:
 class PillarClusterHorizon {
 public:
 	std::vector<std::vector<Pillar>> data_;
+    void BringIn(Pillar &pillar, double dist_max){
+        for(auto i=0; i<data_.size(); i++){
+            double dist = pow(data_[i].back().x() - pillar.x(), 2)
+                + pow(data_[i].back().y() - pillar.y(), 2);
+            if(dist <= dist_max){
+                data_[i].push_back(pillar);
+                return;
+            }
+        }
+        data_.push_back(std::vector<Pillar>{pillar});
+    }
 };
 class PillarCluster{
 public:
