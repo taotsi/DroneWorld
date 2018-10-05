@@ -253,8 +253,15 @@ public:
 };
 class PillarClusterHorizon {
 public:
+    PillarClusterHorizon() {};
+    ~PillarClusterHorizon() {};
+    /* data */
 	std::vector<std::vector<Pillar>> data_;
-    void BringIn(Pillar &pillar, double dist_max){
+    /* methods */
+    std::vector<Pillar> operator[](int pos){
+        return data_[pos];
+    }
+    void BringIn(Pillar pillar, double dist_max){
         for(auto i=0; i<data_.size(); i++){
             double dist = pow(data_[i].back().x() - pillar.x(), 2)
                 + pow(data_[i].back().y() - pillar.y(), 2);
@@ -264,6 +271,9 @@ public:
             }
         }
         data_.push_back(std::vector<Pillar>{pillar});
+    }
+    int size(){
+        return static_cast<int>(data_.size());
     }
 };
 class PillarCluster{

@@ -10,6 +10,7 @@ public:
     void Update(double DeltaTime);
     /* data */
     std::queue<PillarFrame>* pillar_frame_queue_;
+    std::queue<PillarClusterHorizon> pillar_cluster_horizon_queue_;
 private:
     void RunCluster();
     void HorizontalCluster();

@@ -46,7 +46,6 @@ void StixelComponent::RunStixel() {
         scaled_disparity_frame_queue_.pop();
         kde_peak_frame_queue_.pop();
     }
-    std::cout << "ready\n";
 }
 
 void StixelComponent::RetreiveStixel(){
