@@ -82,7 +82,7 @@ void StixelComponent::RetreiveStixel(){
     int i_start = stixel_width_ / 2;
     for (int i = i_start; i < width_; i += stixel_width_) {
         std::vector<double> stixel;
-        for (int j = 0; j < height_; j++) {
+        for (int j = height_-1; j >= 0; j--) {
             double pix_val = frame_raw.
                 image_data_float[j*width_ + i];
             stixel.push_back(pix_val);
@@ -119,7 +119,7 @@ void StixelComponent::FindKdePeak(float delta_y) {
         double slop = disp_max_*width_/baseline_/kde_width_*0.01;
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
-        kde::RetreiveKdePeak(kde_frame[i], kde_peak, 0.7, 
+        kde::RetreiveKdePeak(kde_frame[i], kde_peak, 0.8, 
             slop, 0.0, window_h_weight);
 		if (kde_peak.empty()) {
 			kde_peak_frame.push_back(

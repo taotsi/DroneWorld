@@ -20,5 +20,5 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 for cl in clusters:
     for pl in cl:
-        ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [-pl[2], -pl[3]])
+        ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [pl[2], pl[3]])
 plt.show()
