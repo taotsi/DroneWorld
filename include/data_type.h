@@ -159,6 +159,14 @@ struct BlockedIndex {
         }
         index_.insert(index_.begin()+idx_r, pair);
     };
+    bool IsFull(){
+        for(auto i=1; i<index_.size(); i++){
+            if(index_[i-1].second < index_[i].first){
+                return true;
+            }
+        }
+        return false;
+    };
     void Print(){
         for(auto seg : index_){
             std::cout << "(" << seg.first << ", " << seg.second << ")  ";
@@ -222,30 +230,30 @@ private:
 	double y_ = 0.0;
 	double z1_ = 0.0;
 	double z2_ = 0.0;
-	double disp = 0.0;
 };
 class PillarFrame{
 public:
     /* data */
-	std::vector<std::vector<Pillar>> data_;
+	std::vector<Pillar> data_;
     /* methods */
-    auto& operator[](int pos){
+    Pillar operator[](int pos){
         return data_[pos];
     }
-    void PushPillar(int pos, Pillar pl){
-        data_[pos].push_back(pl);
-    }
-    void Push(std::vector<Pillar> pillar_col){
-        data_.push_back(pillar_col);
+    void Push(Pillar &pl){
+        data_.push_back(pl);
     }
     int size(){
         int size = static_cast<int>(data_.size());
         return size;
     }
 };
-class PillarClustered {
+class PillarClusterHorizon {
 public:
 	std::vector<std::vector<Pillar>> data_;
+};
+class PillarCluster{
+public:
+    
 };
 
 struct Plane {

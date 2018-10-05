@@ -187,7 +187,6 @@ void StixelComponent::DetectObject() {
     PillarFrame pillar_frame;
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
-        std::vector<Pillar> pillar_col;
         BlockedIndex index {n_stixel};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         if(n_peak == 0){
@@ -249,12 +248,11 @@ void StixelComponent::DetectObject() {
                                 p_camera2, scaled_disparity_frame.angle_camera_);
                         pillar_temp.SetPoint(p_world1);
                         pillar_temp.SetZ2(p_world2.z_);
-                        pillar_col.push_back(pillar_temp);
+                        pillar_frame.Push(pillar_temp);
                     }
                 }
             }
         }
-        pillar_frame.Push(pillar_col);
     }
     pillar_frame_queue_.push(pillar_frame);
 }
@@ -302,13 +300,12 @@ std::vector<double> StixelComponent::GetKde() {
 }
 std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
     std::vector<std::vector<double>> pillars;
+    pillars.reserve(100);
     if(!pillar_frame_queue_.empty()){
         auto &pillar_frame = pillar_frame_queue_.front();
         for(auto i=0; i<pillar_frame.size(); i++){
-            for(auto j=0; j<pillar_frame[i].size(); j++){
-                auto temp = pillar_frame[i][j].GetCoor();
+                auto temp = pillar_frame[i].GetCoor();
                 pillars.push_back(temp);
-            }
         }
         return pillars;
     }else{

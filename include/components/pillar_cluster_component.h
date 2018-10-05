@@ -12,4 +12,5 @@ public:
     std::queue<PillarFrame>* pillar_frame_queue_;
 private:
     void RunCluster();
+    void HorizontalCluster();
 };

@@ -20,6 +20,11 @@ void PillarClusterComponent::Update(double DeltaTime){
 
 void PillarClusterComponent::RunCluster(){
     if(!pillar_frame_queue_->empty()){
-        
+        HorizontalCluster();
+        pillar_frame_queue_->pop();
     }
+}
+
+void PillarClusterComponent::HorizontalCluster(){
+    
 }
