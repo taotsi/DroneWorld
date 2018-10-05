@@ -32,5 +32,6 @@ public:
     std::unique_ptr<MovementComponent> movement_;
 	std::unique_ptr<ImageRecordComponent> image_record_;
 	std::unique_ptr<StixelComponent> stixel_;
+    std::unique_ptr<PillarClusterComponent> cluster_;
 };
 

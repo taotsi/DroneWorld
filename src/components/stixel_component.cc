@@ -6,16 +6,6 @@
 StixelComponent::StixelComponent
 	(std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
-    W17_GAUSS = {
-    	0.00678462,	   0.0133395, 
-    	0.0239336,		0.0392686, 
-    	0.0588726,		0.0806656, 
-    	0.101032,		0.115629, 
-    	0.12095,		0.115629, 
-		0.101032,		0.0806656, 
-		0.0588726,		0.0392686, 
-		0.0239336,		0.0133395, 
-    	0.00678462};
 	fov_ = PI / 4;
 }
 
