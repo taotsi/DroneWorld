@@ -11,6 +11,8 @@ public:
     /* data */
     std::queue<PillarFrame>* pillar_frame_queue_;
     std::queue<PillarClusterHorizon> pillar_cluster_horizon_queue_;
+    // for rpclib server
+    std::vector<std::vector<std::vector<double>>> GetPillarCluster();
 private:
     void RunCluster();
     void HorizontalCluster();

@@ -28,16 +28,32 @@ void StixelComponent::RunStixel() {
 	if (!disparity_retreived_->empty()) {
         // PUSH scaled_disparity_frame_queue_
 		RetreiveStixel();
-        disparity_retreived_->pop();				
+        disparity_retreived_->pop();			
 	}
     if(!scaled_disparity_frame_queue_.empty()){
         // PUSH kde_frame_queue_
         Kde();
+        //std::cout << "stixel kde ready\n";
     }
 	if(!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeak(0.5);
+        /*
+        auto &kf = kde_peak_frame_queue_.front();
+        for(auto i=0; i<kf.size(); i++){
+            for(auto j=0; j<kf[i].size(); j++){
+                kf[i][j].PrintWindow();
+            }
+        }
+        std::cout << kf.size() << "\n";
+        if(!kf[0].empty()){
+            std::cout << kf[0].size() << "\n";
+        }else{
+            std::cout << "kde peak is empty\n";
+        }
+        */
         kde_frame_queue_.pop();
+        //std::cout << "stixel kde peak ready\n";
 	}
     if(!scaled_disparity_frame_queue_.empty()
         && !kde_peak_frame_queue_.empty()){
@@ -45,9 +61,10 @@ void StixelComponent::RunStixel() {
         DetectObject();
         scaled_disparity_frame_queue_.pop();
         kde_peak_frame_queue_.pop();
+        //std::cout << "stixel detect ready\n";
     }
+    std::cout << "stixel reday\n";
 }
-
 void StixelComponent::RetreiveStixel(){
     // TODO: if roll != 0, correction needs to be done
     auto &frame_raw = disparity_retreived_->front();
@@ -74,7 +91,6 @@ void StixelComponent::RetreiveStixel(){
     }
     scaled_disparity_frame_queue_.push(frame_scaled);
 }
-
 /* gets kde and saves them */
 void StixelComponent::Kde() {
     auto &frame_scaled = scaled_disparity_frame_queue_.front();
@@ -87,7 +103,6 @@ void StixelComponent::Kde() {
 	}
 	kde_frame_queue_.push(kde_frame);
 }
-
 /* finds and saves the position of peaks meeting certain conditions */
 void StixelComponent::FindKdePeak(float delta_y) {
 	auto &kde_frame = kde_frame_queue_.front();
@@ -115,7 +130,6 @@ void StixelComponent::FindKdePeak(float delta_y) {
 	}
 	kde_peak_frame_queue_.push(kde_peak_frame);
 }
-
 /*
 our coordinate system:
 z
@@ -129,7 +143,6 @@ Point3D StixelComponent::TransformAirsimCoor(
 	double x, double y, double z) {
 	return Point3D{ y, x, -z };
 }
-
 Point3D StixelComponent::GetCameraCoor(
 	double disp_normalized, int x_pixel_scaled, int z_pixel) {
 	Point3D p_camera;
@@ -140,7 +153,6 @@ Point3D StixelComponent::GetCameraCoor(
 	p_camera.x_ = (x_pixel - width_ / 2) * p_camera.y_ / focus;
 	return p_camera;
 }
-
 /* returns world coordinate position */
 // use rad instead of degree
 Point3D StixelComponent::CameraToWorldCoor(
@@ -175,7 +187,6 @@ Point3D StixelComponent::CameraToWorldCoor(
 	p_world.z_ += pos_camera.z_;
 	return p_world;
 }
-
 /* Sliding-block filter */
 void StixelComponent::DetectObject() {
 	auto &scaled_disparity_frame =
@@ -186,6 +197,7 @@ void StixelComponent::DetectObject() {
     PillarFrame pillar_frame;
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
+        //std::cout << "--------------stixel " << stx_i << "\n";
         BlockedIndex index {n_stixel};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         if(n_peak == 0){
@@ -193,6 +205,7 @@ void StixelComponent::DetectObject() {
         }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
+            //std::cout << "-------peak " << peak_i << "\n";
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
             std::vector<int> idx_of_object;
@@ -203,7 +216,9 @@ void StixelComponent::DetectObject() {
                 auto window_height = 
                     kde_peak_frame[stx_i][peak_i].window_height_;
                 auto step_size = window_height/2;
+                //std::cout << "window info " << window_height << "  " << step_size << "\n";
                 if(window_height < end - start){
+                    //std::cout << "filter starts\n";
                     double mean = static_cast<double>(
                         kde_peak_frame[stx_i][peak_i].pos_)
                         /kde_width_*disp_max_;
@@ -233,6 +248,7 @@ void StixelComponent::DetectObject() {
                         start += step_size;
                     }
                     if(!idx_of_object.empty()){
+                        //std::cout << "found ends\n";
                         auto y_start = std::min_element(
                             idx_of_object.begin(), idx_of_object.end());
                         auto y_end = std::max_element(
@@ -255,13 +271,11 @@ void StixelComponent::DetectObject() {
     }
     pillar_frame_queue_.push(pillar_frame);
 }
-
 void StixelComponent::Behave() {
 	is_busy_ = true;
 	thread_handle_ = std::thread{ 
 		&StixelComponent::RunStixel, this };
 }
-
 // TODO: needs to be perfected
 FilterStatus StixelComponent::Filter(
     std::vector<double> vec, int start, int step, 
@@ -287,7 +301,6 @@ FilterStatus StixelComponent::Filter(
         return stat; 
     }
 }
-
 /* for rpclib server */
 std::vector<double> StixelComponent::GetKde() {
 	if (!kde_frame_queue_.empty()) {

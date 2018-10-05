@@ -88,12 +88,12 @@ struct KdePeak {
 	int pos_ = 0;
     int window_left_ = 0;
     int window_right_ = 0;
-    int window_height_ = 1;
+    int window_height_ = 2;
     /* methods */
     void SetWindow(int left, int right, int height){
         window_left_ = left;
         window_right_ = right;
-        window_height_ = height;
+        window_height_ = height > 1 ? height : 2;
     };
     void PrintWindow(){
         std::cout << "left, mid, right, height = " << window_left_ << "  " << pos_ << "  " << window_right_ << "  " << window_height_ << "\n";

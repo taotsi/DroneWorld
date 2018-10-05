@@ -45,8 +45,8 @@ private:
 	float baseline_ = 0.25;
 	double fov_;
 	// normalized disparity
-	double disp_max_ = 0.25f;   // 0.5m
-	double disp_min_ = 0.00625f; // 20m
+	double disp_max_ = 0.25;   // 0.5m
+	double disp_min_ = 0.004; // 50m
 	std::vector<double> W17_GAUSS;
 	const double PI = 3.14159265359;
 };
