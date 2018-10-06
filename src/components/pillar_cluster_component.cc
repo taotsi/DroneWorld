@@ -22,7 +22,7 @@ void PillarClusterComponent::RunCluster(){
     if(!pillar_frame_queue_->empty()){
         // PUSH pillar_cluster_horizon_queue_
         HorizontalCluster();
-        pillar_frame_queue_->pop();
+        //pillar_frame_queue_->pop();
     }
     std::cout << "cluster ready\n";
 }
