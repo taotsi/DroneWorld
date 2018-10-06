@@ -302,13 +302,15 @@ FilterStatus StixelComponent::Filter(
         return stat; 
     }
 }
+
 /* for rpclib server */
-std::vector<double> StixelComponent::GetKde() {
+std::vector<std::vector<double>> StixelComponent::GetKde() {
 	if (!kde_frame_queue_.empty()) {
 		// never ever pop it here
-		return kde_frame_queue_.front()[45];
+		return kde_frame_queue_.front();
 	} else {
-		return std::vector<double>(width_/stixel_width_, 0.0);
+        std::cout << "kde_frame_queue_ is empty\n";
+		return std::vector<std::vector<double>>();
 	}
 }
 std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){

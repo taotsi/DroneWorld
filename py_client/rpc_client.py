@@ -5,6 +5,12 @@ class DataClient:
     def __init__(self):
         self.client = msgpackrpc.Client(msgpackrpc.Address("127.0.0.1", 8080))
 
+    def test(self):
+        return self.client.call("test")
+
+    def GetKde(self):
+        return self.client.call("GetKde")
+
     def GetPillarFrame(self):
         return self.client.call("GetPillarFrame")
 

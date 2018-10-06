@@ -47,7 +47,7 @@ void PillarClusterComponent::HorizontalCluster(){
 
 /* for rpclib server */
 std::vector<std::vector<std::vector<double>>>
-PillarClusterComponent::GetPillarCluster(){
+PillarClusterComponent::GetPillarClusterHorizon(){
     std::vector<std::vector<std::vector<double>>> result;
     std::vector<std::vector<double>> cluster;
     cluster.reserve(50);
@@ -66,4 +66,8 @@ PillarClusterComponent::GetPillarCluster(){
         std::cout << "pillar_cluster_horizon_queue_ is empty\n";
         return std::vector<std::vector<std::vector<double>>>();
     }
+}
+std::vector<std::vector<std::vector<double>>>
+PillarClusterComponent::GetPillarCluster(){
+    return std::vector<std::vector<std::vector<double>>>();
 }

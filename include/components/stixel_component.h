@@ -10,7 +10,7 @@ public:
 	void Update(double DeltaTime);
 	void Begin();
     // for rpclib server
-	std::vector<double> GetKde();
+	std::vector<std::vector<double>> GetKde();
     std::vector<std::vector<double>> GetPillarFrame();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
