@@ -1,6 +1,7 @@
 """
-put this file in AirSim\PythonClient to run it.
+put this file in AirSim\PythonClient\multirotor, and add it to PythonClient.pyproj(so as to use the vs2017 intellisense)
 """
+
 import setup_path
 import airsim
 import os
@@ -8,32 +9,20 @@ import pprint
 import tempfile
 from threading import Thread
 from time import sleep
+import numpy as np
 
 
-def State2String(state):
-    position = \
-        '{:.3f}'.format(state.kinematics_estimated.position.x_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.position.y_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.position.z_val)
-
-    linear_vel = \
-        '{:.3f}'.format(state.kinematics_estimated.linear_velocity.x_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.linear_velocity.y_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.linear_velocity.z_val)
-
-    angular_vel = \
-        '{:.3f}'.format(state.kinematics_estimated.angular_velocity.x_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.angular_velocity.y_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.angular_velocity.z_val)
-
-    orientation = \
-        '{:.3f}'.format(state.kinematics_estimated.orientation.w_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.orientation.x_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.orientation.y_val) + ' '\
-        + '{:.3f}'.format(state.kinematics_estimated.orientation.z_val)
-
-    state = position + ' ' + linear_vel + ' ' + angular_vel + ' ' + orientation
-    return state
+def StateToString(position, quaternion):
+    pos = \
+        '{:.3f}'.format(position.x_val) + ' '\
+        + '{:.3f}'.format(position.y_val) + ' '\
+        + '{:.3f}'.format(position.z_val)
+    quat = \
+        '{:.3f}'.format(quaternion.w_val) + ' '\
+        + '{:.3f}'.format(quaternion.x_val) + ' '\
+        + '{:.3f}'.format(quaternion.y_val) + ' '\
+        + '{:.3f}'.format(quaternion.z_val)
+    return pos + ' ' + quat
 
 
 def SaveFile(responses, idx, state_str, dir='data'):
@@ -69,47 +58,32 @@ def SaveFile(responses, idx, state_str, dir='data'):
         f.write(state_str + '\n')
 
 
-def Record(client):
-    request = [airsim.ImageRequest("1", airsim.ImageType.DepthPlanner, True),
+def Record(client, path):
+    request = [airsim.ImageRequest("1", airsim.ImageType.DisparityNormalized, True),
                airsim.ImageRequest("1", airsim.ImageType.Scene)]
     idx = 0
     print("start recording")
     while(flying):
         responses = client.simGetImages(request)
-        state = client.getMultirotorState()
-        state = State2String(state)
-        SaveFile(responses, idx, state)
+        state = StateToString(
+            responses[0].camera_position, responses[0].camera_orientation)
+        SaveFile(responses, idx, state, path)
         idx += 1
-        sleep(0.05)
+        sleep(0.5)
     print("finish recording")
 
 
-if __name__ == "__main__":
-    global flying
-    flying = True
-
+def RecordMaze():
     clientR = airsim.MultirotorClient()
     clientR.confirmConnection()
     client = airsim.MultirotorClient()
     client.confirmConnection()
-
     client.enableApiControl(True)
     client.armDisarm(True)
     client.takeoffAsync().join()
 
-    thread = Thread(target=Record, args=(clientR,))
+    thread = Thread(target=Record, args=(clientR, "E:/airsim_data_maze", ))
     thread.start()
-
-    speed = 3
-    z = -40
-    path_city = [airsim.Vector3r(0, 0, z), airsim.Vector3r(20, 0, z),
-                 airsim.Vector3r(55, 35, z), airsim.Vector3r(60, 80, z),
-                 airsim.Vector3r(55, 90, z), airsim.Vector3r(45, 95, z),
-                 airsim.Vector3r(0, 95, z), airsim.Vector3r(-20, 90, z),
-                 airsim.Vector3r(-30, 80, z), airsim.Vector3r(-40, 60, z),
-                 airsim.Vector3r(-45, 15, z), airsim.Vector3r(-30, 0, z),
-                 airsim.Vector3r(0, 0, z)]
-
     speedm = 1
     zm = -1.5
     path_maze = [airsim.Vector3r(0, 0, zm), airsim.Vector3r(0, -8, zm),
@@ -121,21 +95,63 @@ if __name__ == "__main__":
                  airsim.Vector3r(-58, -5, zm), airsim.Vector3r(-62, -10, zm),
                  airsim.Vector3r(-62, -40, zm), airsim.Vector3r(-58, -48, zm),
                  airsim.Vector3r(0, -48, zm)]
-
+    path_maze_0 = [airsim.Vector3r(0, 0, zm), airsim.Vector3r(0, -8, zm),
+                   airsim.Vector3r(-10, -8, zm)]
     client.moveOnPathAsync(
-        path_maze, speedm, 120, airsim.DrivetrainType.ForwardOnly,
+        path_maze_0, speedm, 120, airsim.DrivetrainType.ForwardOnly,
         airsim.YawMode(False, 0), -1, 0).join()
+    flying = False
+    airsim.wait_key("press any key to reset")
 
-    # pos = client.getMultirotorState().kinematics_estimated.position
-    # print("(", pos.x_val, ", ", pos.y_val, ", ", pos.z_val, ")")
+    client.reset()
+    client.enableApiControl(False)
+
+
+def RecordCity():
+    clientR = airsim.MultirotorClient()
+    clientR.confirmConnection()
+    client = airsim.MultirotorClient()
+    client.confirmConnection()
+    client.enableApiControl(True)
+    client.armDisarm(True)
+    client.takeoffAsync().join()
+
+    speed = 10
+    z = -30
+    path_city = [airsim.Vector3r(0, 0, z), airsim.Vector3r(20, 0, z),
+                 airsim.Vector3r(55, 35, z), airsim.Vector3r(60, 80, z),
+                 airsim.Vector3r(55, 90, z), airsim.Vector3r(45, 95, z),
+                 airsim.Vector3r(0, 95, z), airsim.Vector3r(-20, 90, z),
+                 airsim.Vector3r(-30, 80, z), airsim.Vector3r(-40, 60, z),
+                 airsim.Vector3r(-45, 15, z), airsim.Vector3r(-30, 0, z),
+                 airsim.Vector3r(0, 0, z)]
+    path_city_0 = [airsim.Vector3r(0, 0, z), airsim.Vector3r(20, 0, z),
+                   airsim.Vector3r(55, 35, z), airsim.Vector3r(60, 80, z),
+                   airsim.Vector3r(55, 90, z), airsim.Vector3r(45, 95, z)]
+    path_city_1 = [airsim.Vector3r(1, 0, z), airsim.Vector3r(20, 0, z)]
+    path_city_2 = [airsim.Vector3r(220, 0, z)]
+    client.moveOnPathAsync(
+        path_city_1, speed, 120, airsim.DrivetrainType.ForwardOnly,
+        airsim.YawMode(False, 0), -1, 0).join()
+    thread = Thread(target=Record, args=(clientR, "E:/airsim_data_city"))
+    thread.start()
+    client.moveOnPathAsync(
+        path_city_2, speed, 120, airsim.DrivetrainType.ForwardOnly,
+        airsim.YawMode(False, 0), -1, 0).join()
 
     # client.moveToPositionAsync(0, 0, -1, 1).join()
     # client.landAsync().join()
     # client.armDisarm(False)
     # client.enableApiControl(False)
 
-    airsim.wait_key("pakt reset")
     flying = False
+    airsim.wait_key("press any key to reset")
 
     client.reset()
     client.enableApiControl(False)
+
+
+if __name__ == "__main__":
+    global flying
+    flying = True
+    RecordCity()
