@@ -17,18 +17,33 @@ def DrawKde(kde):
     plt.show()
 
 
+def DrawPillarFrame(pillars):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for pl in pillars:
+        print(pl)
+        ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [pl[2], pl[3]])
+    plt.show()
+
+
 def DrawPillarCluster(clusters):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    for cl in clusters:
+    n_cluster = len(clusters)
+    for i, cl in enumerate(clusters):
+        color = (i / n_cluster, 1 - i / n_cluster, 0)
         for pl in cl:
-            ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [pl[2], pl[3]])
+            ax.plot([pl[0], pl[0]], [pl[1], pl[1]],
+                    [pl[2], pl[3]], color=color)
     plt.show()
 
 
 if __name__ == "__main__":
     client = DataClient()
+    # kde = client.GetKde()
+    # DrawKde(kde)
+    pillars = client.GetPillarFrame()
+    # print(len(pillars))
+    DrawPillarFrame(pillars)
     # clusters = client.GetPillarClusterHorizon()
     # DrawPillarCluster(clusters)
-    kde = client.GetKde()
-    DrawKde(kde)
