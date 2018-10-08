@@ -16,6 +16,7 @@ ImageRecordComponent::~ImageRecordComponent() {
     //       with thread_handle_  has stopped. 
 }
 void ImageRecordComponent::Begin() {
+    std::cout << "\n---- record client ----\n";
 	client_.confirmConnection();
     Behave();
 	RetreiveFrame();

@@ -42,22 +42,21 @@ void RetreiveKdePeak(std::vector<double> const &kde,
     if(!peaks.empty()){
         peaks.clear();
     }
+    // std::cout << "------ retreive peak ------\n";
     // 1 for ascending and -1 for descending
     int prev_dir = kde[1] > kde[0] ? 1 : -1;
     auto kde_width = kde.size();
     for(auto i=1; i<kde_width-1; i++){
         int crt_dir = kde[i+1] > kde[i] ? 1 : -1;
         if(prev_dir == 1 && crt_dir == -1){
+            //std::cout << "found a peak\n";
             if(kde[i] > kde_slope*i + kde_y_intercept){
+                // std::cout << "peak's good\n";
                 KdePeak peak{i};
                 auto thh = kde[i] * threashhold_weight;
                 int il = i, ir = i;
-                while(kde[il] > thh){
-                    il--;
-                }
-                while(kde[ir] > thh){
-                    ir++;
-                }
+                while(kde[il] > thh) { il--; }
+                while(kde[ir] > thh) { ir++; }
                 int window_height = static_cast<int>(
                     i * window_height_weight);
                 peak.SetWindow(il, ir, window_height);

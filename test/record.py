@@ -98,7 +98,7 @@ def RecordMaze():
     path_maze_0 = [airsim.Vector3r(0, 0, zm), airsim.Vector3r(0, -8, zm),
                    airsim.Vector3r(-10, -8, zm)]
     client.moveOnPathAsync(
-        path_maze_0, speedm, 120, airsim.DrivetrainType.ForwardOnly,
+        path_maze_0, speedm, 300, airsim.DrivetrainType.ForwardOnly,
         airsim.YawMode(False, 0), -1, 0).join()
     flying = False
     airsim.wait_key("press any key to reset")

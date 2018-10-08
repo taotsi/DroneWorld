@@ -50,7 +50,7 @@ std::vector<std::vector<std::vector<double>>>
 PillarClusterComponent::GetPillarClusterHorizon(){
     std::vector<std::vector<std::vector<double>>> result;
     std::vector<std::vector<double>> cluster;
-    cluster.reserve(50);
+    cluster.reserve(100);
     if(!pillar_cluster_horizon_queue_.empty()){
         auto &pillar_cluster = pillar_cluster_horizon_queue_.front();
         for(int i=0; i<pillar_cluster.size(); i++){

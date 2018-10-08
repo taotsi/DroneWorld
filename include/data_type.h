@@ -26,6 +26,9 @@ struct Point3D {
 	double x_ = 0.0;
 	double y_ = 0.0;
 	double z_ = 0.0;
+    void Print(){
+        std::cout << "( " << x_ << ", " << y_ << ", " << z_ << " )\n";
+    }
 };
 struct Quaternion {
 	Quaternion(double w, double x, double y, double z)
@@ -219,7 +222,12 @@ public:
     };
     void SetZ2(double z2) { z2_ = z2; };
     void Print(){
-        std::cout << "(" << x_ << ", " << y_ << ", " << z1_ << ", " << z2_ << ")\n";
+        std::cout 
+            << "( " << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
+            << ", " << std::fixed << std::setw(7) << std::setprecision(3) << y_ 
+            << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z1_ 
+            << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z2_ 
+            << " )\n";
     };
     std::vector<double> GetCoor(){
         return std::vector<double>{x_, y_, z1_, z2_};
@@ -249,6 +257,11 @@ public:
     int size(){
         int size = static_cast<int>(data_.size());
         return size;
+    }
+    void Print(){
+        for(auto itr : data_){
+            itr.Print();
+        }
     }
 };
 class PillarClusterHorizon {

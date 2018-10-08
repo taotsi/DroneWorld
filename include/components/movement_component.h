@@ -7,7 +7,7 @@ public:
     void Begin();
 private:
     msr::airlib::MultirotorRpcLibClient client_;
-    void ThreadMain();
+    void MoveTest();
     void BehaveForcibly();
     // TODO:return a enum type to indicate busy or not
     bool BehaveSafely();

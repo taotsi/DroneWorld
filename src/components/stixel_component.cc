@@ -6,7 +6,7 @@
 StixelComponent::StixelComponent
 	(std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
-	fov_ = PI / 4;
+	fov_ = PI*110/180;
 }
 
 StixelComponent::~StixelComponent() {
@@ -39,20 +39,16 @@ void StixelComponent::RunStixel() {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeak(0.5);
         /*
+        int count = 0;
         auto &kf = kde_peak_frame_queue_.front();
         for(auto i=0; i<kf.size(); i++){
             for(auto j=0; j<kf[i].size(); j++){
                 kf[i][j].PrintWindow();
+                count++;
             }
         }
-        std::cout << kf.size() << "\n";
-        if(!kf[0].empty()){
-            std::cout << kf[0].size() << "\n";
-        }else{
-            std::cout << "kde peak is empty\n";
-        }
+        std::cout << count << "\n";
         */
-        
         //kde_frame_queue_.pop();
         //std::cout << "stixel kde peak ready\n";
 	}
@@ -63,6 +59,12 @@ void StixelComponent::RunStixel() {
         //scaled_disparity_frame_queue_.pop();
         //kde_peak_frame_queue_.pop();
         //std::cout << "stixel detect ready\n";
+    }
+    if(!pillar_frame_queue_.empty()){
+        //auto &pf = pillar_frame_queue_.front();
+        //pf.Print();
+    }else{
+        std::cout << "pillar_frame_queue_ is empty\n";
     }
     std::cout << "stixel reday\n";
 }
@@ -81,8 +83,10 @@ void StixelComponent::RetreiveStixel(){
     Quaternion angle_camera{ quat_w, quat_x, quat_y, quat_z };
     ScaledDisparityFrame frame_scaled{ pos_camera, angle_camera };
     int i_start = stixel_width_ / 2;
+    std::vector<double> stixel;
+    stixel.reserve(height_);
     for (int i = i_start; i < width_; i += stixel_width_) {
-        std::vector<double> stixel;
+        stixel.clear();
         for (int j = height_-1; j >= 0; j--) {
             double pix_val = frame_raw.
                 image_data_float[j*width_ + i];
@@ -116,8 +120,8 @@ void StixelComponent::FindKdePeak(float delta_y) {
         // b is baseline; kw is kde_width; 
         // k is j here, or x-coordinate of kde;
         // dmax is disparity max, = disp_max * width_
-        // 0.01 is an exp value
-        double slop = disp_max_*width_/baseline_/kde_width_*0.01;
+        // 0.121 is the value of the middle element of gauss kernel
+        double slop = disp_max_*width_/baseline_/kde_width_*0.12;
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
         kde::RetreiveKdePeak(kde_frame[i], kde_peak, 0.8, 
@@ -147,11 +151,11 @@ Point3D StixelComponent::TransformAirsimCoor(
 Point3D StixelComponent::GetCameraCoor(
 	double disp_normalized, int x_pixel_scaled, int z_pixel) {
 	Point3D p_camera;
-	double focus = baseline_ / (2 * disp_normalized*tan(fov_ / 2));
+	double focus = (baseline_/2/tan(fov_/2)) / disp_normalized;
 	p_camera.y_ = focus * baseline_ / (disp_normalized*width_);
-	p_camera.z_ = (z_pixel - height_ / 2) * p_camera.y_ / focus;
-	int x_pixel = stixel_width_ * x_pixel_scaled + stixel_width_ / 2;
-	p_camera.x_ = (x_pixel - width_ / 2) * p_camera.y_ / focus;
+	p_camera.z_ = (z_pixel - height_/2) * p_camera.y_ / focus;
+	int x_pixel = stixel_width_ * x_pixel_scaled + stixel_width_/2;
+	p_camera.x_ = (x_pixel - width_/2) * p_camera.y_ / focus;
 	return p_camera;
 }
 /* returns world coordinate position */
@@ -190,19 +194,19 @@ Point3D StixelComponent::CameraToWorldCoor(
 }
 /* Sliding-block filter */
 void StixelComponent::DetectObject() {
+    int count = 0;
 	auto &scaled_disparity_frame =
 		scaled_disparity_frame_queue_.front();
 	auto &kde_peak_frame = kde_peak_frame_queue_.front();
-	auto n_stixel = static_cast<int>(
-        scaled_disparity_frame.data_[0].size());
     PillarFrame pillar_frame;
+    auto n_stixel = kde_peak_frame.size();
     // for each stixel in one frame
-    for(auto stx_i=0; stx_i<kde_peak_frame.size(); stx_i++){
+    for(auto stx_i=0; stx_i<n_stixel; stx_i++){
         //std::cout << "--------------stixel " << stx_i << "\n";
-        BlockedIndex index {n_stixel};
+        BlockedIndex index {height_};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         if(n_peak == 0){
-            std::cout << "oops, no peak at all\n";
+            std::cout << "oops, no peak at all~\n";
         }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
@@ -244,12 +248,17 @@ void StixelComponent::DetectObject() {
                             idx_of_object.push_back(start+step_size);
                         }/*else if(stat.flag_ == kNotCompliant){
                             idx_of_object.push_back(stat.value_);
-                        }*/
+                        }*/ //wrong code
                         prev_stat = stat;
                         start += step_size;
                     }
                     if(!idx_of_object.empty()){
                         //std::cout << "found ends\n";
+                        /*
+                        for(auto itr : idx_of_object){
+                            std::cout << itr << "  ";
+                        }std::cout << "\n";
+                        */
                         auto y_start = std::min_element(
                             idx_of_object.begin(), idx_of_object.end());
                         auto y_end = std::max_element(
@@ -262,8 +271,16 @@ void StixelComponent::DetectObject() {
                         auto p_world2 =
                             CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
                                 p_camera2, scaled_disparity_frame.angle_camera_);
+                                
+                        std::cout << "---"; p_camera1.Print();
+                        std::cout << "    "; p_camera2.Print();
+                        std::cout << "    "; 
+                        scaled_disparity_frame.pos_camera_.Print();
+                        
                         pillar_temp.SetPoint(p_world1);
                         pillar_temp.SetZ2(p_world2.z_);
+                        count ++;
+                        //std::cout << "found a pillar, " << count << std::endl;
                         pillar_frame.Push(pillar_temp);
                     }
                 }
@@ -315,7 +332,7 @@ std::vector<std::vector<double>> StixelComponent::GetKde() {
 }
 std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
     std::vector<std::vector<double>> pillars;
-    pillars.reserve(100);
+    pillars.reserve(150);
     if(!pillar_frame_queue_.empty()){
         auto &pillar_frame = pillar_frame_queue_.front();
         for(auto i=0; i<pillar_frame.size(); i++){
