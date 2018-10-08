@@ -51,7 +51,7 @@ here are the steps to take for python users
 
 #### run a airsim simulation program
 
- which you can download in the Airsim github repo's releases.
+  which you can download in the Airsim github repo's releases.
  
 #### run DroneWorld executable
 
@@ -65,6 +65,10 @@ here are the steps to take for python users
 
 ## TODO
 
+- embed opencv
+- time test utility
+- make pillar cluster horizontally work
+- drone moving test
 - pillar cluster
 - roll correction for disparity frame
 - thread competition for disparity queue and other queue
