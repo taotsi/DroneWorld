@@ -243,6 +243,7 @@ private:
 	double z1_ = 0.0;
 	double z2_ = 0.0;
 };
+// TODO: this class will be deprecated
 class PillarFrame{
 public:
     /* data */
@@ -264,36 +265,41 @@ public:
         }
     }
 };
-class PillarClusterHorizon {
+class PillarCluster {
 public:
-    PillarClusterHorizon() {};
-    ~PillarClusterHorizon() {};
+    PillarCluster() {};
+    ~PillarCluster() {};
     /* data */
 	std::vector<std::vector<Pillar>> data_;
+    std::vector<double> z1_vec_;
+    std::vector<double> z2_vec_;
     /* methods */
     std::vector<Pillar> operator[](int pos){
         return data_[pos];
     }
+    // basic cluster
     void BringIn(Pillar pillar, double dist_max){
-        for(auto i=0; i<data_.size(); i++){
+        bool is_brought_in = false;
+        auto n_cluster = data_.size();
+        for(auto i=0; i<n_cluster; i++){
             double dist = pow(data_[i].back().x() - pillar.x(), 2)
                 + pow(data_[i].back().y() - pillar.y(), 2);
-            if(dist <= dist_max){
+            if(dist <= pow(dist_max, 2)){
                 data_[i].push_back(pillar);
-                return;
+                is_brought_in = true;
+                break;
             }
         }
-        data_.push_back(std::vector<Pillar>{pillar});
+        if(!is_brought_in){
+            data_.push_back(std::vector<Pillar>{pillar});
+        }
+        z1_vec_.push_back(pillar.z1());
+        z2_vec_.push_back(pillar.z2());
     }
     int size(){
         return static_cast<int>(data_.size());
     }
 };
-class PillarCluster{
-public:
-    
-};
-
 struct Plane {
 	Point3D p1_;
 	Point3D p2_;

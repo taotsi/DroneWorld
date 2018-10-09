@@ -23,6 +23,8 @@ def DrawPillarFrame(pillars):
     for pl in pillars:
         # print(pl)
         ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [pl[2], pl[3]])
+    ax.axis("equal")
+    ax.set_title("pillars in one frame")
     plt.show()
 
 
@@ -35,6 +37,8 @@ def DrawPillarCluster(clusters):
         for pl in cl:
             ax.plot([pl[0], pl[0]], [pl[1], pl[1]],
                     [pl[2], pl[3]], color=color)
+    ax.axis("equal")
+    ax.set_title("pillar cluster horizontally")
     plt.show()
 
 
@@ -43,8 +47,8 @@ if __name__ == "__main__":
 
     # kde = client.GetKde()
     # DrawKde(kde)
-    pillars = client.GetPillarFrame()
-    print(len(pillars))
-    DrawPillarFrame(pillars)
-    # clusters = client.GetPillarClusterHorizon()
-    # DrawPillarCluster(clusters)
+    #pillars = client.GetPillarFrame()
+    # print(len(pillars))
+    # DrawPillarFrame(pillars)
+    clusters = client.GetPillarClusterHorizon()
+    DrawPillarCluster(clusters)

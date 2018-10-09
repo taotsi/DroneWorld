@@ -102,8 +102,9 @@ void StixelComponent::RetreiveStixel(){
 void StixelComponent::Kde() {
     auto &frame_scaled = scaled_disparity_frame_queue_.front();
 	std::vector<std::vector<double>> kde_frame;
+    std::vector<double> kde_col;
 	for (int i = 0; i < frame_scaled.size(); i++) {
-        std::vector<double> kde_col;
+        kde_col.clear();
         kde::RetreiveKde(frame_scaled[i], kde_col, 
             disp_max_, disp_min_, 1000);
 		kde_frame.push_back(kde_col);
@@ -114,8 +115,9 @@ void StixelComponent::Kde() {
 void StixelComponent::FindKdePeak(float delta_y) {
 	auto &kde_frame = kde_frame_queue_.front();
 	std::vector<std::vector<KdePeak>> kde_peak_frame;
+    std::vector<KdePeak> kde_peaks;
 	for (int i = 0; i < kde_frame.size(); i++) {
-        std::vector<KdePeak> kde_peak;
+        kde_peaks.clear();;
         // yl = y * k * dmax / b / kw
         // y is physical vertical length
         // yl is the y-coordinate value of kde; 
@@ -126,13 +128,13 @@ void StixelComponent::FindKdePeak(float delta_y) {
         double slop = disp_max_*width_/baseline_/kde_width_*0.12;
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
-        kde::RetreiveKdePeak(kde_frame[i], kde_peak, 0.8, 
+        kde::RetreiveKdePeak(kde_frame[i], kde_peaks, 0.8, 
             slop, 0.0, window_h_weight);
-		if (kde_peak.empty()) {
+		if (kde_peaks.empty()) {
 			kde_peak_frame.push_back(
 				std::vector<KdePeak>());
 		} else {
-			kde_peak_frame.push_back(kde_peak);
+			kde_peak_frame.push_back(kde_peaks);
 		}
 	}
 	kde_peak_frame_queue_.push(kde_peak_frame);
@@ -234,7 +236,7 @@ void StixelComponent::DetectObject() {
                     double max = static_cast<double>(
                         kde_peak_frame[stx_i][peak_i].window_right_)
                         /kde_width_*disp_max_;
-                    auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
+                    auto prev_stat = kde::Filter(scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, mean, min, max);
                     if(prev_stat.flag_ == kCompliant){
                         idx_of_object.push_back(start);
@@ -242,7 +244,7 @@ void StixelComponent::DetectObject() {
                     }
                     start += (end-start) % step_size;
                     while(start < end){
-                        auto stat = Filter(scaled_disparity_frame[stx_i],
+                        auto stat = kde::Filter(scaled_disparity_frame[stx_i],
                         start, step_size, mean, min, max);
                         if(stat.flag_ == kCompliant){
                             idx_of_object.push_back(start);
@@ -293,31 +295,6 @@ void StixelComponent::Behave() {
 	is_busy_ = true;
 	thread_handle_ = std::thread{ 
 		&StixelComponent::RunStixel, this };
-}
-// TODO: needs to be perfected
-FilterStatus StixelComponent::Filter(
-    std::vector<double> vec, int start, int step, 
-    double mean, double min, double max){
-    double sum = 0.0;
-    double average = 0.0;
-    double count = 0.0;
-    for(int i=start; i<start+step; i++){
-        sum += vec[i];
-        count += 1.0;
-    }
-    average = sum/count;
-    if(average <= max && average >= min){
-        auto flag = kCompliant;
-        FilterStatus stat{flag};
-        return stat;
-    }else{
-        // temporary code
-        int pos = start+step/2;
-        auto flag = kNotCompliant;
-        //std::cout << "not compliant\n";
-        FilterStatus stat{flag, pos};
-        return stat; 
-    }
 }
 
 /* for rpclib server */

@@ -29,7 +29,6 @@ private:
 	void Kde();
 	void FindKdePeak(float delta_y = 0.5);
 	void DetectObject();
-    FilterStatus Filter(std::vector<double> vec, int start, int step, double mean, double min, double max);
 	Point3D TransformAirsimCoor(double x, double y, double z);
 	Point3D GetCameraCoor(
 		double disp_normalized, int x_pixel_scaled, int y_pixel);

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <algorithm>
 #include "data_type.h"
@@ -11,7 +12,7 @@ static std::vector<double> KERNEL_GAUSS_17 = {
     0.101032, 0.0806656, 0.0588726, 0.0392686, 0.0239336, 
     0.0133395, 0.00678462};
 
-void RetreiveKde(std::vector<double> const &src, 
+inline void RetreiveKde(std::vector<double> const &src, 
     std::vector<double> &dst, double max, double min, int kde_width, 
     std::vector<double> const &kernel=KERNEL_GAUSS_17) {
     if(!dst.empty()){
@@ -35,7 +36,7 @@ void RetreiveKde(std::vector<double> const &src,
     }
 }
 
-void RetreiveKdePeak(std::vector<double> const &kde, 
+inline void RetreiveKdePeak(std::vector<double> const &kde, 
     std::vector<KdePeak> &peaks, double threashhold_weight, 
     double kde_slope, double kde_y_intercept, 
     double window_height_weight){
@@ -64,6 +65,31 @@ void RetreiveKdePeak(std::vector<double> const &kde,
             }
         }
         prev_dir = crt_dir;
+    }
+}
+
+inline FilterStatus Filter(
+    std::vector<double> &vec, int start, int step, 
+    double mean, double min, double max){
+    double sum = 0.0;
+    double average = 0.0;
+    double count = 0.0;
+    for(int i=start; i<start+step; i++){
+        sum += vec[i];
+        count += 1.0;
+    }
+    average = sum/count;
+    if(average <= max && average >= min){
+        auto flag = kCompliant;
+        FilterStatus stat{flag};
+        return stat;
+    }else{
+        // temporary code
+        int pos = start+step/2;
+        auto flag = kNotCompliant;
+        //std::cout << "not compliant\n";
+        FilterStatus stat{flag, pos};
+        return stat; 
     }
 }
 
