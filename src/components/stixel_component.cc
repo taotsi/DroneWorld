@@ -151,8 +151,8 @@ Point3D StixelComponent::TransformAirsimCoor(
 Point3D StixelComponent::GetCameraCoor(
 	double disp_normalized, int x_pixel_scaled, int z_pixel) {
 	Point3D p_camera;
-	double focus = (baseline_/2/tan(fov_/2)) / disp_normalized;
-	p_camera.y_ = focus * baseline_ / (disp_normalized*width_);
+	double focus = width_/2/tan(fov_/2);
+	p_camera.y_ = (baseline_/2/tan(fov_/2)) / disp_normalized;
 	p_camera.z_ = (z_pixel - height_/2) * p_camera.y_ / focus;
 	int x_pixel = stixel_width_ * x_pixel_scaled + stixel_width_/2;
 	p_camera.x_ = (x_pixel - width_/2) * p_camera.y_ / focus;
@@ -163,29 +163,26 @@ Point3D StixelComponent::GetCameraCoor(
 Point3D StixelComponent::CameraToWorldCoor(
 	Point3D &pos_camera, Point3D &p_camera, EulerAngle &angle) {
 	Point3D p_world;
-	double cos_theta = cos(angle.roll_);
-	double sin_theta = sin(angle.roll_);
+	//double cos_theta = cos(angle.roll_);
+	//double sin_theta = sin(angle.roll_);
 	double cos_omega = cos(angle.yaw_);
 	double sin_omega = sin(angle.yaw_);
-	double cos_phi = cos(angle.pitch_);
-	double sin_phi = sin(angle.pitch_);
+	//double cos_phi = cos(angle.pitch_);
+	//double sin_phi = sin(angle.pitch_);
 	// rotation
-	p_world.x_ =
-		p_camera.x_ * (cos_theta * cos_omega
-			- sin_theta * sin_phi * sin_omega)
-		- p_camera.y_ * (sin_theta * sin_phi)
-		- p_camera.z_ * (cos_theta * sin_omega
-			+ sin_theta * sin_phi*cos_omega);
-	p_world.y_ =
-		p_camera.x_ * (sin_theta * cos_omega
-			+ sin_omega * cos_theta*sin_phi)
-		+ p_camera.y_ * (cos_theta * cos_phi)
-		+ p_camera.z_ * (-sin_theta * sin_omega
-			+ cos_theta * sin_phi * cos_omega);
-	p_world.z_ =
-		p_camera.x_ * (sin_omega * cos_phi)
-		- p_camera.y_ * (sin_phi)
-		+p_camera.z_ * (cos_phi * cos_omega);
+    p_world.x_ = cos_omega * p_camera.x_ + sin_omega * p_camera.y_;
+    p_world.y_ = -sin_omega * p_camera.x_ + cos_omega * p_camera.y_;
+    p_world.z_ = p_camera.z_;
+    /*
+	p_world.x_ = -p_camera.y_*(sin_theta*sin_phi)
+		+p_camera.x_*(cos_theta*cos_omega-sin_theta*sin_phi*sin_omega)
+		-p_camera.z_*(cos_theta * sin_omega+sin_theta*sin_phi*cos_omega);
+	p_world.y_ = p_camera.y_ * (cos_theta * cos_phi)
+		+p_camera.x_*(sin_theta*cos_omega+sin_omega*cos_theta*sin_phi) 
+		+ p_camera.z_*(-sin_theta*sin_omega+cos_theta*sin_phi*cos_omega);
+	p_world.z_ = -p_camera.y_*(sin_phi)
+		+p_camera.x_*(sin_omega*cos_phi)+p_camera.z_*(cos_phi*cos_omega);
+    */
 	// translation
 	p_world.x_ += pos_camera.x_;
 	p_world.y_ += pos_camera.y_;

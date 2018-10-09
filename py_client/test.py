@@ -21,7 +21,7 @@ def DrawPillarFrame(pillars):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     for pl in pillars:
-        print(pl)
+        # print(pl)
         ax.plot([pl[0], pl[0]], [pl[1], pl[1]], [pl[2], pl[3]])
     plt.show()
 
@@ -42,8 +42,8 @@ if __name__ == "__main__":
     client = DataClient()
     # kde = client.GetKde()
     # DrawKde(kde)
-    pillars = client.GetPillarFrame()
+    # pillars = client.GetPillarFrame()
     # print(len(pillars))
-    DrawPillarFrame(pillars)
-    # clusters = client.GetPillarClusterHorizon()
-    # DrawPillarCluster(clusters)
+    # DrawPillarFrame(pillars)
+    clusters = client.GetPillarClusterHorizon()
+    DrawPillarCluster(clusters)
