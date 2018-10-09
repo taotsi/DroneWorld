@@ -28,6 +28,8 @@ void StixelComponent::RunStixel() {
 	if (!disparity_retreived_->empty()) {
         // PUSH scaled_disparity_frame_queue_
 		RetreiveStixel();
+        auto &sf = scaled_disparity_frame_queue_.front();
+        std::cout << "------------------- " << sf.angle_camera_.yaw_ << std::endl;
         //disparity_retreived_->pop();			
 	}
     if(!scaled_disparity_frame_queue_.empty()){
@@ -167,11 +169,13 @@ Point3D StixelComponent::CameraToWorldCoor(
 	//double sin_theta = sin(angle.roll_);
 	double cos_omega = cos(angle.yaw_);
 	double sin_omega = sin(angle.yaw_);
+    //std::cout << "cos yaw = " << cos_omega << ", sin yaw = " << sin_omega << std::endl;
+    //std::cout << "p_camera = ( " << p_camera.x_ << ", " << p_camera.y_ << " )\n";
 	//double cos_phi = cos(angle.pitch_);
 	//double sin_phi = sin(angle.pitch_);
 	// rotation
-    p_world.x_ = cos_omega * p_camera.x_ + sin_omega * p_camera.y_;
-    p_world.y_ = -sin_omega * p_camera.x_ + cos_omega * p_camera.y_;
+    p_world.x_ = cos_omega*p_camera.x_ + sin_omega*p_camera.y_;
+    p_world.y_ = cos_omega*p_camera.y_ - sin_omega*p_camera.x_; 
     p_world.z_ = p_camera.z_;
     /*
 	p_world.x_ = -p_camera.y_*(sin_theta*sin_phi)
@@ -268,11 +272,10 @@ void StixelComponent::DetectObject() {
                         auto p_world2 =
                             CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
                                 p_camera2, scaled_disparity_frame.angle_camera_);
-                                
+                        
                         std::cout << "---"; p_camera1.Print();
                         std::cout << "    "; p_camera2.Print();
-                        std::cout << "    "; 
-                        scaled_disparity_frame.pos_camera_.Print();
+                        std::cout << "    "; scaled_disparity_frame.pos_camera_.Print();
                         
                         pillar_temp.SetPoint(p_world1);
                         pillar_temp.SetZ2(p_world2.z_);

@@ -40,10 +40,11 @@ def DrawPillarCluster(clusters):
 
 if __name__ == "__main__":
     client = DataClient()
+
     # kde = client.GetKde()
     # DrawKde(kde)
-    # pillars = client.GetPillarFrame()
-    # print(len(pillars))
-    # DrawPillarFrame(pillars)
-    clusters = client.GetPillarClusterHorizon()
-    DrawPillarCluster(clusters)
+    pillars = client.GetPillarFrame()
+    print(len(pillars))
+    DrawPillarFrame(pillars)
+    # clusters = client.GetPillarClusterHorizon()
+    # DrawPillarCluster(clusters)
