@@ -300,9 +300,29 @@ public:
         return static_cast<int>(data_.size());
     }
 };
-struct Plane {
-	Point3D p1_;
+class Plane {
+public:
+    // for rectangle
+    Plane(double x_min, double x_max, double y_min, 
+        double y_max, double z_min, double z_max) {
+            
+    };
+    // for rectangle
+    Plane(Point3D p1, Point3D p2) {
+        
+    };
+    // for quadrilateral
+    Plane(Point3D p1, Point3D p2, Point3D p3, Point3D p4)
+        : p1_(p1), p2_(p2), p3_(p3), p4_(p4) {};
+    /* data */
+    std::vector<*Plane> left_;
+    std::vector<*Plane> right_;
+private:
+    /* data */
+    Point3D p1_;
 	Point3D p2_;
+    Point3D p3_;
+	Point3D p4_;
 };
 class PlaneWorld {
 public:

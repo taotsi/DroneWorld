@@ -132,6 +132,14 @@ void PillarClusterComponent::VerticalCluster(){
     pillar_cluster_queue_.push(final_cluster);
 }
 
+void PillarClusterComponent::FormPlane(){
+    
+}
+
+void PillarClusterComponent::FilterPlane(){
+    
+}
+
 /* for rpclib server */
 std::vector<std::vector<std::vector<double>>>
 PillarClusterComponent::GetPillarClusterHorizon(){

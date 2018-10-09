@@ -19,4 +19,6 @@ private:
     void RunCluster();
     void HorizontalCluster();
     void VerticalCluster();
+    void FormPlane();
+    void FilterPlane();
 };
