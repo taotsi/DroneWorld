@@ -18,11 +18,11 @@ First you have to run an Airsim programe, download one from [here](https://githu
 
 ## How to checkout the code
 
-For start, see for all the code inside `Begin()` and `Update()` in each classes. Most work is done in various component classes, checkout them and go to `Begin()` and `Update()` first. Then you'll know what to look at next. The code is a mess, sorry~
+For start, see for all the code inside `Begin()` and `Update()` in each class. Most work is done in various component classes, checkout them and go to `Begin()` and `Update()` first. Then you'll know what to look at next. The code is a mess, sorry~
 
 ## Python Client
 
-all you need to checkout are `DroneWorld/src/rpc_server.cc` and `DroneWorld/py_client/rpc_client.py`. Here's a example:
+If you're insterested in the rpc function binding, checkout `DroneWorld/src/rpc_server.cc` and `DroneWorld/py_client/rpc_client.py`. Here's a example, skip it if you just care about the rpc client api.
 
 rpc_server.cc
 ```
@@ -49,28 +49,23 @@ plt.show()
 
 here are the steps to take for python users
 
-#### run a airsim simulation program
+- run a airsim simulation program
 
   which you can download in the Airsim github repo's releases.
  
-#### run DroneWorld executable
+- run DroneWorld executable
 
-  which you should build in advance in vs2017(x64, debug or release), find the exe file in build/
+  which you should build in advance on vs2017(x64, debug or release), find the exe file in build/
   
-#### run your python scripts
+- run your python scripts
 
-  rpc_client.py for example
-  
-  code in rpc_client.py is not very elegant, I'll pack them in classes later.
+  `python test.py` for example
 
 ## TODO
 
+- plane forming
 - embed opencv
 - time test utility
 - make pillar cluster horizontally work
-- drone moving test
-- pillar cluster
-- roll correction for disparity frame
 - thread competition for disparity queue and other queue
-- add necessary opencv libs if needed
 - a thread for input process
