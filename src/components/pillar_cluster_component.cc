@@ -30,9 +30,17 @@ void PillarClusterComponent::RunCluster(){
         //pillar_frame_queue_->pop();
     }
     if(!pillar_cluster_horizon_queue_.empty()){
-        
+        // PUSH pillar_cluster_queue_
+        VerticalCluster();
+        // pillar_cluster_horizon_queue_.pop();
     }else{
         std::cout << "pillar_cluster_horizon_queue_ is empty\n";
+    }
+    if(!pillar_cluster_queue_.empty()){
+        auto &pc = pillar_cluster_queue_.front();
+        std::cout << "pillar cluster size: "<< pc.size() << std::endl;
+    }else{
+        std::cout << "pillar_cluster_queue_ is empty\n";
     }
     std::cout << "cluster ready\n";
 }
@@ -65,6 +73,7 @@ void PillarClusterComponent::VerticalCluster(){
     std::vector<KdePeak> z1_peaks, z2_peaks;
     int kde_width = 200;
     for(auto i_clst_h=0; i_clst_h<n_cluster_horizon; i_clst_h++){
+        std::cout << "------ original cluster " << i_clst_h << " ------\n";
         kde_z1.clear();     kde_z2.clear();
         z1_peaks.clear();   z2_peaks.clear();
         auto &z1_vec = cluster_horizon.z1_vec_;
@@ -81,6 +90,8 @@ void PillarClusterComponent::VerticalCluster(){
         std::vector<Pillar> temp_cluster;
         auto n_peaks_z1 = z1_peaks.size();
         auto n_pillar = cluster_horizon[i_clst_h].size();
+        std::cout << "n_pillar size: " << n_pillar << std::endl;
+        std::cout << "z1_peaks size: " << n_peaks_z1 << "\n";
         for(auto i_pk_z1=0; i_pk_z1<n_peaks_z1; i_pk_z1++){
             temp_cluster.clear();
             double filter_min = 
@@ -97,9 +108,12 @@ void PillarClusterComponent::VerticalCluster(){
             }
             temp_cluster_z1.push_back(temp_cluster);
         }
+        temp_pillars = temp_cluster_z1;
         /* cluster for z2 */
         auto n_peaks_z2 = z2_peaks.size();
         auto n_cluster_z1 = temp_cluster_z1.size();
+        std::cout << "temp_cluster_z1 size: " << n_cluster_z1 << std::endl;
+        std::cout << "z2_peaks size: " << n_peaks_z2 << std::endl;
         for(auto i_pk_z2=0; i_pk_z2<n_peaks_z2; i_pk_z2++){
             temp_cluster.clear();
             double filter_min = 
@@ -113,15 +127,16 @@ void PillarClusterComponent::VerticalCluster(){
                 for(auto i_pl=0; i_pl<n_each_cluster_z1; i_pl++){
                     if(temp_cluster_z1[i_clst_z1][i_pl].z2() <= filter_max
                         && temp_cluster_z1[i_clst_z1][i_pl].z2() >= filter_min){
-                            temp_cluster.push_back(
-                                temp_cluster_z1[i_clst_z1][i_pl]);
-                        }
+                        temp_cluster.push_back(
+                            temp_cluster_z1[i_clst_z1][i_pl]);
+                    }
                 }
                 temp_cluster_z2.push_back(temp_cluster);
             }
         }
         /* cluster horizontally again */
         auto n_cluster_z2 = temp_cluster_z2.size();
+        std::cout << "temp_cluster_z2 size: " << n_cluster_z2 << std::endl;
         for(auto i_clst_z2=0; i_clst_z2<n_cluster_z2; i_clst_z2++){
             auto n_pillar_z2 = temp_cluster_z2[i_clst_z2].size();
             for(auto i_pl=0; i_pl<n_pillar_z2; i_pl++){
@@ -164,6 +179,7 @@ PillarClusterComponent::GetPillarClusterHorizon(){
         return std::vector<std::vector<std::vector<double>>>();
     }
 }
+
 std::vector<std::vector<std::vector<double>>>
 PillarClusterComponent::GetPillarCluster(){
     std::vector<std::vector<std::vector<double>>> result;

@@ -2,6 +2,7 @@ from rpc_client import DataClient
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import random
 
 
 def DrawKde(kde):
@@ -33,12 +34,13 @@ def DrawPillarCluster(clusters):
     ax = fig.add_subplot(111, projection="3d")
     n_cluster = len(clusters)
     for i, cl in enumerate(clusters):
-        color = (i / n_cluster, 1 - i / n_cluster, 0)
+        color = (random.uniform(0, 1), random.uniform(
+            0, 1), random.uniform(0, 1))
         for pl in cl:
             ax.plot([pl[0], pl[0]], [pl[1], pl[1]],
                     [pl[2], pl[3]], color=color)
     ax.axis("equal")
-    ax.set_title("pillar cluster horizontally")
+    ax.set_title("pillar cluster")
     plt.show()
 
 
@@ -50,6 +52,7 @@ if __name__ == "__main__":
     #pillars = client.GetPillarFrame()
     # print(len(pillars))
     # DrawPillarFrame(pillars)
-    # clusters_h = client.GetPillarClusterHorizon()
-    clusters = client.GetPillarCluster()
-    DrawPillarCluster(clusters)
+    clusters_h = client.GetPillarClusterHorizon()
+    DrawPillarCluster(clusters_h)
+    #clusters = client.GetPillarCluster()
+    # DrawPillarCluster(clusters)

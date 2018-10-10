@@ -28,8 +28,7 @@ void StixelComponent::RunStixel() {
 	if (!disparity_retreived_->empty()) {
         // PUSH scaled_disparity_frame_queue_
 		RetreiveStixel();
-        auto &sf = scaled_disparity_frame_queue_.front();
-        std::cout << "------------------- " << sf.angle_camera_.yaw_ << std::endl;
+        //auto &sf = scaled_disparity_frame_queue_.front();
         //disparity_retreived_->pop();			
 	}
     if(!scaled_disparity_frame_queue_.empty()){
@@ -274,11 +273,11 @@ void StixelComponent::DetectObject() {
                         auto p_world2 =
                             CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
                                 p_camera2, scaled_disparity_frame.angle_camera_);
-                        
+                        /*
                         std::cout << "---"; p_camera1.Print();
                         std::cout << "    "; p_camera2.Print();
                         std::cout << "    "; scaled_disparity_frame.pos_camera_.Print();
-                        
+                        */
                         pillar_temp.SetPoint(p_world1);
                         pillar_temp.SetZ2(p_world2.z_);
                         count ++;

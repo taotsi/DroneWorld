@@ -309,7 +309,8 @@ public:
             
     };
     // for rectangle
-    Plane(Point3D p1, Point3D p2) {
+    Plane(Point3D p1, Point3D p2)
+        : p1_(p1), p2_(p2) {
         
     };
     // for quadrilateral
@@ -317,8 +318,8 @@ public:
         : p1_(p1), p2_(p2), p3_(p3), p4_(p4) {};
     ~Plane() {};
     /* data */
-    std::vector<Plane*> left_;
-    std::vector<Plane*> right_;
+    std::vector<Plane*> left_ = std::vector<Plane*>{nullptr};
+    std::vector<Plane*> right_ = std::vector<Plane*>{nullptr};
 private:
     /* data */
     Point3D p1_;
