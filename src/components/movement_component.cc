@@ -28,7 +28,7 @@ void MovementComponent::MoveTest(){
     
     client_.hoverAsync()->waitOnLastTask();
     //client_.landAsync()->waitOnLastTask();
-    std::this_thread::sleep_for(std::chrono::seconds(8));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     //client_.armDisarm(false);
     //client_.enableApiControl(false);
 }

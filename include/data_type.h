@@ -84,23 +84,28 @@ struct ScaledDisparityFrame {
     }
 };
 struct KdePeak {
-	KdePeak(int pos) 
-        : pos_(pos) {};
+	KdePeak() {};
+    ~KdePeak() {};
 	/* data */
 	// pos in a scaled disparity frame
-	int pos_ = 0;
-    int window_left_ = 0;
-    int window_right_ = 0;
     int window_height_ = 2;
+    double mean_ = 0.0;
+    double right_ = 0.0;
+    double left_ = 0.0;
     /* methods */
-    void SetWindow(int left, int right, int height){
-        window_left_ = left;
-        window_right_ = right;
+    void SetVal(double mean, double right, double left){
+        mean_ = mean;
+        if(right < left){
+            auto temp = right;
+            right = left;
+            left = temp;
+        }
+        right_ = right;
+        left_ = left;
+    }
+    void SetWindowHeight(int height){
         window_height_ = height > 1 ? height : 2;
-    };
-    void PrintWindow(){
-        std::cout << "left, mid, right, height = " << window_left_ << "  " << pos_ << "  " << window_right_ << "  " << window_height_ << "\n";
-    };
+    }
 };
 struct BlockedIndex {
     BlockedIndex(int range_length){

@@ -2,8 +2,7 @@
 #include "Drone.h"
 #include "rpc_server.h"
 
-int main() 
-{
+int main() {
     World world = World::Instance();
 	rpc::server server{ 8080 };
 	PackServer(server, world);

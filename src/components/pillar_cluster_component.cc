@@ -24,6 +24,7 @@ void PillarClusterComponent::Update(double DeltaTime){
 }
 
 void PillarClusterComponent::RunCluster(){
+    /*
     if(!pillar_frame_queue_->empty()){
         // PUSH pillar_cluster_horizon_queue_
         HorizontalCluster();
@@ -43,6 +44,7 @@ void PillarClusterComponent::RunCluster(){
         std::cout << "pillar_cluster_queue_ is empty\n";
     }
     std::cout << "cluster ready\n";
+    */
 }
 
 void PillarClusterComponent::HorizontalCluster(){
@@ -71,7 +73,6 @@ void PillarClusterComponent::VerticalCluster(){
     std::vector<std::vector<Pillar>> temp_cluster_z2;
     std::vector<double> kde_z1, kde_z2;
     std::vector<KdePeak> z1_peaks, z2_peaks;
-    int kde_width = 200;
     for(auto i_clst_h=0; i_clst_h<n_cluster_horizon; i_clst_h++){
         std::cout << "------ original cluster " << i_clst_h << " ------\n";
         kde_z1.clear();     kde_z2.clear();
@@ -82,10 +83,27 @@ void PillarClusterComponent::VerticalCluster(){
         auto min_z1 = std::min_element(z1_vec.begin(), z1_vec.end());
         auto max_z2 = std::max_element(z2_vec.begin(), z2_vec.end());
         auto min_z2 = std::min_element(z2_vec.begin(), z2_vec.end());
-        kde::RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, kde_width);
-        kde::RetreiveKdePeak(kde_z1, z1_peaks, 0.707, 0, 0.25, 0.2);
-        kde::RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, kde_width);
-        kde::RetreiveKdePeak(kde_z2, z2_peaks, 0.707, 0, 0.25, 0.2);
+        // not good
+        auto kde_width_z1 = *max_z1-*min_z1 > 1.0 ? 
+            static_cast<int>(*max_z1 - *min_z1) *100 : 100;
+        auto kde_width_z2 = *max_z2-*min_z2 > 1.0 ? 
+            static_cast<int>(*max_z2 - *min_z2) *100 : 100;
+        kde::RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, kde_width_z1);
+        kde::RetreiveKdePeak(kde_z1, z1_peaks, *max_z1, *min_z1, 
+            0.707, 0, 0.25, 0.2);
+        kde::RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, kde_width_z2);
+        kde::RetreiveKdePeak(kde_z2, z2_peaks, *max_z2, *min_z2, 
+            0.707, 0, 0.25, 0.2);
+        std::cout << "---- kde_z1, size: " << kde_z1.size() << "\n";
+        for(auto itr : kde_z1){
+            std::cout << itr << "  ";
+        }std::cout << "\n";
+        std::cout << "z1 min, max =  " << *min_z1 << ", " << *max_z1 << "\n";
+        std::cout << "---- kde_z2, size: " << kde_z2.size() << "\n";
+        for(auto itr : kde_z2){
+            std::cout << itr << "  ";
+        }std::cout << "\n";
+        std::cout << "z2 min, max =  " << *min_z2 << ", " << *max_z2 << "\n";
         /* cluster for z1 */
         std::vector<Pillar> temp_cluster;
         auto n_peaks_z1 = z1_peaks.size();
@@ -94,15 +112,17 @@ void PillarClusterComponent::VerticalCluster(){
         std::cout << "z1_peaks size: " << n_peaks_z1 << "\n";
         for(auto i_pk_z1=0; i_pk_z1<n_peaks_z1; i_pk_z1++){
             temp_cluster.clear();
+            /*
             double filter_min = 
                 static_cast<double>(z1_peaks[i_pk_z1].window_left_) 
-                / static_cast<double>(kde_width) + *min_z1;
+                / static_cast<double>(kde_width_z1)*(*max_z1-*min_z1) + *min_z1;
             double filter_max = 
                 static_cast<double>(z1_peaks[i_pk_z1].window_right_) 
-                / static_cast<double>(kde_width) + *min_z1;
+                / static_cast<double>(kde_width_z1)*(*max_z1-*min_z1) + *min_z1;
+            */
             for(auto i_pl=0; i_pl<n_pillar; i_pl++){
-                if(cluster_horizon[i_clst_h][i_pl].z1() <= filter_max 
-                    && cluster_horizon[i_clst_h][i_pl].z1() >= filter_min){
+                if(cluster_horizon[i_clst_h][i_pl].z1() <= z1_peaks[i_pk_z1].right_
+                    && cluster_horizon[i_clst_h][i_pl].z1() >= z1_peaks[i_pk_z1].left_){
                     temp_cluster.push_back(cluster_horizon[i_clst_h][i_pl]);
                 }
             }
@@ -116,17 +136,19 @@ void PillarClusterComponent::VerticalCluster(){
         std::cout << "z2_peaks size: " << n_peaks_z2 << std::endl;
         for(auto i_pk_z2=0; i_pk_z2<n_peaks_z2; i_pk_z2++){
             temp_cluster.clear();
+            /*
             double filter_min = 
                 static_cast<double>(z2_peaks[i_pk_z2].window_left_) 
-                / static_cast<double>(kde_width) + *min_z2;
+                / static_cast<double>(kde_width_z2)*(*max_z2-*min_z2) + *min_z2;
             double filter_max = 
                 static_cast<double>(z2_peaks[i_pk_z2].window_right_) 
-                / static_cast<double>(kde_width) + *min_z2;
+                / static_cast<double>(kde_width_z2)*(*max_z2-*min_z2) + *min_z2;
+            */
             for(auto i_clst_z1=0; i_clst_z1<n_cluster_z1; i_clst_z1++){
                 auto n_each_cluster_z1 = temp_cluster_z1[i_clst_z1].size();
                 for(auto i_pl=0; i_pl<n_each_cluster_z1; i_pl++){
-                    if(temp_cluster_z1[i_clst_z1][i_pl].z2() <= filter_max
-                        && temp_cluster_z1[i_clst_z1][i_pl].z2() >= filter_min){
+                    if(temp_cluster_z1[i_clst_z1][i_pl].z2() <= z2_peaks[i_pk_z2].right_
+                        && temp_cluster_z1[i_clst_z1][i_pl].z2() >= z2_peaks[i_pk_z2].left_){
                         temp_cluster.push_back(
                             temp_cluster_z1[i_clst_z1][i_pl]);
                     }

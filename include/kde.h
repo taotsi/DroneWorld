@@ -21,14 +21,18 @@ inline void RetreiveKde(std::vector<double> const &src,
     dst.reserve(kde_width);
     dst.resize(kde_width);
     std::fill(dst.begin(), dst.end(), 0.0);
-    auto kernel_size = kernel.size();
-    auto kernel_half_size = kernel.size()/2;
+    int kernel_size = static_cast<int>(kernel.size());
+    int kernel_half_size = kernel_size>>1;
     for(auto i=0; i<src.size(); i++){
-        if(src[i] <= max && src[i] >= min){
-            int kde_x = static_cast<int>(src[i] * kde_width / max);
+        // std::cout << "retreiving kde, index = " << i << "\n";
+        if(src[i] < max && src[i] > min){
+            int kde_x = static_cast<int>(
+                (src[i]-min)/(max-min)*(kde_width-1));
+            //std::cout << "kde_x = " << kde_x << "\n";
             for(auto j=0; j<kernel_size; j++){
                 if(kde_x-kernel_half_size >= 0 &&
                     kde_x+kernel_half_size <= kde_width-1){
+                        //std::cout << kde_x-kernel_half_size+j << "\n";
                         dst[kde_x-kernel_half_size+j] += kernel[j];
                 }
             }
@@ -37,30 +41,39 @@ inline void RetreiveKde(std::vector<double> const &src,
 }
 
 inline void RetreiveKdePeak(std::vector<double> const &kde, 
-    std::vector<KdePeak> &peaks, double threashhold_weight, 
-    double kde_slope, double kde_y_intercept, 
-    double window_height_weight){
+    std::vector<KdePeak> &peaks, double max, double min, 
+    double threashhold_weight, double kde_slope, 
+    double kde_y_intercept, double window_height_weight){
     if(!peaks.empty()){
         peaks.clear();
     }
     // std::cout << "------ retreive peak ------\n";
+    auto kde_width = kde.size();
+    int offset = static_cast<int>(
+        static_cast<double>(kde_width-1)/(max-min)*min);
     // 1 for ascending and -1 for descending
     int prev_dir = kde[1] > kde[0] ? 1 : -1;
-    auto kde_width = kde.size();
     for(auto i=1; i<kde_width-1; i++){
         int crt_dir = kde[i+1] > kde[i] ? 1 : -1;
         if(prev_dir == 1 && crt_dir == -1){
             //std::cout << "found a peak\n";
             if(kde[i] > kde_slope*i + kde_y_intercept){
-                // std::cout << "peak's good\n";
-                KdePeak peak{i};
+                //std::cout << "peak's good\n";
+                KdePeak peak;
                 auto thh = kde[i] * threashhold_weight;
                 int il = i, ir = i;
-                while(kde[il] > thh) { il--; }
-                while(kde[ir] > thh) { ir++; }
+                while(kde[il] > thh && il >= 0) { il--; }
+                while(kde[ir] > thh && ir < kde_width) { ir++; }
                 int window_height = static_cast<int>(
-                    i * window_height_weight);
-                peak.SetWindow(il, ir, window_height);
+                    (i+offset) * window_height_weight);
+                peak.SetWindowHeight(window_height);
+                double mean = static_cast<double>(i)
+                    /static_cast<double>(kde_width-1)*(max-min)+min;
+                double left = static_cast<double>(il)
+                    /static_cast<double>(kde_width-1)*(max-min)+min;
+                double right = static_cast<double>(ir)
+                    /static_cast<double>(kde_width-1)*(max-min)+min;
+                peak.SetVal(mean, right, left);
                 peaks.push_back(peak);
             }
         }
@@ -69,16 +82,20 @@ inline void RetreiveKdePeak(std::vector<double> const &kde,
 }
 
 inline FilterStatus Filter(
-    std::vector<double> &vec, int start, int step, 
+    std::vector<double> const &vec, int start, int step, 
     double mean, double min, double max){
     double sum = 0.0;
     double average = 0.0;
     double count = 0.0;
+    if(step == 0){
+        std::cout << "step = 0\n";
+    }
     for(int i=start; i<start+step; i++){
         sum += vec[i];
         count += 1.0;
     }
-    average = sum/count;
+    average = sum > 0.00001 ? sum/count : 0.0;
+    // std::cout << sum << " " << count << " " << average << " " << mean << " " << min << " " << max << "\n";
     if(average <= max && average >= min){
         auto flag = kCompliant;
         FilterStatus stat{flag};

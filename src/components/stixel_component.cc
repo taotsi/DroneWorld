@@ -29,12 +29,13 @@ void StixelComponent::RunStixel() {
         // PUSH scaled_disparity_frame_queue_
 		RetreiveStixel();
         //auto &sf = scaled_disparity_frame_queue_.front();
-        //disparity_retreived_->pop();			
+        //disparity_retreived_->pop();	
+        std::cout << "retreivation ready\n";		
 	}
     if(!scaled_disparity_frame_queue_.empty()){
         // PUSH kde_frame_queue_
         Kde();
-        //std::cout << "stixel kde ready\n";
+        std::cout << "stixel kde ready\n";
     }
 	if(!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
@@ -51,7 +52,7 @@ void StixelComponent::RunStixel() {
         std::cout << count << "\n";
         */
         //kde_frame_queue_.pop();
-        //std::cout << "stixel kde peak ready\n";
+        std::cout << "stixel kde peak ready\n";
 	}
     if(!scaled_disparity_frame_queue_.empty()
         && !kde_peak_frame_queue_.empty()){
@@ -59,7 +60,7 @@ void StixelComponent::RunStixel() {
         DetectObject();
         //scaled_disparity_frame_queue_.pop();
         //kde_peak_frame_queue_.pop();
-        //std::cout << "stixel detect ready\n";
+        std::cout << "stixel detection ready\n";
     }
     if(!pillar_frame_queue_.empty()){
         //auto &pf = pillar_frame_queue_.front();
@@ -102,7 +103,9 @@ void StixelComponent::Kde() {
     auto &frame_scaled = scaled_disparity_frame_queue_.front();
 	std::vector<std::vector<double>> kde_frame;
     std::vector<double> kde_col;
-	for (int i = 0; i < frame_scaled.size(); i++) {
+    auto frame_size = frame_scaled.size();
+	for (int i = 0; i < frame_size; i++) {
+        //std::cout << "--- frame index: " << i << " ---\n";
         kde_col.clear();
         kde::RetreiveKde(frame_scaled[i], kde_col, 
             disp_max_, disp_min_, 1000);
@@ -124,11 +127,11 @@ void StixelComponent::FindKdePeak(float delta_y) {
         // k is j here, or x-coordinate of kde;
         // dmax is disparity max, = disp_max * width_
         // 0.121 is the value of the middle element of gauss kernel
-        double slop = disp_max_*width_/baseline_/kde_width_*0.12;
+        double slop = disp_max_*width_/baseline_/kde_width_*0.121;
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
-        kde::RetreiveKdePeak(kde_frame[i], kde_peaks, 0.8, 
-            slop, 0.0, window_h_weight);
+        kde::RetreiveKdePeak(kde_frame[i], kde_peaks, disp_max_, disp_min_, 
+            0.8, slop, 0.0, window_h_weight);
 		if (kde_peaks.empty()) {
 			kde_peak_frame.push_back(
 				std::vector<KdePeak>());
@@ -204,15 +207,13 @@ void StixelComponent::DetectObject() {
     auto n_stixel = kde_peak_frame.size();
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<n_stixel; stx_i++){
-        //std::cout << "--------------stixel " << stx_i << "\n";
+        std::cout << "-------------- stixel " << stx_i << "\n";
         BlockedIndex index {height_};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
-        if(n_peak == 0){
-            std::cout << "oops, no peak at all~\n";
-        }
+        // if(n_peak == 0){ std::cout << "oops, no peak at all~\n"; }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
-            //std::cout << "-------peak " << peak_i << "\n";
+            std::cout << "------- peak " << peak_i << "\n";
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
             std::vector<int> idx_of_object;
@@ -220,42 +221,42 @@ void StixelComponent::DetectObject() {
             for(auto idx=0; idx<n_idx; idx++){
                 auto start = index[idx].second;
                 auto end = index[idx+1].first;
-                auto window_height = 
+                int window_height = 
                     kde_peak_frame[stx_i][peak_i].window_height_;
-                auto step_size = window_height/2;
-                //std::cout << "window info " << window_height << "  " << step_size << "\n";
+                int step_size = window_height>>1;
                 if(window_height < end - start){
                     //std::cout << "filter starts\n";
-                    double mean = static_cast<double>(
-                        kde_peak_frame[stx_i][peak_i].pos_)
-                        /kde_width_*disp_max_;
-                    double min = static_cast<double>(
-                        kde_peak_frame[stx_i][peak_i].window_left_)
-                        /kde_width_*disp_max_;
-                    double max = static_cast<double>(
-                        kde_peak_frame[stx_i][peak_i].window_right_)
-                        /kde_width_*disp_max_;
-                    auto prev_stat = kde::Filter(scaled_disparity_frame[stx_i], 
-                            start, (end-start) % step_size, mean, min, max);
-                    if(prev_stat.flag_ == kCompliant){
-                        idx_of_object.push_back(start);
-                        idx_of_object.push_back(start + (end-start) % step_size);
+                    /*for(auto itr : scaled_disparity_frame[stx_i]){
+                        std::cout << std::setw(5) << itr << " ";
                     }
-                    start += (end-start) % step_size;
+                    std::cout <<"\n";*/
+                    if((end-start) % step_size != 0){
+                        auto prev_stat = kde::Filter(
+                            scaled_disparity_frame[stx_i], 
+                            start, (end-start) % step_size, 
+                            kde_peak_frame[stx_i][peak_i].mean_, 
+                            kde_peak_frame[stx_i][peak_i].left_, 
+                            kde_peak_frame[stx_i][peak_i].right_);
+                        if(prev_stat.flag_ == kCompliant){
+                            idx_of_object.push_back(start);
+                            idx_of_object.push_back(start + (end-start) % step_size);
+                        }
+                        start += (end-start) % step_size;
+                    }
                     while(start < end){
-                        auto stat = kde::Filter(scaled_disparity_frame[stx_i],
-                        start, step_size, mean, min, max);
+                        auto stat = kde::Filter(scaled_disparity_frame[stx_i], 
+                                start, step_size, 
+                                kde_peak_frame[stx_i][peak_i].mean_, 
+                                kde_peak_frame[stx_i][peak_i].left_, 
+                                kde_peak_frame[stx_i][peak_i].right_);
                         if(stat.flag_ == kCompliant){
                             idx_of_object.push_back(start);
                             idx_of_object.push_back(start+step_size);
-                        }/*else if(stat.flag_ == kNotCompliant){
-                            idx_of_object.push_back(stat.value_);
-                        }*/ //wrong code
-                        prev_stat = stat;
+                        }
                         start += step_size;
                     }
                     if(!idx_of_object.empty()){
-                        //std::cout << "found ends\n";
+                        std::cout << "found ends\n";
                         /*
                         for(auto itr : idx_of_object){
                             std::cout << itr << "  ";
@@ -265,14 +266,16 @@ void StixelComponent::DetectObject() {
                             idx_of_object.begin(), idx_of_object.end());
                         auto y_end = std::max_element(
                             idx_of_object.begin(), idx_of_object.end());
-                        auto p_camera1 = GetCameraCoor(mean, stx_i, *y_start);
-                        auto p_world1 =
-                            CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
-                                p_camera1, scaled_disparity_frame.angle_camera_);
-                        auto p_camera2 = GetCameraCoor(mean, stx_i, *y_end);
-                        auto p_world2 =
-                            CameraToWorldCoor(scaled_disparity_frame.pos_camera_, 
-                                p_camera2, scaled_disparity_frame.angle_camera_);
+                        auto p_camera1 = GetCameraCoor(
+                            kde_peak_frame[stx_i][peak_i].mean_, stx_i, *y_start);
+                        auto p_world1 = CameraToWorldCoor(
+                            scaled_disparity_frame.pos_camera_, 
+                            p_camera1, scaled_disparity_frame.angle_camera_);
+                        auto p_camera2 = GetCameraCoor(
+                            kde_peak_frame[stx_i][peak_i].mean_, stx_i, *y_end);
+                        auto p_world2 = CameraToWorldCoor(
+                            scaled_disparity_frame.pos_camera_, 
+                            p_camera2, scaled_disparity_frame.angle_camera_);
                         /*
                         std::cout << "---"; p_camera1.Print();
                         std::cout << "    "; p_camera2.Print();
