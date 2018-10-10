@@ -65,7 +65,6 @@ here are the steps to take for python users
 
 - plane forming
 - embed opencv
-- time test utility
 - make pillar cluster horizontally work
 - thread competition for disparity queue and other queue
 - a thread for input process
