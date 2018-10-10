@@ -176,7 +176,7 @@ PillarClusterComponent::GetPillarCluster(){
             cluster.clear();
             auto n_pillar = pillar_cluster[i].size();
             for(auto j=0; j<n_pillar; j++){
-                cluster.push_back(pillar_cluster[i][j]).GetCoor();
+                cluster.push_back(pillar_cluster[i][j].GetCoor());
             }
             result.push_back(cluster);
         }

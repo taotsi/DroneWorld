@@ -17,6 +17,9 @@ class DataClient:
     def GetPillarClusterHorizon(self):
         return self.client.call("GetPillarClusterHorizon")
 
+    def GetPillarCluster(self):
+        return self.client.call("GetPillarCluster")
+
 
 """
 
