@@ -24,11 +24,12 @@ void PillarClusterComponent::Update(double DeltaTime){
 }
 
 void PillarClusterComponent::RunCluster(){
-    /*
+    
     if(!pillar_frame_queue_->empty()){
         // PUSH pillar_cluster_horizon_queue_
         HorizontalCluster();
         //pillar_frame_queue_->pop();
+        std::cout << "cluster horizon ready\n";
     }
     if(!pillar_cluster_horizon_queue_.empty()){
         // PUSH pillar_cluster_queue_
@@ -37,6 +38,7 @@ void PillarClusterComponent::RunCluster(){
     }else{
         std::cout << "pillar_cluster_horizon_queue_ is empty\n";
     }
+    /*
     if(!pillar_cluster_queue_.empty()){
         auto &pc = pillar_cluster_queue_.front();
         std::cout << "pillar cluster size: "<< pc.size() << std::endl;
@@ -83,17 +85,14 @@ void PillarClusterComponent::VerticalCluster(){
         auto min_z1 = std::min_element(z1_vec.begin(), z1_vec.end());
         auto max_z2 = std::max_element(z2_vec.begin(), z2_vec.end());
         auto min_z2 = std::min_element(z2_vec.begin(), z2_vec.end());
-        // not good
-        auto kde_width_z1 = *max_z1-*min_z1 > 1.0 ? 
-            static_cast<int>(*max_z1 - *min_z1) *100 : 100;
-        auto kde_width_z2 = *max_z2-*min_z2 > 1.0 ? 
-            static_cast<int>(*max_z2 - *min_z2) *100 : 100;
-        kde::RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, kde_width_z1);
+        int z1_vec_size = static_cast<int>(z1_vec.size());
+        int z2_vec_size = static_cast<int>(z2_vec.size());
+        kde::RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, 30);
         kde::RetreiveKdePeak(kde_z1, z1_peaks, *max_z1, *min_z1, 
-            0.707, 0, 0.25, 0.2);
-        kde::RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, kde_width_z2);
+            0.707, 0, 1.0, 0.2);
+        kde::RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, 30);
         kde::RetreiveKdePeak(kde_z2, z2_peaks, *max_z2, *min_z2, 
-            0.707, 0, 0.25, 0.2);
+            0.707, 0, 1.0, 0.2);
         std::cout << "---- kde_z1, size: " << kde_z1.size() << "\n";
         for(auto itr : kde_z1){
             std::cout << itr << "  ";

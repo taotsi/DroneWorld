@@ -62,8 +62,20 @@ inline void RetreiveKdePeak(std::vector<double> const &kde,
                 KdePeak peak;
                 auto thh = kde[i] * threashhold_weight;
                 int il = i, ir = i;
-                while(kde[il] > thh && il >= 0) { il--; }
-                while(kde[ir] > thh && ir < kde_width) { ir++; }
+                while(kde[il] > thh && il > 0) { 
+                    if(kde[il] > kde[il-1]){
+                        il--;
+                    }else{
+                        break;
+                    }
+                }
+                while(kde[ir] > thh && ir < kde_width-1) {
+                    if(kde[ir] > kde[ir+1]){
+                        ir++;
+                    }else{
+                        break;
+                    }
+                }
                 int window_height = static_cast<int>(
                     (i+offset) * window_height_weight);
                 peak.SetWindowHeight(window_height);

@@ -108,7 +108,7 @@ void StixelComponent::Kde() {
         //std::cout << "--- frame index: " << i << " ---\n";
         kde_col.clear();
         kde::RetreiveKde(frame_scaled[i], kde_col, 
-            disp_max_, disp_min_, 1000);
+            disp_max_, disp_min_, width_);
 		kde_frame.push_back(kde_col);
 	}
 	kde_frame_queue_.push(kde_frame);
@@ -207,13 +207,13 @@ void StixelComponent::DetectObject() {
     auto n_stixel = kde_peak_frame.size();
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<n_stixel; stx_i++){
-        std::cout << "-------------- stixel " << stx_i << "\n";
+        //std::cout << "-------------- stixel " << stx_i << "\n";
         BlockedIndex index {height_};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
         // if(n_peak == 0){ std::cout << "oops, no peak at all~\n"; }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
-            std::cout << "------- peak " << peak_i << "\n";
+            //std::cout << "------- peak " << peak_i << "\n";
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
             std::vector<int> idx_of_object;
@@ -256,7 +256,7 @@ void StixelComponent::DetectObject() {
                         start += step_size;
                     }
                     if(!idx_of_object.empty()){
-                        std::cout << "found ends\n";
+                        //std::cout << "found ends\n";
                         /*
                         for(auto itr : idx_of_object){
                             std::cout << itr << "  ";

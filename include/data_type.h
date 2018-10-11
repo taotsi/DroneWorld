@@ -8,7 +8,7 @@
 // not calculations or algorithms. So make sure the data
 // is correct before storing it.
  
-namespace droneworld{
+namespace droneworld {
 
 struct Point2D {
 	Point2D() {};

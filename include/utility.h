@@ -42,10 +42,10 @@ public:
             std::chrono::system_clock::duration diff;
             diff = std::chrono::system_clock::now() - start_;
             return static_cast<unsigned>(
-                std::chrono::duration_cast<milliseconds>(diff).count());
+                std::chrono::duration_cast<std::chrono::milliseconds>(diff).count());
         }
         return 0;
     };
 private:
     std::chrono::system_clock::time_point start_;
-}
+};
