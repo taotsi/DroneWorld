@@ -27,39 +27,54 @@ void PillarClusterComponent::RunCluster(){
     
     if(!pillar_frame_queue_->empty()){
         // PUSH pillar_cluster_horizon_queue_
-        HorizontalCluster();
+        Cluster();
         //pillar_frame_queue_->pop();
-        std::cout << "cluster horizon ready\n";
+        std::cout << "cluster ready\n";
     }
-    
-    if(!pillar_cluster_horizon_queue_.empty()){
-        // PUSH pillar_cluster_queue_
-        VerticalCluster();
-        // pillar_cluster_horizon_queue_.pop();
-        std::cout << "cluster final ready\n";
-    }else{
-        std::cout << "pillar_cluster_horizon_queue_ is empty\n";
-    }
-    /*
-    if(!pillar_cluster_queue_.empty()){
-        auto &pc = pillar_cluster_queue_.front();
-        std::cout << "pillar cluster size: "<< pc.size() << std::endl;
-    }else{
-        std::cout << "pillar_cluster_queue_ is empty\n";
-    }
-    std::cout << "cluster ready\n";
-    */
 }
 
-void PillarClusterComponent::HorizontalCluster(){
+void PillarClusterComponent::Cluster(){
     auto &pillar_frame = pillar_frame_queue_->front();
     PillarClusters pillar_cluster_horizon;
     for(auto i=0; i<pillar_frame.size(); i++){
-        pillar_cluster_horizon.BringIn(pillar_frame[i], 1.0); // 1.0 for 1m
+        pillar_cluster_horizon.BringIn(pillar_frame[i], 1.0, 0.3); // 1m and 0.3m
     }
-    pillar_cluster_horizon_queue_.push(pillar_cluster_horizon);
+    pillar_cluster_queue_.push(pillar_cluster_horizon);
 }
 
+void PillarClusterComponent::FormPlane(){
+    
+}
+
+void PillarClusterComponent::FilterPlane(){
+    
+}
+
+/* for rpclib server */
+std::vector<std::vector<std::vector<double>>>
+PillarClusterComponent::GetPillarCluster(){
+    std::vector<std::vector<std::vector<double>>> result;
+    std::vector<std::vector<double>> cluster;
+    cluster.reserve(100);
+    if(!pillar_cluster_queue_.empty()){
+        auto &pillar_cluster = pillar_cluster_queue_.front();
+        auto n_cluster = pillar_cluster.size();
+        for(auto i=0; i<n_cluster; i++){
+            cluster.clear();
+            auto n_pillar = pillar_cluster[i].size();
+            for(auto j=0; j<n_pillar; j++){
+                cluster.push_back(pillar_cluster[i][j].GetCoor());
+            }
+            result.push_back(cluster);
+        }
+        return result;
+    }else{
+        std::cout << "pillar_cluster_queue_ is empty\n";
+        return std::vector<std::vector<std::vector<double>>>();
+    }
+}
+
+/* backup code */
 // TODO: this methods fails, deprecate or perfect it
 /*
 void PillarClusterComponent::VerticalCluster(){
@@ -169,58 +184,3 @@ void PillarClusterComponent::VerticalCluster(){
     pillar_cluster_queue_.push(final_cluster);
 }
 */
-void PillarClusterComponent::FormPlane(){
-    
-}
-
-void PillarClusterComponent::FilterPlane(){
-    
-}
-
-/* for rpclib server */
-std::vector<std::vector<std::vector<double>>>
-PillarClusterComponent::GetPillarClusterHorizon(){
-    std::vector<std::vector<std::vector<double>>> result;
-    std::vector<std::vector<double>> cluster;
-    cluster.reserve(100);
-    if(!pillar_cluster_horizon_queue_.empty()){
-        auto &pillar_cluster = pillar_cluster_horizon_queue_.front();
-        auto n_cluster = pillar_cluster.size();
-        for(auto i=0; i<n_cluster; i++){
-            cluster.clear();
-            auto n_pillar = pillar_cluster[i].size();
-            for(auto j=0; j<n_pillar; j++){
-                cluster.push_back(pillar_cluster[i][j].GetCoor());
-            }
-            result.push_back(cluster);
-        }
-        //std::cout << result.size() << "  " << result[0].size() << "\n";
-        return result;
-    }else{
-        std::cout << "pillar_cluster_horizon_queue_ is empty\n";
-        return std::vector<std::vector<std::vector<double>>>();
-    }
-}
-
-std::vector<std::vector<std::vector<double>>>
-PillarClusterComponent::GetPillarCluster(){
-    std::vector<std::vector<std::vector<double>>> result;
-    std::vector<std::vector<double>> cluster;
-    cluster.reserve(100);
-    if(!pillar_cluster_queue_.empty()){
-        auto &pillar_cluster = pillar_cluster_queue_.front();
-        auto n_cluster = pillar_cluster.size();
-        for(auto i=0; i<n_cluster; i++){
-            cluster.clear();
-            auto n_pillar = pillar_cluster[i].size();
-            for(auto j=0; j<n_pillar; j++){
-                cluster.push_back(pillar_cluster[i][j].GetCoor());
-            }
-            result.push_back(cluster);
-        }
-        return result;
-    }else{
-        std::cout << "pillar_cluster_queue_ is empty\n";
-        return std::vector<std::vector<std::vector<double>>>();
-    }
-}

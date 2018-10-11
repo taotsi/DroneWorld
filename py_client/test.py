@@ -52,7 +52,6 @@ if __name__ == "__main__":
     # pillars = client.GetPillarFrame()
     # print(len(pillars))
     # DrawPillarFrame(pillars)
-    # clusters_h = client.GetPillarClusterHorizon()
-    # DrawPillarCluster(clusters_h)
     clusters = client.GetPillarCluster()
+    print(len(clusters))
     DrawPillarCluster(clusters)

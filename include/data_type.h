@@ -275,38 +275,41 @@ public:
 };
 class SinglePillarCluster {
 public:
-    SinglePillarCluster() {};
     SinglePillarCluster(Pillar const &pillar){
-        data_.push_back(pillar);
-        PushZ(pillar);
+        Push(pillar);
     }
     ~SinglePillarCluster() {};
+    /* methods */
+    Pillar& operator[](int pos){
+        return data_[pos];
+    }
+    void Push(Pillar pl){
+        data_.push_back(pl);
+        if(!z1_vec_.empty()){
+            z1_mean_ += (pl.z1()-z1_mean_)
+                / static_cast<double>(z1_vec_.size()+1);
+            z2_mean_ += (pl.z2()-z2_mean_)
+                / static_cast<double>(z2_vec_.size()+1);
+        }else{
+            z1_mean_ = pl.z1();
+            z2_mean_ = pl.z2();
+        };
+        z1_vec_.push_back(pl.z1());
+        z2_vec_.push_back(pl.z2());
+    }
+    auto back() { return data_.back(); }
+    int size(){ return static_cast<int>(data_.size()); }
+    double z1_mean() { return z1_mean_; }
+    double z2_mean() { return z2_mean_; }
+    bool empty() { return data_.empty(); }
+private:
     /* data */
     std::vector<Pillar> data_;
     // not a good design, redundant data. just in order to make fast
     std::vector<double> z1_vec_;
     std::vector<double> z2_vec_;
-    /* methods */
-    Pillar& operator[](int pos){
-        return data_[pos];
-    }
-    void Push(Pillar const &pl){
-        data_.push_back(pl);
-    }
-    void PushZ(double z1, double z2){
-        z1_vec_.push_back(z1);
-        z2_vec_.push_back(z2);
-    }
-    void PushZ(Pillar pillar){
-        z1_vec_.push_back(pillar.z1());
-        z2_vec_.push_back(pillar.z2());
-    }
-    auto back(){
-        return data_.back();
-    }
-    int size(){
-        return static_cast<int>(data_.size());
-    }
+    double z1_mean_;
+    double z2_mean_;
 };
 class PillarClusters {
 public:
@@ -319,22 +322,29 @@ public:
         return data_[pos];
     }
     // basic cluster
-    void BringIn(Pillar pillar, double dist_max){
-        bool is_brought_in = false;
-        auto n_cluster = data_.size();
-        for(auto i=0; i<n_cluster; i++){
-            double dist = pow(data_[i].back().x() - pillar.x(), 2)
-                + pow(data_[i].back().y() - pillar.y(), 2);
-            if(dist <= pow(dist_max, 2)){
-                data_[i].Push(pillar);
-                data_[i].PushZ(pillar);
-                is_brought_in = true;
-                break;
+    void BringIn(Pillar pillar, double xy_max, double z_max){
+        if(!data_.empty()){
+            bool is_brought_in = false;
+            int n_cluster = static_cast<int>(data_.size());
+            for(auto i=n_cluster-1; i>=0; i--){
+                double dist = pow(data_[i].back().x() - pillar.x(), 2)
+                    + pow(data_[i].back().y() - pillar.y(), 2);
+                if(dist <= pow(xy_max, 2)){
+                    if(fabs(data_[i].z1_mean()-pillar.z1()) <= z_max
+                        && fabs(data_[i].z2_mean()-pillar.z2()) <= z_max){
+                        data_[i].Push(pillar);
+                        is_brought_in = true;
+                        break;
+                    }
+                }
             }
-        }
-        if(!is_brought_in){
+            if(!is_brought_in){
+                data_.push_back(SinglePillarCluster{pillar});
+            }
+        }else{
             data_.push_back(SinglePillarCluster{pillar});
         }
+        return;
     }
     int size(){
         return static_cast<int>(data_.size());
@@ -350,9 +360,7 @@ public:
     };
     // for rectangle
     Plane(Point3D p1, Point3D p2)
-        : p1_(p1), p2_(p2) {
-        
-    };
+        : p1_(p1), p2_(p2) { };
     // for quadrilateral
     Plane(Point3D p1, Point3D p2, Point3D p3, Point3D p4)
         : p1_(p1), p2_(p2), p3_(p3), p4_(p4) {};
