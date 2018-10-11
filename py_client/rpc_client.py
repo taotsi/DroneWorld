@@ -6,7 +6,10 @@ class DataClient:
         self.client_ = msgpackrpc.Client(msgpackrpc.Address("127.0.0.1", 8080))
 
     def test(self):
-        return self.client_.call("test")
+        print(self.client_.call("test"))
+
+    def GetDisparityFrame(self):
+        return self.client_.call("GetDisparityFrame")
 
     def GetKde(self):
         return self.client_.call("GetKde")
@@ -16,9 +19,3 @@ class DataClient:
 
     def GetPillarCluster(self):
         return self.client_.call("GetPillarCluster")
-
-    def GetKdeZ1(self):
-        return self.client_.call("GetKdeZ1")
-
-    def GetKdeZ2(self):
-        return self.client_.call("GetKdeZ2")

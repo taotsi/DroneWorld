@@ -5,6 +5,19 @@ import numpy as np
 import random
 
 
+def DrawDisparityFrame(frame):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    x_len = len(frame)
+    y_len = len(frame[0])
+    x_array = np.arange(0, x_len, 1)
+    y_array = np.arange(0, y_len, 1)
+    x, y = np.meshgrid(x_array, y_array, indexing='ij')
+    z = np.array(frame)
+    ax.plot_surface(x, y, z, alpha=0.7)
+    plt.show()
+
+
 def DrawKde(kde):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -32,7 +45,6 @@ def DrawPillarFrame(pillars):
 def DrawPillarCluster(clusters):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    n_cluster = len(clusters)
     for i, cl in enumerate(clusters):
         color = (random.uniform(0, 1), random.uniform(
             0, 1), random.uniform(0, 1))
@@ -47,11 +59,13 @@ def DrawPillarCluster(clusters):
 if __name__ == "__main__":
     client = DataClient()
 
-    # kde = client.GetKde()
-    # DrawKde(kde)
+    # frame = client.GetDisparityFrame()
+    # DrawDisparityFrame(frame)
+    kde = client.GetKde()
+    DrawKde(kde)
     pillars = client.GetPillarFrame()
     print(len(pillars))
     DrawPillarFrame(pillars)
-    # clusters = client.GetPillarCluster()
-    # print(len(clusters))
-    # DrawPillarCluster(clusters)
+    clusters = client.GetPillarCluster()
+    print(len(clusters))
+    DrawPillarCluster(clusters)

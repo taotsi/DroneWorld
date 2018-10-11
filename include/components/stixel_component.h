@@ -10,6 +10,7 @@ public:
 	void Update(double DeltaTime);
 	void Begin();
     // for rpclib server
+    std::vector<std::vector<double>> GetDisparityFrame();
 	std::vector<std::vector<double>> GetKde();
     std::vector<std::vector<double>> GetPillarFrame();
 	/* data */

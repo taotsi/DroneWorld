@@ -289,6 +289,14 @@ void StixelComponent::Behave() {
 }
 
 /* for rpclib server */
+std::vector<std::vector<double>> StixelComponent::GetDisparityFrame(){
+    if(!scaled_disparity_frame_queue_.empty()){
+        return scaled_disparity_frame_queue_.front().data_;
+    }else{
+        std::cout << "scaled_disparity_frame_queue_ is empty\n";
+        return std::vector<std::vector<double>>();
+    }
+}
 std::vector<std::vector<double>> StixelComponent::GetKde() {
 	if (!kde_frame_queue_.empty()) {
 		// never ever pop it here
