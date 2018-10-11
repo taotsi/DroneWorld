@@ -14,7 +14,7 @@ If you were to add or delete .cc or .h files, the easiest way is to do this in t
 
 ## How to run
 
-First you have to run an Airsim programe, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
+First you have to run an Airsim program, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
 
 ## How to checkout the code
 
