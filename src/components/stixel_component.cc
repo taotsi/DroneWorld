@@ -30,29 +30,18 @@ void StixelComponent::RunStixel() {
 		RetreiveStixel();
         //auto &sf = scaled_disparity_frame_queue_.front();
         //disparity_retreived_->pop();	
-        std::cout << "retreivation ready\n";		
+        //std::cout << "stixel retreivation ready\n";		
 	}
     if(!scaled_disparity_frame_queue_.empty()){
         // PUSH kde_frame_queue_
         Kde();
-        std::cout << "stixel kde ready\n";
+        //std::cout << "stixel kde ready\n";
     }
 	if(!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeak(0.5);
-        /*
-        int count = 0;
-        auto &kf = kde_peak_frame_queue_.front();
-        for(auto i=0; i<kf.size(); i++){
-            for(auto j=0; j<kf[i].size(); j++){
-                kf[i][j].PrintWindow();
-                count++;
-            }
-        }
-        std::cout << count << "\n";
-        */
         //kde_frame_queue_.pop();
-        std::cout << "stixel kde peak ready\n";
+        //std::cout << "stixel kde peak ready\n";
 	}
     if(!scaled_disparity_frame_queue_.empty()
         && !kde_peak_frame_queue_.empty()){
@@ -60,7 +49,7 @@ void StixelComponent::RunStixel() {
         DetectObject();
         //scaled_disparity_frame_queue_.pop();
         //kde_peak_frame_queue_.pop();
-        std::cout << "stixel detection ready\n";
+        //std::cout << "stixel detection ready\n";
     }
     if(!pillar_frame_queue_.empty()){
         //auto &pf = pillar_frame_queue_.front();

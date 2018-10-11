@@ -47,6 +47,13 @@ inline void RetreiveKdePeak(std::vector<double> const &kde,
     if(!peaks.empty()){
         peaks.clear();
     }
+    if(threashhold_weight > 1){
+        threashhold_weight = 1;
+        std::cout << "threashhold_weight for RetreiveKdePeak is bigger than 1\n";
+    }else if(threashhold_weight<0){
+        threashhold_weight = 0;
+        std::cout << "threashhold_weight for RetreiveKdePeak is less than 0\n";
+    }
     // std::cout << "------ retreive peak ------\n";
     auto kde_width = kde.size();
     int offset = static_cast<int>(

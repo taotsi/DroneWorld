@@ -106,6 +106,9 @@ struct KdePeak {
     void SetWindowHeight(int height){
         window_height_ = height > 1 ? height : 2;
     }
+    void Print(){
+        std::cout << "mean = " << mean_ << ", right = " << right_ << ", left = " << left_ << "\n";
+    }
 };
 struct BlockedIndex {
     BlockedIndex(int range_length){
@@ -279,37 +282,41 @@ public:
     }
     ~SinglePillarCluster() {};
     /* data */
-    std::vector<Pillars> data_;
+    std::vector<Pillar> data_;
+    // not a good design, redundant data. just in order to make fast
     std::vector<double> z1_vec_;
     std::vector<double> z2_vec_;
     /* methods */
-    std::vector<Pillar> operator[](int pos){
+    Pillar& operator[](int pos){
         return data_[pos];
+    }
+    void Push(Pillar const &pl){
+        data_.push_back(pl);
     }
     void PushZ(double z1, double z2){
         z1_vec_.push_back(z1);
         z2_vec_.push_back(z2);
     }
-    void PushZ(Pillar const &pillar){
+    void PushZ(Pillar pillar){
         z1_vec_.push_back(pillar.z1());
-        z2_vec_.push_back(pillzr.z2());
+        z2_vec_.push_back(pillar.z2());
     }
-}
+    auto back(){
+        return data_.back();
+    }
+    int size(){
+        return static_cast<int>(data_.size());
+    }
+};
 class PillarClusters {
 public:
     PillarClusters() {};
     ~PillarClusters() {};
     /* data */
 	std::vector<SinglePillarCluster> data_;
-    // not a good design, redundant data. just in order to make fast
-    std::vector<double> z1_vec_;
-    std::vector<double> z2_vec_;
     /* methods */
-    std::vector<Pillar> operator[](int pos){
+    SinglePillarCluster& operator[](int pos){
         return data_[pos];
-    }
-    void Push(Pillar const &pl){
-        data_.push_back(pl);
     }
     // basic cluster
     void BringIn(Pillar pillar, double dist_max){
@@ -326,7 +333,7 @@ public:
             }
         }
         if(!is_brought_in){
-            data_.push_back(SinglePillarCluster{pillar};
+            data_.push_back(SinglePillarCluster{pillar});
         }
     }
     int size(){
