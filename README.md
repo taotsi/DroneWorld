@@ -63,6 +63,9 @@ here are the steps to take for python users
 
 ## TODO
 
+- add noise
+- find a window scene
+- height filter
 - plane forming
 - embed opencv
 - make pillar cluster horizontally work
