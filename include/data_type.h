@@ -110,6 +110,7 @@ struct KdePeak {
         std::cout << "mean = " << mean_ << ", right = " << right_ << ", left = " << left_ << "\n";
     }
 };
+
 struct BlockedIndex {
     BlockedIndex(int range_length){
         index_.push_back(std::pair<int, int>(0, 0));
@@ -195,6 +196,7 @@ struct BlockedIndex {
         return static_cast<int>(index_.size());
     }
 };
+
 enum FilterFlag{
     kCompliant,
     kNotCompliant,
@@ -213,6 +215,7 @@ struct FilterStatus{
     int value_ = 0;
     FilterFlag flag_ = kCompliant;
 };
+
 class Pillar {
 public:
     Pillar() {};
@@ -272,6 +275,7 @@ private:
         }
     }
 };
+
 // TODO: this class will be deprecated
 class PillarFrame{
 public:
@@ -294,6 +298,7 @@ public:
         }
     }
 };
+
 class SinglePillarCluster {
 public:
     SinglePillarCluster(Pillar const &pillar){
@@ -301,10 +306,10 @@ public:
     }
     ~SinglePillarCluster() {};
     /* methods */
-    Pillar& operator[](int pos){
+    Pillar& operator[](int pos) {
         return data_[pos];
     }
-    void Push(Pillar pl){
+    void Push(Pillar pl) {
         data_.push_back(pl);
         if(!z1_vec_.empty()){
             z1_mean_ += (pl.z1()-z1_mean_)
@@ -323,6 +328,12 @@ public:
     double z1_mean() { return z1_mean_; }
     double z2_mean() { return z2_mean_; }
     bool empty() { return data_.empty(); }
+    double z_max() {
+        return *(std::max_element(z2_vec_.begin(), z2_vec_.end()));
+    };
+    double z_min() {
+        return *(std::min_element(z1_vec_.begin(), z1_vec_.end()));
+    }
 private:
     /* data */
     std::vector<Pillar> data_;
@@ -332,6 +343,7 @@ private:
     double z1_mean_;
     double z2_mean_;
 };
+
 class PillarClusters {
 public:
     PillarClusters() {};
@@ -339,11 +351,11 @@ public:
     /* data */
 	std::vector<SinglePillarCluster> data_;
     /* methods */
-    SinglePillarCluster& operator[](int pos){
+    SinglePillarCluster& operator[](int pos) {
         return data_[pos];
     }
     // basic cluster
-    void BringIn(Pillar pillar, double xy_max, double z_max){
+    void BringIn(Pillar pillar, double xy_max, double z_max) {
         if(!data_.empty()){
             bool is_brought_in = false;
             int n_cluster = static_cast<int>(data_.size());
@@ -367,7 +379,7 @@ public:
         }
         return;
     }
-    int size(){
+    int size() {
         return static_cast<int>(data_.size());
     }
 };

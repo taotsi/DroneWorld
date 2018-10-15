@@ -44,22 +44,145 @@ void PillarClusterComponent::Cluster(){
 
 ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
     double z_max, double z_min, double h_thh, bool is_forcibly=false){
-    bool is_head = false, is_sill = false, is_jamb = false;
-    if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
-        pillar.SetZ1(z_min);
+    if(!is_forcibly){
+        if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
+            pillar.SetZ1(z_min);
+            pillar.SetZ2(z_max);
+            return kJamb;
+        }else if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min > h_thh){// head
+            pillar.SetZ2(z_max);
+            return kHead;
+        }else if(z_max-pillar.z2() > h_thh && pillar.z1()-z_min < h_thh){// sill
+            pillar.SetZ1(z_min);
+            return kSill;
+        }else{// grille, taken as jamb, temporarily
+            pillar.SetZ1(z_min);
+            pillar.SetZ2(z_max);
+            return kJamb;
+        }
+    }else{
         pillar.SetZ2(z_max);
-        return kJamb;
-    }else if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min > h_thh){// head
-        pillar.SetZ2(z_max);
-        return kHead;
-    }else if(z_max-pillar.z2() > h_thh && pillar.z1()-z_min < h_thh){// sill
         pillar.SetZ1(z_min);
-        return kSill;
-    }else{// grille, taken as jamb, temporarily
-        pillar.SetZ1(z_min);
-        pillar.SetZ2(z_max);
-        return kJamb;
     }
+}
+void PillarClusterComponent::FillWindow(std::vector<Pillar> jambs, 
+    std::vector<Pillar> heads, std::vector<Pillar> sills, 
+    double z_max, double z_min){
+    auto n_sills = sills.size();
+    for(auto i=0; i<n_sills; i++){
+        CompletePillar(
+            sills[i], z_max, z_min, 0, true);
+    }
+    jambs.insert(jambs.end(), sills.begin(), sills.end());
+    auto n_heads = heads.size();
+    for(auto i=0; i<n_heads; i++){
+        CompletePillar(
+            heads[i], z_max, z_min, 0, true);
+    }
+    jambs.insert(jambs.end(), heads.begin(), heads.end());
+}
+void PillarClusterComponent::ComplementCluster(
+    const SinglePillarCluster &clst_src, 
+    std::vector<SinglePillarCluster> &clst_dst) {
+    double drone_height = 0.3;
+    double drone_width = 1.0;
+    double z_max = clst_src.z_max();
+    double z_min = clst_src.z_min();
+    std::vector<Pillar> jambs, heads, sills;
+    int idx = 0;
+    int n_clst_src = clst_src.size();
+    int window_start = 0, window_end = 0;
+    while(idx < n_clst_src){ // TODO: or while(ture)?
+        jambs.clear();
+        heads.clear();
+        sills.clear();
+        double z_max_window = z_max;
+        double z_min_window = z_min;
+        while(true){
+            if(idx >= n_clst_src){
+                clst_dst.push_back(jambs);
+                break;
+            }
+            auto stat_temp = CompletePillar(
+                clst_src[idx], z_max, z_min, drone_height);
+            if(stat_temp == kJamb){
+                jambs.push_back(clst_src);
+                idx++;
+            }else if(stat_temp == kSill){
+                sills.push_back(clst_src[idx]);
+                z_min_window = clst_src[idx].z2();
+                idx++;
+                window_start = idx;
+                break;
+            }else{ // kHead
+                heads.push_back(clst_src[idx]);
+                z_max_window = clst_src[idx].z1();
+                idx++;
+                window_start = idx;
+                break;
+            }
+        }
+        while(true){
+            if(idx >= n_clst_src){
+                clst_dst.push_back(jambs);
+                clst_dst.push_back(sills);
+                clst_dst.push_back(heads);
+                break;
+            }
+            auto stat_temp = CompletePillar(
+                clst_src[idx], z_max, z_min, drone_height);
+            if(stat_temp == kJamb){
+                window_end = idx;
+                double xl = clst_src[window_start].x();
+                double yl = clst_src[window_start].y();
+                double xr = clst_src[window_end].x();
+                double yr = clst_src[window_end].y();
+                if(pow(xl-xr, 2) + pow(yl-lr, 2) > pow(drone_height, 2)){
+                    clst_dst.push_back(jambs);
+                    clst_dst.push_back(sills);
+                    clst_dst.push_back(heads);
+                }else{
+                    FillWindow(jambs, heads, sills, z_max, z_min);
+                    clst_dst.push_back(jambs);
+                }
+                idx++;
+                window_start = idx;
+                break;
+            }else{
+                if(stat_temp == kSill){
+                    if(clst_src[idx].z2() > z_min_window){
+                       z_min_window = clst_src[idx].z2();
+                    }
+                    sills.push_back(clst_src[idx]);
+                }else{ // kHead
+                    if(clst_src[idx].z1() < z_max_window){
+                        z_max_window = clst_src[idx].z1();
+                    }
+                    heads.push_back(clst_src[idx]);
+                }
+                if(z_max_window-z_min_window < drone_height){
+                    FillWindow(jambs, heads, sills, z_max, z_min);
+                    clst_dst.push_back(jambs);
+                    CompletePillar(clst_src[idx], z_max, z_min, 0, true);
+                    idx++;
+                    window_start = idx;
+                    break;
+                }else{
+                    idx++;
+                }
+            }
+        }
+    }
+}
+
+void PillarClusterComponent::ComplementFilter(){
+    auto &pillar_cluster = pillar_cluster_queue_.front();
+    std::vector<std::vector<Pillar>> filtered_clusters;
+    auto n_pillar_cluster = pillar_cluster.size();
+    for(auto i=0; i<n_pillar_cluster; i++){
+        ComplementCluster(pillar_cluster, filtered_clusters);
+    }
+    filtered_cluster_queue_.push(filtered_clusters);
 }
 
 void PillarClusterComponent::FormPlane(){
