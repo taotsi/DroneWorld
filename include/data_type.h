@@ -238,7 +238,7 @@ public:
         y_ = y;
     }
     void SetZ1(double z1){
-        z1_ = z2;
+        z1_ = z1;
         SortZ();
     }
     void SetZ2(double z2){ 
