@@ -63,6 +63,7 @@ here are the steps to take for python users
 
 ## TODO
 
+- arrange naming in pillar cluster component and data type
 - add noise
 - find a window scene
 - height filter

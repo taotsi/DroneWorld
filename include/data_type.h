@@ -276,29 +276,6 @@ private:
     }
 };
 
-// TODO: this class will be deprecated
-class PillarFrame{
-public:
-    /* data */
-	std::vector<Pillar> data_;
-    /* methods */
-    Pillar operator[](int pos){
-        return data_[pos];
-    }
-    void Push(Pillar &pl){
-        data_.push_back(pl);
-    }
-    int size(){
-        int size = static_cast<int>(data_.size());
-        return size;
-    }
-    void Print(){
-        for(auto itr : data_){
-            itr.Print();
-        }
-    }
-};
-
 class SinglePillarCluster {
 public:
     SinglePillarCluster(Pillar const &pillar){

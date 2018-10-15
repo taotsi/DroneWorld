@@ -10,12 +10,12 @@ enum ComplementStatus {
 class PillarClusterComponent : public BaseComponent {
 public:
     PillarClusterComponent(
-        std::queue<PillarFrame>* pillar_frame_queue);
+        std::queue<std::vector<Pillar>>* pillar_frame_queue);
     ~PillarClusterComponent();
     void Begin();
     void Update(double DeltaTime);
     /* data */
-    std::queue<PillarFrame>* pillar_frame_queue_;
+    std::queue<std::vector<Pillar>>* pillar_frame_queue_;
     std::queue<PillarClusters> pillar_cluster_queue_;
     std::queue<std::vector<std::vector<Pillar>>> filtered_cluster_queue_;
     // for rpclib server

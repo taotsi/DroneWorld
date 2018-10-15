@@ -6,7 +6,7 @@ extern FilterStatus Filter(
     double mean, double min, double max);
 
 PillarClusterComponent::PillarClusterComponent(
-    std::queue<PillarFrame>* pillar_frame_queue)
+    std::queue<std::vector<Pillar>>* pillar_frame_queue)
     : pillar_frame_queue_(pillar_frame_queue) {
         
 }

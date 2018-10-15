@@ -192,7 +192,7 @@ void StixelComponent::DetectObject() {
 	auto &scaled_disparity_frame =
 		scaled_disparity_frame_queue_.front();
 	auto &kde_peak_frame = kde_peak_frame_queue_.front();
-    PillarFrame pillar_frame;
+    std::vector<Pillar> pillar_frame;
     auto n_stixel = kde_peak_frame.size();
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<n_stixel; stx_i++){
@@ -274,7 +274,7 @@ void StixelComponent::DetectObject() {
                         pillar_temp.SetZ2(p_world2.z_);
                         count ++;
                         //std::cout << "found a pillar, " << count << std::endl;
-                        pillar_frame.Push(pillar_temp);
+                        pillar_frame.push_back(pillar_temp);
                     }
                 }
             }
