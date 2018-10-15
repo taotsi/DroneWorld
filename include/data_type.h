@@ -217,18 +217,31 @@ class Pillar {
 public:
     Pillar() {};
     Pillar(double x, double y, double z1, double z2)
-        : x_(x), y_(y), z1_(z1), z2_(z2) {};
+        : x_(x), y_(y), z1_(z1), z2_(z2) {
+        SortZ();
+    }
     Pillar(Point3D p){
         x_ = p.x_;
         y_ = p.y_;
         z1_ = p.z_;
-    };
+    }
     void SetPoint(Point3D p){
         x_ = p.x_;
         y_ = p.y_;
         z1_ = p.z_;
-    };
-    void SetZ2(double z2) { z2_ = z2; };
+    }
+    void SetXY(double x, double y){
+        x_ = x;
+        y_ = y;
+    }
+    void SetZ1(double z1){
+        z1_ = z2;
+        SortZ();
+    }
+    void SetZ2(double z2){ 
+        z2_ = z2;
+        SortZ(); 
+    }
     void Print(){
         std::cout 
             << "( " << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
@@ -236,20 +249,28 @@ public:
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z1_ 
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z2_ 
             << " )\n";
-    };
+    }
     std::vector<double> GetCoor(){
         return std::vector<double>{x_, y_, z1_, z2_};
     }
-    double x() {return x_;};
-    double y() {return y_;};
-    double z1() {return z1_;};
-    double z2() {return z2_;};
+    double x() { return x_; }
+    double y() { return y_; }
+    double z1() { return z1_; }
+    double z2() { return z2_; }
 private:
     /* data */
 	double x_ = 0.0;
 	double y_ = 0.0;
 	double z1_ = 0.0;
 	double z2_ = 0.0;
+    /* methods */
+    inline void SortZ(){
+        if(z1_ > z2_){
+            double temp = z1_;
+            z1_ = z2_;
+            z2_ = temp;
+        }
+    }
 };
 // TODO: this class will be deprecated
 class PillarFrame{

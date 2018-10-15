@@ -42,6 +42,26 @@ void PillarClusterComponent::Cluster(){
     pillar_cluster_queue_.push(pillar_cluster_horizon);
 }
 
+ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
+    double z_max, double z_min, double h_thh, bool is_forcibly=false){
+    bool is_head = false, is_sill = false, is_jamb = false;
+    if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
+        pillar.SetZ1(z_min);
+        pillar.SetZ2(z_max);
+        return kJamb;
+    }else if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min > h_thh){// head
+        pillar.SetZ2(z_max);
+        return kHead;
+    }else if(z_max-pillar.z2() > h_thh && pillar.z1()-z_min < h_thh){// sill
+        pillar.SetZ1(z_min);
+        return kSill;
+    }else{// grille, taken as jamb, temporarily
+        pillar.SetZ1(z_min);
+        pillar.SetZ2(z_max);
+        return kJamb;
+    }
+}
+
 void PillarClusterComponent::FormPlane(){
     
 }

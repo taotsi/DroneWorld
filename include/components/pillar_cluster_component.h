@@ -14,8 +14,16 @@ public:
     // for rpclib server
     std::vector<std::vector<std::vector<double>>> GetPillarCluster();
 private:
+    enum ComplementStatus {
+        kJamb,
+        kSill,
+        kHead
+    };
     void RunCluster();
     void Cluster();
+    ComplementStatus CompletePillar(Pillar &pillar, 
+        double z_max, double z_min, double h_thh, bool is_forcibly=false);
     void FormPlane();
     void FilterPlane();
+
 };
