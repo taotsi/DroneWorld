@@ -63,7 +63,7 @@ here are the steps to take for python users
 
 ## TODO
 
-- arrange naming in pillar cluster component and data type
+- multiple layers of object on one stixel
 - add noise
 - find a window scene
 - height filter

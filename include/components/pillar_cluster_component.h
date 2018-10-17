@@ -16,13 +16,13 @@ public:
     void Update(double DeltaTime);
     /* data */
     std::queue<std::vector<Pillar>>* pillar_frame_queue_;
-    std::queue<PillarClusters> pillar_cluster_queue_;
+    std::queue<PillarClusters> primary_pillar_cluster_queue_;
     std::queue<std::vector<std::vector<Pillar>>> filtered_cluster_queue_;
     // for rpclib server
     std::vector<std::vector<std::vector<double>>> GetPillarCluster();
 private:
     void RunCluster();
-    void Cluster();
+    void PrimaryCluster();
     ComplementStatus CompletePillar(Pillar &pillar, 
         double z_max, double z_min, double h_thh, bool is_forcibly);
     void FillWindow(std::vector<Pillar> jambs, 
