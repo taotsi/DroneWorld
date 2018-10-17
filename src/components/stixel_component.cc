@@ -186,6 +186,28 @@ Point3D StixelComponent::CameraToWorldCoor(
 	p_world.z_ += pos_camera.z_;
 	return p_world;
 }
+
+void StixelComponent::LayeringObject((std::vector<int> &object_idx,
+    std::vector<std::pair<int, int>> &results, int h_thh) {
+    if(!object_idx.empty()){
+        if(!std::is_sorted(object_idx.begin(), object_idx.end())){
+            std::sort(object_idx.begin(), object_idx.end());
+        };
+        std::pair<int, int> temp{object_idx[0], object_idx[0]};
+        for(auto i=0; i<object_idx.size()-1; i++){
+            if(object_idx[i+1]-object_idx[i] > h_thh){
+                temp.second = object_idx[i];
+                results.push_back(temp);
+                temp.first = object_idx[i+1];
+            }
+        }
+        temp.second = *object_idx.end();
+        results.push_back(temp);
+    }else{
+        std::cout << "layering object: no object info!\n";
+    }
+}
+
 /* Sliding-block filter */
 void StixelComponent::DetectObject() {
     int count = 0;

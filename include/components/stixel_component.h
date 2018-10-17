@@ -1,5 +1,6 @@
 #pragma once
 #include "components\base_component.h"
+#include <utility>
 
 class StixelComponent :public BaseComponent {
 public:
@@ -29,12 +30,13 @@ private:
     void RetreiveStixel();
 	void Kde();
 	void FindKdePeak(float delta_y = 0.5);
-	void DetectObject();
-	Point3D TransformAirsimCoor(double x, double y, double z);
+    Point3D TransformAirsimCoor(double x, double y, double z);
 	Point3D GetCameraCoor(
 		double disp_normalized, int x_pixel_scaled, int y_pixel);
 	Point3D CameraToWorldCoor(
 		Point3D  &camera_pos, Point3D &p_camera, EulerAngle &angle);
+    void LayeringObject(std::vector<int> &object_idx, std::vector<std::pair<int, int>> &results, int h_thh);
+	void DetectObject();
 	void Behave();
 	std::thread thread_handle_;
 	/* data */

@@ -11,7 +11,6 @@ STRICT_MODE_ON
 #include "vehicles/multirotor/api/MultirotorRpcLibClient.hpp"
 #include "common/common_utils/FileSystem.hpp"
 #include <thread>
-#include "utility.h"
 #include "data_type.h"
 
 typedef ImageCaptureBase::ImageRequest ImageRequest;
