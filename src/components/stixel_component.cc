@@ -3,10 +3,16 @@
 #include <algorithm>
 #include <cmath>
 
-StixelComponent::StixelComponent
-	(std::queue<ImageResponse>* disparity_retreived)
+StixelComponent::StixelComponent(
+    std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
 	fov_ = PI*110/180;
+}
+StixelComponent::StixelComponent(
+    std::queue<ImageResponse>* disparity_retreived, 
+        int width, int height, double fov)
+	:disparity_retreived_(disparity_retreived), width_(width), height_(height), fov_(fov) {
+    
 }
 
 StixelComponent::~StixelComponent() {

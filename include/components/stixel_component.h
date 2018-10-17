@@ -7,6 +7,9 @@ public:
 	/* methods */
 	StixelComponent(
 		std::queue<ImageResponse>* disparity_retreived);
+    StixelComponent(
+        std::queue<ImageResponse>* disparity_retreived, 
+        int width, int height, double fov);
 	~StixelComponent();
 	void Update(double DeltaTime);
 	void Begin();
