@@ -210,7 +210,6 @@ void StixelComponent::LayeringObject((std::vector<int> &object_idx,
 
 /* Sliding-block filter */
 void StixelComponent::DetectObject() {
-    int count = 0;
 	auto &scaled_disparity_frame =
 		scaled_disparity_frame_queue_.front();
 	auto &kde_peak_frame = kde_peak_frame_queue_.front();
@@ -218,13 +217,10 @@ void StixelComponent::DetectObject() {
     auto n_stixel = kde_peak_frame.size();
     // for each stixel in one frame
     for(auto stx_i=0; stx_i<n_stixel; stx_i++){
-        //std::cout << "-------------- stixel " << stx_i << "\n";
         BlockedIndex index {height_};
         int n_peak = static_cast<int>(kde_peak_frame[stx_i].size());
-        // if(n_peak == 0){ std::cout << "oops, no peak at all~\n"; }
         // for each peak in one stixel
         for(int peak_i=n_peak-1; peak_i>=0; peak_i--){
-            //std::cout << "------- peak " << peak_i << "\n";
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
             std::vector<int> idx_of_object;
@@ -236,11 +232,6 @@ void StixelComponent::DetectObject() {
                     kde_peak_frame[stx_i][peak_i].window_height_;
                 int step_size = window_height>>1;
                 if(window_height < end - start){
-                    //std::cout << "filter starts\n";
-                    /*for(auto itr : scaled_disparity_frame[stx_i]){
-                        std::cout << std::setw(5) << itr << " ";
-                    }
-                    std::cout <<"\n";*/
                     if((end-start) % step_size != 0){
                         auto prev_stat = kde::Filter(
                             scaled_disparity_frame[stx_i], 
@@ -267,36 +258,28 @@ void StixelComponent::DetectObject() {
                         start += step_size;
                     }
                     if(!idx_of_object.empty()){
-                        //std::cout << "found ends\n";
-                        /*
-                        for(auto itr : idx_of_object){
-                            std::cout << itr << "  ";
-                        }std::cout << "\n";
-                        */
-                        auto y_start = std::min_element(
-                            idx_of_object.begin(), idx_of_object.end());
-                        auto y_end = std::max_element(
-                            idx_of_object.begin(), idx_of_object.end());
-                        auto p_camera1 = GetCameraCoor(
-                            kde_peak_frame[stx_i][peak_i].mean_, stx_i, *y_start);
-                        auto p_world1 = CameraToWorldCoor(
-                            scaled_disparity_frame.pos_camera_, 
-                            p_camera1, scaled_disparity_frame.angle_camera_);
-                        auto p_camera2 = GetCameraCoor(
-                            kde_peak_frame[stx_i][peak_i].mean_, stx_i, *y_end);
-                        auto p_world2 = CameraToWorldCoor(
-                            scaled_disparity_frame.pos_camera_, 
-                            p_camera2, scaled_disparity_frame.angle_camera_);
-                        /*
-                        std::cout << "---"; p_camera1.Print();
-                        std::cout << "    "; p_camera2.Print();
-                        std::cout << "    "; scaled_disparity_frame.pos_camera_.Print();
-                        */
-                        pillar_temp.SetPoint(p_world1);
-                        pillar_temp.SetZ2(p_world2.z_);
-                        count ++;
-                        //std::cout << "found a pillar, " << count << std::endl;
-                        pillar_frame.push_back(pillar_temp);
+                        std::vector<std::pair<int, int>> object_z1z2;
+                        LayeringObject(idx_of_object, object_z1z2,
+                             window_height);
+                        for(auto z1z2 : object_z1z2){
+                            auto p_camera1 = GetCameraCoor(
+                                kde_peak_frame[stx_i][peak_i].mean_, 
+                                stx_i, z1z2.first);
+                            auto p_camera2 = GetCameraCoor(
+                                kde_peak_frame[stx_i][peak_i].mean_, 
+                                stx_i, z1z2.second);
+                            auto p_world1 = CameraToWorldCoor(
+                                scaled_disparity_frame.pos_camera_, 
+                                p_camera1, 
+                                scaled_disparity_frame.angle_camera_;)
+                            auto p_world2 = CameraToWorldCoor(
+                                scaled_disparity_frame.pos_camera_, 
+                                p_camera2, 
+                                scaled_disparity_frame.angle_camera_);
+                            pillar_temp.SetPoint(p_world1);
+                            pillar_temp.SetZ2(p_world2.z_);
+                            pillar_frame.push_back(pillar_temp);
+                        }
                     }
                 }
             }
