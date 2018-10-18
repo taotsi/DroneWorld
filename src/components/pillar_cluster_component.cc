@@ -1,5 +1,5 @@
 #include "components/pillar_cluster_component.h"
-#include "kde.h"
+#include "math_utility.h"
 
 extern FilterStatus Filter(
     std::vector<double> &vec, int start, int step, 
@@ -41,7 +41,7 @@ void PillarClusterComponent::RunCluster(){
 
 void PillarClusterComponent::Cluster(){
     auto &pillar_frame = pillar_frame_queue_->front();
-    PillarClusters pillar_cluster_horizon;
+    PillarClustersHorizon pillar_cluster_horizon;
     for(auto i=0; i<pillar_frame.size(); i++){
         pillar_cluster_horizon.BringIn(pillar_frame[i], 1.0, 0.3); // 1m and 0.3m
     }
@@ -230,7 +230,7 @@ PillarClusterComponent::GetPillarCluster(){
 void PillarClusterComponent::VerticalCluster(){
     auto &cluster_horizon = pillar_cluster_horizon_queue_.front();
     auto n_cluster_horizon = cluster_horizon.size();
-    PillarClusters final_cluster;
+    PillarClustersHorizon final_cluster;
     std::vector<std::vector<Pillar>> temp_cluster_z1, temp_cluster_z2;
     std::vector<double> kde_z1, kde_z2;
     std::vector<KdePeak> z1_peaks, z2_peaks;
@@ -247,11 +247,11 @@ void PillarClusterComponent::VerticalCluster(){
         auto min_z2 = std::min_element(z2_vec.begin(), z2_vec.end());
         //int z1_vec_size = static_cast<int>(z1_vec.size());
         //int z2_vec_size = static_cast<int>(z2_vec.size());
-        kde::RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, 30);
-        kde::RetreiveKdePeak(kde_z1, z1_peaks, *max_z1, *min_z1, 
+        RetreiveKde(z1_vec, kde_z1, *max_z1, *min_z1, 30);
+        RetreiveKdePeak(kde_z1, z1_peaks, *max_z1, *min_z1, 
             0.3, 0, 0.25, 0.2);
-        kde::RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, 30);
-        kde::RetreiveKdePeak(kde_z2, z2_peaks, *max_z2, *min_z2, 
+        RetreiveKde(z2_vec, kde_z2, *max_z2, *min_z2, 30);
+        RetreiveKdePeak(kde_z2, z2_peaks, *max_z2, *min_z2, 
             0.3, 0, 0.25, 0.2);
         std::cout << "---- kde_z1, size: " << kde_z1.size() << "\n";
         for(auto itr : kde_z1){

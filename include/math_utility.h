@@ -3,8 +3,9 @@
 #include <vector>
 #include <algorithm>
 #include "data_type.h"
+#include <iostream>
 
-namespace kde{
+namespace droneworld{
 
 static std::vector<double> KERNEL_GAUSS_17 = {
     0.00678462, 0.0133395, 0.0239336, 0.0392686, 0.0588726,		
@@ -129,4 +130,4 @@ inline FilterStatus Filter(
     }
 }
 
-} // namespace kde
+}

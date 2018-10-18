@@ -219,6 +219,12 @@ struct FilterStatus{
 class Pillar {
 public:
     Pillar() {};
+    Pillar(Pillar const &pillar){
+        
+    }
+    Pillar(Pillar &&pillar){
+        
+    }
     Pillar(double x, double y, double z1, double z2)
         : x_(x), y_(y), z1_(z1), z2_(z2) {
         SortZ();
@@ -321,10 +327,10 @@ private:
     double z2_mean_;
 };
 
-class PillarClusters {
+class PillarClustersHorizon {
 public:
-    PillarClusters() {};
-    ~PillarClusters() {};
+    PillarClustersHorizon() {};
+    ~PillarClustersHorizon() {};
     /* data */
 	std::vector<SinglePillarCluster> data_;
     /* methods */
@@ -360,6 +366,67 @@ public:
         return static_cast<int>(data_.size());
     }
 };
+
+class Line2DFitted{
+public:
+    Line2DFitted(std::vector<Pillar> const &pillars){
+        double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
+        auto n_pillar = pillars.size();
+        double x_temp, y_temp;
+        for(auto i=0; i<n_pillar; i++){
+            x_temp = pillars[i].x();
+            y_temp = pillars[i].y();
+            x_sum += x_temp;
+            y_sum += y_temp;
+            xx_sum += x_temp * x_temp;
+            xy_xum += y_temp * y_temp;
+        }
+        n_ = static_cast<double>(n_pillar);
+        x_avr_ = x_sum / n;
+        y_avr_ = y_sum / n;
+        xx_avr_ = xx_sum / n;
+        xy_avr_ = xy_sum / n;
+        CalcKnB();
+    }
+    ~Line2DFitted() {};
+    void AddPoint(double x, double y){
+        x_avr_ += (x-x_avr_)/(n_+1);
+        y_avr_ += (y-y_avr_)/(n_+1);
+        xx_avr_ += (x*x-xx_avr_)/(n_+1);
+        xy_avr_ += (x*y-xy_avr_)/(n_+1);
+        CalcKnB();
+    }
+    double EstimateY(double x){
+        return x * k_ + b_;
+    }
+    double EstimateX(double y){
+        if(k!=0){
+            return (y - b_) / k_;
+        }else{ // which won't happen likely
+            return 0;
+        }
+    }
+    void Print(){
+        std::cout << "y = " << setprecision(2) << k_ 
+            << " * x + " << setprecision(2) << b_ <<"\n";
+    }
+private:
+    /* data */
+    double n_ = 0.0;
+    double k_ = 0.0;
+    double b_ = 0.0;
+    double x_avr_ = 0.0;
+    double y_avr_ = 0.0;
+    double xx_avr_ = 0.0;
+    double xy_avr_ = 0.0;
+    /* methods */
+    inline CalcKnB(){
+        double denominator = xx_avr_-x_avr_*x_avr_;
+        k_ =  (xy_avr_+x_avr_*y_avr_)/denominator;
+        b_ =  (xx_avr_*y_avr_-x_avr_*xy_avr_)/denominator;
+    }
+};
+
 class Plane {
 public:
     // for rectangle

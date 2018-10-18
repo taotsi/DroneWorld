@@ -16,7 +16,7 @@ public:
     void Update(double DeltaTime);
     /* data */
     std::queue<std::vector<Pillar>>* pillar_frame_queue_;
-    std::queue<PillarClusters> pillar_cluster_queue_;
+    std::queue<PillarClustersHorizon> pillar_cluster_queue_;
     std::queue<std::vector<std::vector<Pillar>>> filtered_cluster_queue_;
     // for rpclib server
     std::vector<std::vector<std::vector<double>>> GetPillarCluster();

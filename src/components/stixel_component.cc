@@ -1,5 +1,5 @@
 #include "components\stixel_component.h"
-#include "kde.h"
+#include "math_utility.h"
 #include <algorithm>
 #include <cmath>
 
@@ -102,7 +102,7 @@ void StixelComponent::Kde() {
 	for (int i = 0; i < frame_size; i++) {
         //std::cout << "--- frame index: " << i << " ---\n";
         kde_col.clear();
-        kde::RetreiveKde(frame_scaled[i], kde_col, 
+        RetreiveKde(frame_scaled[i], kde_col, 
             disp_max_, disp_min_, width_);
 		kde_frame.push_back(kde_col);
 	}
@@ -125,7 +125,7 @@ void StixelComponent::FindKdePeak(float delta_y) {
         double slop = disp_max_*width_/baseline_/kde_width_*0.121;
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
-        kde::RetreiveKdePeak(kde_frame[i], kde_peaks, disp_max_, disp_min_, 
+        RetreiveKdePeak(kde_frame[i], kde_peaks, disp_max_, disp_min_, 
             0.8, slop, 0.0, window_h_weight);
 		if (kde_peaks.empty()) {
 			kde_peak_frame.push_back(
@@ -239,7 +239,7 @@ void StixelComponent::DetectObject() {
                 int step_size = window_height>>1;
                 if(window_height < end - start){
                     if((end-start) % step_size != 0){
-                        auto prev_stat = kde::Filter(
+                        auto prev_stat = Filter(
                             scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, 
                             kde_peak_frame[stx_i][peak_i].mean_, 
@@ -252,7 +252,7 @@ void StixelComponent::DetectObject() {
                         start += (end-start) % step_size;
                     }
                     while(start < end){
-                        auto stat = kde::Filter(scaled_disparity_frame[stx_i], 
+                        auto stat = Filter(scaled_disparity_frame[stx_i], 
                                 start, step_size, 
                                 kde_peak_frame[stx_i][peak_i].mean_, 
                                 kde_peak_frame[stx_i][peak_i].left_, 

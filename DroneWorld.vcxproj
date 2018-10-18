@@ -24,6 +24,7 @@
   <ItemGroup>
     <ClCompile Include="src\components\base_component.cc" />
     <ClCompile Include="src\components\communication_component.cc" />
+    <ClCompile Include="src\components\compact_plane_component.cc" />
     <ClCompile Include="src\components\image_record_component.cc" />
     <ClCompile Include="src\components\movement_component.cc" />
     <ClCompile Include="src\components\pillar_cluster_component.cc" />
@@ -730,13 +731,14 @@
     <ClInclude Include="deps\rpclib\include\rpc\version.h" />
     <ClInclude Include="include\components\communication_component.h" />
     <ClInclude Include="include\components\base_component.h" />
+    <ClInclude Include="include\components\compact_plane_component.h" />
     <ClInclude Include="include\components\pillar_cluster_component.h" />
     <ClInclude Include="include\components\stixel_component.h" />
     <ClInclude Include="include\data_type.h" />
     <ClInclude Include="include\drone.h" />
     <ClInclude Include="include\components\image_record_component.h" />
     <ClInclude Include="include\components\movement_component.h" />
-    <ClInclude Include="include\kde.h" />
+    <ClInclude Include="include\math_utility.h" />
     <ClInclude Include="include\rpc_server.h" />
     <ClInclude Include="include\utility.h" />
     <ClInclude Include="include\world.h" />
