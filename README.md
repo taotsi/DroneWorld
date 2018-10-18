@@ -63,7 +63,11 @@ here are the steps to take for python users
 
 ## TODO
 
+<<<<<<< HEAD
 - copy and move constructors for class Pillar
+=======
+- multiple layers of object on one stixel
+>>>>>>> 1886a92c1ffbddf8bdfe8d12b7787eb72489dce0
 - add noise
 - find a window scene
 - height filter

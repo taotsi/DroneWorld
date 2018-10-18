@@ -22,7 +22,7 @@ public:
     std::vector<std::vector<std::vector<double>>> GetPillarCluster();
 private:
     void RunCluster();
-    void Cluster();
+    void PrimaryCluster();
     ComplementStatus CompletePillar(Pillar &pillar, 
         double z_max, double z_min, double h_thh, bool is_forcibly);
     void FillWindow(std::vector<Pillar> jambs, 

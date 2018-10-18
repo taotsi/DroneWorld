@@ -26,30 +26,29 @@ void PillarClusterComponent::Update(double DeltaTime){
 void PillarClusterComponent::RunCluster(){
     
     if(!pillar_frame_queue_->empty()){
-        // PUSH pillar_cluster_queue_
-        Cluster();
+        // PUSH primary_pillar_cluster_queue_
+        PrimaryCluster();
         //pillar_frame_queue_->pop();
         std::cout << "cluster ready\n";
     }
     if(!filtered_cluster_queue_.empty()){
         // PUSH filtered_cluster_queue_
         ComplementFilter();
-        //pillar_cluster_queue_.pop()
+        //primary_pillar_cluster_queue_.pop()
         std::cout << "cluster complement ready\n";
     }
 }
 
-void PillarClusterComponent::Cluster(){
+void PillarClusterComponent::PrimaryCluster(){
     auto &pillar_frame = pillar_frame_queue_->front();
     PillarClustersHorizon pillar_cluster_horizon;
     for(auto i=0; i<pillar_frame.size(); i++){
         pillar_cluster_horizon.BringIn(pillar_frame[i], 1.0, 0.3); // 1m and 0.3m
     }
-    pillar_cluster_queue_.push(pillar_cluster_horizon);
+    primary_pillar_cluster_queue_.push(pillar_cluster_horizon);
 }
 
-ComplementStatus 
-PillarClusterComponent::CompletePillar(Pillar &pillar, 
+ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
     double z_max, double z_min, double h_thh, bool is_forcibly=false) {
     if(!is_forcibly){
         if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
@@ -183,7 +182,7 @@ void PillarClusterComponent::ComplementCluster(
 }
 
 void PillarClusterComponent::ComplementFilter(){
-    auto &pillar_cluster = pillar_cluster_queue_.front();
+    auto &pillar_cluster = primary_pillar_cluster_queue_.front();
     std::vector<std::vector<Pillar>> filtered_clusters;
     auto n_pillar_cluster = pillar_cluster.size();
     for(auto i=0; i<n_pillar_cluster; i++){
@@ -206,8 +205,8 @@ PillarClusterComponent::GetPillarCluster(){
     std::vector<std::vector<std::vector<double>>> result;
     std::vector<std::vector<double>> cluster;
     cluster.reserve(100);
-    if(!pillar_cluster_queue_.empty()){
-        auto &pillar_cluster = pillar_cluster_queue_.front();
+    if(!primary_pillar_cluster_queue_.empty()){
+        auto &pillar_cluster = primary_pillar_cluster_queue_.front();
         auto n_cluster = pillar_cluster.size();
         for(auto i=0; i<n_cluster; i++){
             cluster.clear();
@@ -219,7 +218,7 @@ PillarClusterComponent::GetPillarCluster(){
         }
         return result;
     }else{
-        std::cout << "pillar_cluster_queue_ is empty\n";
+        std::cout << "primary_pillar_cluster_queue_ is empty\n";
         return std::vector<std::vector<std::vector<double>>>();
     }
 }
@@ -331,6 +330,6 @@ void PillarClusterComponent::VerticalCluster(){
             }
         }
     }
-    pillar_cluster_queue_.push(final_cluster);
+    primary_pillar_cluster_queue_.push(final_cluster);
 }
 */
