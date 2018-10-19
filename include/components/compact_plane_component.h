@@ -8,7 +8,7 @@ public:
         pillar_cluster_queue);
     ~CompactPlaneComponent();
     void Begin();
-    void Updata(double DeltaTime);
+    void Update(double DeltaTime);
     /* data */
     std::queue<std::vector<std::vector<Pillar>>>* pillar_cluster_queue_;
 private:

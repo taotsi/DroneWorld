@@ -193,7 +193,7 @@ Point3D StixelComponent::CameraToWorldCoor(
 	return p_world;
 }
 
-void StixelComponent::LayeringObject((std::vector<int> &object_idx,
+void StixelComponent::LayeringObject(std::vector<int> &object_idx,
     std::vector<std::pair<int, int>> &results, int h_thh) {
     if(!object_idx.empty()){
         if(!std::is_sorted(object_idx.begin(), object_idx.end())){
@@ -277,7 +277,7 @@ void StixelComponent::DetectObject() {
                             auto p_world1 = CameraToWorldCoor(
                                 scaled_disparity_frame.pos_camera_, 
                                 p_camera1, 
-                                scaled_disparity_frame.angle_camera_;)
+                                scaled_disparity_frame.angle_camera_);
                             auto p_world2 = CameraToWorldCoor(
                                 scaled_disparity_frame.pos_camera_, 
                                 p_camera2, 

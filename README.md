@@ -63,16 +63,14 @@ here are the steps to take for python users
 
 ## TODO
 
-<<<<<<< HEAD
-- copy and move constructors for class Pillar
-=======
-- multiple layers of object on one stixel
->>>>>>> 1886a92c1ffbddf8bdfe8d12b7787eb72489dce0
+- linear fitting
+- record on C++
+- message queue for input handling
+- copy and move ctors for some data types
 - add noise
 - find a window scene
-- height filter
 - plane forming
+- ban component classed copy ctor and move ctor
 - embed opencv
-- make pillar cluster horizontally work
 - thread competition for disparity queue and other queue
 - a thread for input process

@@ -11,14 +11,14 @@ CompactPlaneComponent::~CompactPlaneComponent(){
     
 }
 
-CompactPlaneComponent::Begin(){
+void CompactPlaneComponent::Begin(){
     RunCompact();
 }
 
-CompactPlaneComponent::Update(double DeltaTime){
+void CompactPlaneComponent::Update(double DeltaTime){
     
 }
 
-CompactPlaneComponent::RunCompact(){
+void CompactPlaneComponent::RunCompact(){
     
 }

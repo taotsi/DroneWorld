@@ -219,10 +219,13 @@ struct FilterStatus{
 class Pillar {
 public:
     Pillar() {};
-    Pillar(Pillar const &pillar){
+    Pillar(Pillar const &other)
+        : x_(other.x()), y_(other.y()), 
+          z1_(other.z1()), z2_(other.z2()) {};
+    Pillar(Pillar &&other){
         
     }
-    Pillar(Pillar &&pillar){
+    Pillar& operator=(const Pillar &other){
         
     }
     Pillar(double x, double y, double z1, double z2)
@@ -369,7 +372,7 @@ public:
 
 class Line2DFitted{
 public:
-    Line2DFitted(std::vector<Pillar> const &pillars){
+    Line2DFitted(std::vector<Pillar> &pillars){
         double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
         auto n_pillar = pillars.size();
         double x_temp, y_temp;
@@ -379,13 +382,13 @@ public:
             x_sum += x_temp;
             y_sum += y_temp;
             xx_sum += x_temp * x_temp;
-            xy_xum += y_temp * y_temp;
+            xy_sum += y_temp * y_temp;
         }
         n_ = static_cast<double>(n_pillar);
-        x_avr_ = x_sum / n;
-        y_avr_ = y_sum / n;
-        xx_avr_ = xx_sum / n;
-        xy_avr_ = xy_sum / n;
+        x_avr_ = x_sum / n_;
+        y_avr_ = y_sum / n_;
+        xx_avr_ = xx_sum / n_;
+        xy_avr_ = xy_sum / n_;
         CalcKnB();
     }
     ~Line2DFitted() {};
@@ -400,15 +403,15 @@ public:
         return x * k_ + b_;
     }
     double EstimateX(double y){
-        if(k!=0){
+        if(y!=0){
             return (y - b_) / k_;
         }else{ // which won't happen likely
             return 0;
         }
     }
     void Print(){
-        std::cout << "y = " << setprecision(2) << k_ 
-            << " * x + " << setprecision(2) << b_ <<"\n";
+        std::cout << "y = " << std::setprecision(2) << k_ 
+            << " * x + " << std::setprecision(2) << b_ <<"\n";
     }
 private:
     /* data */
@@ -420,7 +423,7 @@ private:
     double xx_avr_ = 0.0;
     double xy_avr_ = 0.0;
     /* methods */
-    inline CalcKnB(){
+    inline void CalcKnB(){
         double denominator = xx_avr_-x_avr_*x_avr_;
         k_ =  (xy_avr_+x_avr_*y_avr_)/denominator;
         b_ =  (xx_avr_*y_avr_-x_avr_*xy_avr_)/denominator;
