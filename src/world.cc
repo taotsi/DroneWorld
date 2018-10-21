@@ -3,7 +3,9 @@
 namespace droneworld{
 
 World::World() {
+    std::cout << "test3\n";
     SpawnDrones();
+    std::cout << "test2\n";
 }
 
 World::~World() {
@@ -40,7 +42,7 @@ void World::Update(double DeltaTime) {
 
 void World::Loop() {
     Begin();
-
+    std::cout << "test1\n";
     auto previous = std::chrono::system_clock::now();
     while (is_on_) {
         auto current = std::chrono::system_clock::now();
@@ -53,12 +55,16 @@ void World::Loop() {
 }
 
 void World::SpawnDrones() {
-    std::string drone1_str{"drone1"};
-    selected_drone_ = drone1_str;
-    drone_names_.insert(drone1_str);
-    auto drone1 = std::make_unique<Drone>(drone1_str);
+    std::string drone1_name{"drone1"};
+    selected_drone_ = drone1_name;
+    drone_names_.insert(drone1_name);
+    std::cout << "test4\n";
+    std::unique_ptr<Drone> drone1(new Drone{drone1_name});
+    std::cout << "test5\n";
     drone_list_.insert(
-        std::pair<std::string, std::unique_ptr<Drone>>(drone1_str, std::move(drone1)));
+        std::pair<std::string, std::unique_ptr<Drone>>(
+            drone1_name, std::move(drone1)));
+    std::cout << "test6\n";
 }
 
 void World::RemoveDrone(std::string &name){
@@ -150,4 +156,7 @@ void World::CmdRec(std::stringstream &ss){
 
 std::map<std::string,  std::unique_ptr<Drone>> World::drone_list_ = 
 	std::map<std::string,  std::unique_ptr<Drone>>();
-}
+std::set<std::string> World::drone_names_ = 
+    std::set<std::string>();
+
+} // namespace droneworld
