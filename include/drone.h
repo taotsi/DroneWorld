@@ -22,7 +22,6 @@ class Drone {
 public:
     Drone(std::string name);
     virtual ~Drone();
-    static std::set<Drone*> drone_set_;
     void Begin();
     virtual void Update(double DeltaTime);
 	/* data */

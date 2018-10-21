@@ -1,12 +1,16 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
 #include <chrono>
 #include <thread>
 #include <random>
 #include <vector>
 #include <map>
+#include <set>
 #include <queue>
+#include <memory>
+#include <algorithm>
 #include "drone.h"
 
 class World {
@@ -14,12 +18,13 @@ public:
     static World& Instance();
     ~World();
     void Loop();	
-	void test();
 private:
 	friend class Drone;
     friend class RpcServer;
     /* data */
-    static std::map<std::string, Drone*> drone_list_;
+    std::string selected_drone_;
+    static std::set<std::string> drone_names_;
+    static std::map<std::string, std::unique_ptr<Drone>> drone_list_;
     const std::chrono::duration<double, std::ratio<1, 1000>>
         MS_PER_UPDATE { 50.0 }; // in milliseconds
     bool is_on_ = false;
@@ -31,6 +36,11 @@ private:
     void Begin();
     void Update(double DeltaTime);
     void SpawnDrones();
+    void RemoveDrone(std::string &name);
     void InputThreadMain();
-    void ProcessInput(std::string &msg);
+    inline void ProcessInput(std::string &msg);
+    void CmdLs(std::stringstream &ss);
+    void CmdSelect(std::stringstream &ss);
+    void CmdGo(std::stringstream &ss);
+    void CmdRec(std::stringstream &ss);
 };

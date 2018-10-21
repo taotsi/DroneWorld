@@ -18,7 +18,12 @@ Drone::Drone(std::string name)
 }
 
 Drone::~Drone() {
-    World::drone_list_.erase(name_);
+    World::RemoveDrone(name_);
+    movement_.Stop();
+    image_record_.Stop();
+    stixel_.Stop();
+    cluster_.Stop();
+    std::cout << name_ << " removed\n";
 }
 
 void Drone::Begin() {
