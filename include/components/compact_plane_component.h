@@ -1,6 +1,8 @@
 #pragma once
 #include "components/base_component.h"
 
+namespace droneworld{
+
 class CompactPlaneComponent : public BaseComponent {
 public:
     CompactPlaneComponent(
@@ -15,3 +17,4 @@ private:
     /* methods */
     void RunCompact();
 };
+}

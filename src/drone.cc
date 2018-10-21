@@ -3,6 +3,8 @@
 #include "drone.h"
 #include "world.h"
 
+namespace droneworld{
+
 Drone::Drone(std::string name)
   : name_(name) {
 	movement_ = std::make_unique<MovementComponent>();
@@ -19,24 +21,24 @@ Drone::Drone(std::string name)
 
 Drone::~Drone() {
     World::RemoveDrone(name_);
-    movement_.Stop();
-    image_record_.Stop();
-    stixel_.Stop();
-    cluster_.Stop();
+    movement_->Stop();
+    image_record_->Stop();
+    stixel_->Stop();
+    cluster_->Stop();
     std::cout << name_ << " removed\n";
 }
 
 void Drone::Begin() {
-    // movement_->Begin();
+    movement_->Begin();
     // image_record_->Begin();
 	// stixel_->Begin();
     // cluster_->Begin();
 }
 
 void Drone::Update(double DeltaTime) {
-    //std::cout << "drone update\n";
-    // movement_->Update(DeltaTime);
+    movement_->Update(DeltaTime);
     // image_record_->Update(DeltaTime);
 	// stixel_->Update(DeltaTime);
     // cluster_->Update(DeltaTime);
+}
 }

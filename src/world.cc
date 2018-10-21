@@ -1,5 +1,7 @@
 #include "world.h"
 
+namespace droneworld{
+
 World::World() {
     SpawnDrones();
 }
@@ -56,7 +58,7 @@ void World::SpawnDrones() {
     drone_names_.insert(drone1_str);
     auto drone1 = std::make_unique<Drone>(drone1_str);
     drone_list_.insert(
-        std::pair<std::string, std::unique_ptr<Drone>>(drone1_str, drone1));
+        std::pair<std::string, std::unique_ptr<Drone>>(drone1_str, std::move(drone1)));
 }
 
 void World::RemoveDrone(std::string &name){
@@ -89,24 +91,19 @@ void World::ProcessInput(std::string &msg) {
     std::stringstream ss{msg};
     std::string first;
     ss >> first;
-    switch(first){
-        case "ls":{
-            CmdLs();
-            break;
-        }
-        case "select":{
-            CmdSelect();
-            break;
-        }
-        case "go":{
-            break;
-        }
-        case "rec":{
-            break;
-        }
-        default:{
-            std::cout << "can't identify command \"" << msg << "\"\n";
-        }
+    if(first == "ls"){
+        CmdLs(ss);
+    }else
+    if(first == "select"){
+        CmdSelect(ss);
+    }else
+    if(first == "go"){
+        CmdGo(ss);
+    }else
+    if(first == "rec"){
+        // TODO
+    }else{
+        std::cout << "can't identify command \"" << msg << "\"\n";
     }
 }
 
@@ -133,13 +130,15 @@ void World::CmdSelect(std::stringstream &ss){
     selected_drone_ = name;
 }
 void World::CmdGo(std::stringstream &ss){
-    std::vector<double> xyz_vec;
-    double temp;
+    std::vector<float> xyz_vec;
+    float temp;
     while(ss.good()){
         ss >> temp;
         xyz_vec.push_back(temp);
     }
-    if(xyz_vec.size() != 3){
+    if(xyz_vec.size() == 3){
+        drone_list_[selected_drone_]->movement_->AddPathPoint(xyz_vec);
+    }else{
         std::cout << "just input 3 arguments, for point x, y, z you'd like "
             << selected_drone_ << " to go\n";
         return;
@@ -149,5 +148,6 @@ void World::CmdRec(std::stringstream &ss){
     
 }
 
-std::map<std::string, Drone*> World::drone_list_ = 
-	std::map<std::string, Drone*>();
+std::map<std::string,  std::unique_ptr<Drone>> World::drone_list_ = 
+	std::map<std::string,  std::unique_ptr<Drone>>();
+}

@@ -1,5 +1,7 @@
 #include "components/compact_plane_component.h"
 
+namespace droneworld{
+
 CompactPlaneComponent::CompactPlaneComponent(
     std::queue<std::vector<std::vector<Pillar>>>* 
     pillar_cluster_queue)
@@ -21,4 +23,5 @@ void CompactPlaneComponent::Update(double DeltaTime){
 
 void CompactPlaneComponent::RunCompact(){
     
+}
 }

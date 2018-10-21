@@ -1,5 +1,7 @@
 #include "components/movement_component.h"
 
+namespace droneworld{
+
 MovementComponent::MovementComponent(){ 
     
 }
@@ -18,10 +20,10 @@ void MovementComponent::Begin(){
     client_.hoverAsync()->waitOnLastTask();
     // MoveTest();
     move_thread_ = std::thread{&MovementComponent::MoveThreadMain, this};
-    thread_.detach();
+    move_thread_.detach();
 }
 
-void Update(double DeltaTime){
+void MovementComponent::Update(double DeltaTime){
     if(path_to_go_.empty()){
         is_busy_ = false;
     }else{
@@ -30,7 +32,7 @@ void Update(double DeltaTime){
 }
 
 void MovementComponent::MoveThreadMain(){
-    float speead = 5;
+    float speed = 5;
     while(is_on_){
         if(is_busy_){
             auto point_to_go = path_to_go_.front();
@@ -41,7 +43,7 @@ void MovementComponent::MoveThreadMain(){
         }
     }
 }
-void MovementComponent::AddPathPoint(const std::vector<double> &point){
+void MovementComponent::AddPathPoint(const std::vector<float> &point){
     if(point.size() == 3){
         path_to_go_.push(point);
     }else{
@@ -49,7 +51,7 @@ void MovementComponent::AddPathPoint(const std::vector<double> &point){
     }
 }
 void MovementComponent::ResetPath(
-    const std::queue<std::vector<double>> &new_path){
+    const std::queue<std::vector<float>> &new_path){
     path_to_go_ = new_path;
 }
 
@@ -80,4 +82,5 @@ bool MovementComponent::BehaveSafely() {
 
     }
     return is_busy_;
+}
 }

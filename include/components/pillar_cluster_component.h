@@ -1,6 +1,8 @@
 #pragma once
 #include "components/base_component.h"
 
+namespace droneworld{
+
 enum ComplementStatus {
     kJamb,
     kSill,
@@ -33,5 +35,5 @@ private:
     void ComplementFilter();
     void FormPlane();
     void FilterPlane();
-
 };
+}

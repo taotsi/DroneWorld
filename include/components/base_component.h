@@ -17,7 +17,7 @@ typedef ImageCaptureBase::ImageRequest ImageRequest;
 typedef ImageCaptureBase::ImageResponse ImageResponse;
 typedef ImageCaptureBase::ImageType ImageType;
 
-using namespace droneworld;
+namespace droneworld{
 
 class BaseComponent {
 public:
@@ -32,3 +32,4 @@ protected:
     bool is_busy_ = false;
 private:
 };
+}

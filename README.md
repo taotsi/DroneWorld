@@ -67,6 +67,7 @@ here are the steps to take for python users
 
 ## TODO
 
+- add namespace to all classes
 - linear fitting
 - record on C++
 - message queue for input handling

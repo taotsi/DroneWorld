@@ -10,17 +10,20 @@
 #include <set>
 #include <queue>
 #include <memory>
+#include <utility>
 #include <algorithm>
 #include "drone.h"
+
+namespace droneworld{
 
 class World {
 public:
     static World& Instance();
     ~World();
-    void Loop();	
-private:
-	friend class Drone;
+    void Loop();
+    friend class Drone;
     friend class RpcServer;
+private:
     /* data */
     std::string selected_drone_;
     static std::set<std::string> drone_names_;
@@ -36,7 +39,7 @@ private:
     void Begin();
     void Update(double DeltaTime);
     void SpawnDrones();
-    void RemoveDrone(std::string &name);
+    static void RemoveDrone(std::string &name);
     void InputThreadMain();
     inline void ProcessInput(std::string &msg);
     void CmdLs(std::stringstream &ss);
@@ -44,3 +47,4 @@ private:
     void CmdGo(std::stringstream &ss);
     void CmdRec(std::stringstream &ss);
 };
+}

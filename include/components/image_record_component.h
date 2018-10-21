@@ -2,6 +2,8 @@
 #include "components/base_component.h"
 #include <queue>
 
+namespace droneworld{
+
 class ImageRecordComponent : public BaseComponent {
 public:
     ImageRecordComponent();
@@ -18,3 +20,4 @@ private:
     //std::thread thread_{ &ImageRecordComponent::ThreadMain, this };
     //ThreadRaii thread_raii_{ std::thread{&ImageRecordComponent::ThreadMain, this} };
 };
+}

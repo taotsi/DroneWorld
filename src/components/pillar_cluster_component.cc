@@ -1,6 +1,8 @@
 #include "components/pillar_cluster_component.h"
 #include "math_utility.h"
 
+namespace droneworld{
+
 extern FilterStatus Filter(
     std::vector<double> &vec, int start, int step, 
     double mean, double min, double max);
@@ -333,3 +335,4 @@ void PillarClusterComponent::VerticalCluster(){
     primary_pillar_cluster_queue_.push(final_cluster);
 }
 */
+}

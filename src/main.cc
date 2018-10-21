@@ -3,9 +3,9 @@
 #include "rpc_server.h"
 
 int main() {
-    World &world = World::Instance();
-    RpcServer server;
+    droneworld::World &world = droneworld::World::Instance();
+    droneworld::RpcServer server;
     world.Loop();
-
+    
     return 0;
 }

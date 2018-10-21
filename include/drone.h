@@ -17,6 +17,8 @@ STRICT_MODE_ON
 #include "components/pillar_cluster_component.h"
 #include "components/communication_component.h"
 
+namespace droneworld{
+
 class World;
 class Drone {
 public:
@@ -32,4 +34,4 @@ public:
 	std::unique_ptr<StixelComponent> stixel_;
     std::unique_ptr<PillarClusterComponent> cluster_;
 };
-
+}

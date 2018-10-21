@@ -9,7 +9,7 @@ namespace droneworld{
 class RpcServer{
 public:
     RpcServer(){
-        PackServer();
+        PackServer(world_);
         server_.async_run();
     }
     ~RpcServer() {};
@@ -30,6 +30,7 @@ public:
     }
 private:
     rpc::server server_{8080};
-}
+    World &world_ = World::Instance();
+};
 
 }

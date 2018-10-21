@@ -2,6 +2,8 @@
 #include "components\base_component.h"
 #include <utility>
 
+namespace droneworld{
+
 class StixelComponent :public BaseComponent {
 public:
 	/* methods */
@@ -55,3 +57,4 @@ private:
 	std::vector<double> W17_GAUSS;
 	const double PI = 3.14159265359;
 };
+}

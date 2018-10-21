@@ -5,6 +5,8 @@
 #include <thread>
 #include <chrono>
 
+namespace droneworld{
+
 namespace fs = std::experimental::filesystem;
 
 ImageRecordComponent::ImageRecordComponent(){
@@ -82,4 +84,5 @@ void ImageRecordComponent::Behave() {
     /*thread_handle_ = std::thread{ 
         &ImageRecordComponent::Record, this };*/
     //thread_handle_.detach();
+}
 }

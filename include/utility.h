@@ -4,6 +4,8 @@
 #include <experimental/filesystem>
 #include <chrono>
 
+namespace droneworld{
+
 namespace fs = std::experimental::filesystem;
 
 // bugged
@@ -49,3 +51,4 @@ public:
 private:
     std::chrono::system_clock::time_point start_;
 };
+}

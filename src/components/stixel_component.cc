@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+namespace droneworld{
+
 StixelComponent::StixelComponent(
     std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
@@ -331,4 +333,5 @@ std::vector<std::vector<double>> StixelComponent::GetPillarFrame(){
         std::cout << "pillar_frame_queue_ is empty\n";
         return std::vector<std::vector<double>>();
     }
+}
 }

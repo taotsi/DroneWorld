@@ -1,5 +1,7 @@
 #include "components/base_component.h"
 
+namespace droneworld{
+
 BaseComponent::BaseComponent() {
     Begin();
 }
@@ -11,4 +13,5 @@ BaseComponent::~BaseComponent() {
 }
 
 void BaseComponent::Begin() {
+}
 }
