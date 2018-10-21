@@ -76,7 +76,7 @@ void World::InputThreadMain(){
 }
 
 void World::ProcessInput(std::string &msg) {
-    std::cout << msg << "\n";
+    std::cout << "can't identify: " << msg << "\n";
 }
 
 std::map<std::string, Drone*> World::drone_list_ = 
