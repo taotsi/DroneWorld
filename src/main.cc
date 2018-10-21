@@ -4,9 +4,7 @@
 
 int main() {
     World &world = World::Instance();
-	rpc::server server{ 8080 };
-	PackServer(server, world);
-	server.async_run();
+    RpcServer server;
     world.Loop();
 
     return 0;

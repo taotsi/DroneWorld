@@ -15,10 +15,11 @@ public:
     ~World();
     void Loop();	
 	void test();
-    static std::map<std::string, Drone*> drone_list_;
 private:
 	friend class Drone;
+    friend class RpcServer;
     /* data */
+    static std::map<std::string, Drone*> drone_list_;
     const std::chrono::duration<double, std::ratio<1, 1000>>
         MS_PER_UPDATE { 50.0 }; // in milliseconds
     bool is_on_ = false;
