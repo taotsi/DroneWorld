@@ -17,7 +17,5 @@ private:
     void MoveTest();
     void MoveThreadMain();
     void ResetPath(const std::queue<std::vector<float>> &new_path);
-    void BehaveForcibly();
-    bool BehaveSafely();
 };
 }

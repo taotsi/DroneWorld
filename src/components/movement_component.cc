@@ -63,20 +63,4 @@ void MovementComponent::MoveTest(){
     client_.hoverAsync()->waitOnLastTask();
     std::this_thread::sleep_for(std::chrono::seconds(5));
 }
-
-void MovementComponent::BehaveForcibly() {
-    is_busy_ = true;
-
-	is_busy_ = false;
-}
-
-bool MovementComponent::BehaveSafely() {
-    if (is_busy_) {
-        std::cout << "Still on another mission!\n";
-    } else {
-		is_busy_ = true;
-
-    }
-    return is_busy_;
-}
 }
