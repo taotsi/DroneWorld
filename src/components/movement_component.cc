@@ -24,22 +24,19 @@ void MovementComponent::Begin(){
 }
 
 void MovementComponent::Update(double DeltaTime){
-    if(path_to_go_.empty()){
-        is_busy_ = false;
-    }else{
-        is_busy_ = true;
-    }
+    
 }
 
 void MovementComponent::MoveThreadMain(){
-    float speed = 5;
+    float speed = 3;
     while(is_on_){
-        if(is_busy_){
+        if(!path_to_go_.empty()){
             auto point_to_go = path_to_go_.front();
             client_.moveToPositionAsync(
-                point_to_go[1], point_to_go[0], -point_to_go[2], speed, 300, 
+                point_to_go[1], point_to_go[0], -point_to_go[2], speed, 60, 
                 DrivetrainType::ForwardOnly, YawMode(false, 0), -1, 0)
                 ->waitOnLastTask();
+            path_to_go_.pop();
         }
     }
 }
@@ -61,9 +58,8 @@ void MovementComponent::MoveTest(){
     float vel = 20;
     std::vector<Vector3r> path{Vector3r(0, 0, z), Vector3r(200, 0, z),Vector3r(200, 50, z)};
     //std::vector<Vector3r> path{Vector3r(0, 0, -5)};
-    client_.moveOnPathAsync(path, vel, 300, 
-        DrivetrainType::ForwardOnly, YawMode(false, 0), -1, 0)
-        ->waitOnLastTask();
+    client_.moveOnPathAsync(path, vel, 300, DrivetrainType::ForwardOnly, 
+        YawMode(false, 0), -1, 0)->waitOnLastTask();
     client_.hoverAsync()->waitOnLastTask();
     std::this_thread::sleep_for(std::chrono::seconds(5));
 }

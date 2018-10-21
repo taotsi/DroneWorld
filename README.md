@@ -19,6 +19,13 @@ First you have to run an Airsim program, download one from [here](https://github
 ### Input
 
 - `exit`
+    exit program
+- `ls`
+    list the drones available right now
+- `select`
+    select the drone you'd like to control
+- `go 0 10 3`
+    fly to (0, 10, 3)
 
 ## How to checkout the code
 
@@ -67,15 +74,11 @@ here are the steps to take for python users
 
 ## TODO
 
-- add namespace to all classes
 - linear fitting
 - record on C++
-- message queue for input handling
 - copy and move ctors for some data types
 - add noise
 - find a window scene
 - plane forming
-- ban component classed copy ctor and move ctor
 - embed opencv
 - thread competition for disparity queue and other queue
-- a thread for input process

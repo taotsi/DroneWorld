@@ -3,12 +3,11 @@
 namespace droneworld{
 
 World::World() {
-    std::cout << "test3\n";
     SpawnDrones();
-    std::cout << "test2\n";
 }
 
 World::~World() {
+    std::cout << "world destroyed\n";
 }
 
 World& World::Instance() {
@@ -42,7 +41,7 @@ void World::Update(double DeltaTime) {
 
 void World::Loop() {
     Begin();
-    std::cout << "test1\n";
+    std::cout << "world init ready\n";
     auto previous = std::chrono::system_clock::now();
     while (is_on_) {
         auto current = std::chrono::system_clock::now();
@@ -58,18 +57,14 @@ void World::SpawnDrones() {
     std::string drone1_name{"drone1"};
     selected_drone_ = drone1_name;
     drone_names_.insert(drone1_name);
-    std::cout << "test4\n";
     std::unique_ptr<Drone> drone1(new Drone{drone1_name});
-    std::cout << "test5\n";
-    drone_list_.insert(
-        std::pair<std::string, std::unique_ptr<Drone>>(
-            drone1_name, std::move(drone1)));
-    std::cout << "test6\n";
+    drone_list_[drone1_name] = std::move(drone1);
 }
 
 void World::RemoveDrone(std::string &name){
     World::drone_list_.erase(name);
-    auto drone_name_ptr = std::find(drone_names_.begin(), drone_names_.end(), name);
+    auto drone_name_ptr = std::find(
+        drone_names_.begin(), drone_names_.end(), name);
     drone_names_.erase(drone_name_ptr);
 }
 
