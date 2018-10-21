@@ -6,29 +6,30 @@
 #include <random>
 #include <vector>
 #include <map>
-#include <set>
+#include <queue>
 #include "drone.h"
 
 class World {
 public:
     static World& Instance();
-	World();
-    virtual ~World();
-    void Loop();
-    friend class Drone;
-	/* data */
-	static std::map<std::string, Drone*> drone_list_;
+    ~World();
+    void Loop();	
 	void test();
-
+    static std::map<std::string, Drone*> drone_list_;
 private:
-	
-    void ProcessInput();
+	friend class Drone;
+    /* data */
+    const std::chrono::duration<double, std::ratio<1, 1000>>
+        MS_PER_UPDATE { 50.0 }; // in milliseconds
+    bool is_on_ = false;
+    std::queue<std::string> msg_queue_;
+    std::thread input_thread_;
+    
+    /* methods */
+    World();
     void Begin();
     void Update(double DeltaTime);
     void SpawnDrones();
-
-    bool isDone = false;
-    const std::chrono::duration<double, std::ratio<1, 1000>> MS_PER_UPDATE { 50.0 }; // in milliseconds
-    friend class Drone;
-    
+    void InputThreadMain();
+    void ProcessInput(std::string &msg);
 };

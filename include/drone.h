@@ -11,7 +11,6 @@ STRICT_MODE_ON
 #include "vehicles/multirotor/api/MultirotorRpcLibClient.hpp"
 #include "common/common_utils/FileSystem.hpp"
 
-#include <map>
 #include "components/movement_component.h"
 #include "components/image_record_component.h"
 #include "components/stixel_component.h"

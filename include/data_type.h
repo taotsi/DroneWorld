@@ -219,15 +219,29 @@ struct FilterStatus{
 class Pillar {
 public:
     Pillar() {};
-    Pillar(Pillar const &other)
-        : x_(other.x()), y_(other.y()), 
-          z1_(other.z1()), z2_(other.z2()) {};
-    Pillar(Pillar &&other){
-        
-    }
+    Pillar(const Pillar &other){
+        x_ = other.x_;
+        y_ = other.y_; 
+        z1_ = other.z1_;
+        z2_ = other.z2_;
+    };
+    // Pillar(Pillar &&other){
+    // 
+    // }
     Pillar& operator=(const Pillar &other){
-        
+        if(this != &other){
+            x_ = other.x_;
+            y_ = other.y_; 
+            z1_ = other.z1_;
+            z2_ = other.z2_;
+            return *this;
+        }else{
+            return *this;
+        }
     }
+    // Pillar& operator=(Pillar &&other){
+    // 
+    // }
     Pillar(double x, double y, double z1, double z2)
         : x_(x), y_(y), z1_(z1), z2_(z2) {
         SortZ();
