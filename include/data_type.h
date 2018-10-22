@@ -163,7 +163,6 @@ struct BlockedIndex {
             return;
         }else{
             if(end > index_[idx_r].first){
-                // std::cout << "new segment'end(" << end << ") for BlockedIndex is bigger than next segment's start,  truncated it already\n";
                 pair = std::pair<int, int>{start, index_[idx_r].first};
             }else{
                 pair = std::pair<int, int>{start, end};
@@ -312,10 +311,8 @@ public:
     void Push(Pillar pl) {
         data_.push_back(pl);
         if(!z1_vec_.empty()){
-            z1_mean_ += (pl.z1()-z1_mean_)
-                / static_cast<double>(z1_vec_.size()+1);
-            z2_mean_ += (pl.z2()-z2_mean_)
-                / static_cast<double>(z2_vec_.size()+1);
+            z1_mean_ += (pl.z1()-z1_mean_)/static_cast<double>(z1_vec_.size()+1);
+            z2_mean_ += (pl.z2()-z2_mean_)/static_cast<double>(z2_vec_.size()+1);
         }else{
             z1_mean_ = pl.z1();
             z2_mean_ = pl.z2();
@@ -383,10 +380,11 @@ public:
         return static_cast<int>(data_.size());
     }
 };
-
-class Line2DFitted{
+// a*x+b*y+c = 0
+class Line2dFitted{
 public:
-    Line2DFitted(std::vector<Pillar> &pillars){
+    Line2Line2dFitted() {};
+    Line2dFitted(std::vector<Pillar> &pillars){
         double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
         auto n_pillar = pillars.size();
         double x_temp, y_temp;
@@ -403,44 +401,100 @@ public:
         y_avr_ = y_sum / n_;
         xx_avr_ = xx_sum / n_;
         xy_avr_ = xy_sum / n_;
-        CalcKnB();
+        CalcCoef();
     }
-    ~Line2DFitted() {};
+    Line2dFitted(Pillar &pl1, Pillar &pl2){
+        n_ = 2;
+        x_avr_ = (pl1.x()+pl2.x())/2;
+        y_avr_ = (pl1.y()+pl2.y())/2;
+        xx_avr_ = (pow(pl1.x(), 2)+pow(pl2.x(), 2))/2;
+        xy_avr_ = (pl1.x()*pl1.y()+pl2.x()*pl2.y())/x;
+        CalcCoef();
+    }
+    Line2dFitted(const Line2dFitted &other){
+        n_ = other.n_;
+        a_ = other.a_;
+        b_ = other.b_;
+        c_ = other.c_;
+        x_avr_ = other.x_avr_;
+        y_avr_ = other.y_avr_;
+        xx_avr_ = other.xx_avr_;
+        xy_avr_ = other.xy_avr_;
+    }
+    // Line2dFitted(Line2dFitted &&other){
+    // 
+    // }
+    Line2dFitted& operator=(const Line2dFitted &other){
+        if(this != &other){
+            n_ = other.n_;
+            a_ = other.a_;
+            b_ = other.b_;
+            c_ = other.c_;
+            x_avr_ = other.x_avr_;
+            y_avr_ = other.y_avr_;
+            xx_avr_ = other.xx_avr_;
+            xy_avr_ = other.xy_avr_;
+            return *this;
+        }else{
+            return *this;
+        }
+    }
+    // Line2dFitted& operator=(Line2dFitted &&other){
+    // 
+    // }
+    ~Line2dFitted() {};
     void AddPoint(double x, double y){
-        x_avr_ += (x-x_avr_)/(n_+1);
-        y_avr_ += (y-y_avr_)/(n_+1);
-        xx_avr_ += (x*x-xx_avr_)/(n_+1);
-        xy_avr_ += (x*y-xy_avr_)/(n_+1);
-        CalcKnB();
+        n_++;
+        x_avr_ += (x-x_avr_)/n_;
+        y_avr_ += (y-y_avr_)/n_;
+        xx_avr_ += (x*x-xx_avr_)/n_;
+        xy_avr_ += (x*y-xy_avr_)/n_;
+        CalcCoef();
     }
-    double EstimateY(double x){
-        return x * k_ + b_;
-    }
-    double EstimateX(double y){
-        if(y!=0){
-            return (y - b_) / k_;
-        }else{ // which won't happen likely
+    inline double EstimateY(double x){
+        if(!IsZero(b_)){
+            return -a_/b_*x - c_/b_;
+        }else{
             return 0;
         }
     }
+    inline double EstimateX(double y){
+        if(!IsZero(a_)){
+            return -b_/a_*y - c_/a_;
+        }else{
+            return 0;
+        }
+    }
+    inline double DistFromPoint(double x, double y){
+        if(!IsZero(b_)){
+            return abs(EstimateX(x)*cos(atan(-a_/b_)));
+        }else{
+            return abs(x);
+        }
+    }
     void Print(){
-        std::cout << "y = " << std::setprecision(2) << k_ 
-            << " * x + " << std::setprecision(2) << b_ <<"\n";
+        std::cout << std::setprecision(2) << a_ << " * x + " 
+            << std::setprecision(2) << b_ << " * y + " 
+            << std::setprecision(2) << c_ <<"\n";
     }
 private:
     /* data */
     double n_ = 0.0;
-    double k_ = 0.0;
+    double a_ = 0.0;
     double b_ = 0.0;
+    double c_ = 0.0;
     double x_avr_ = 0.0;
     double y_avr_ = 0.0;
     double xx_avr_ = 0.0;
     double xy_avr_ = 0.0;
     /* methods */
-    inline void CalcKnB(){
-        double denominator = xx_avr_-x_avr_*x_avr_;
-        k_ =  (xy_avr_+x_avr_*y_avr_)/denominator;
-        b_ =  (xx_avr_*y_avr_-x_avr_*xy_avr_)/denominator;
+    inline void CalcCoef(){
+        b_ = xx_avr_ - x_avr_*x_avr_;
+        a_ = -(xy_avr_ + x_avr_*y_avr_);
+        c_ = x_avr_*xy_avr_ - xx_avr_*y_avr_;
+    }
+    inline bool IsZero(double x){
+        return abs(x)<std::numeric_limits<double>::epsilon();
     }
 };
 
