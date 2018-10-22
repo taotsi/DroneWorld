@@ -33,8 +33,8 @@ inline void RetreiveKde(std::vector<double> const &src,
             for(auto j=0; j<kernel_size; j++){
                 if(kde_x-kernel_half_size >= 0 &&
                     kde_x+kernel_half_size <= kde_width-1){
-                        //std::cout << kde_x-kernel_half_size+j << "\n";
-                        dst[kde_x-kernel_half_size+j] += kernel[j];
+                    //std::cout << kde_x-kernel_half_size+j << "\n";
+                    dst[kde_x-kernel_half_size+j] += kernel[j];
                 }
             }
         }

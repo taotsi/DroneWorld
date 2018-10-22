@@ -3,10 +3,6 @@
 #include <cmath>
 #include <utility>
 #include <algorithm>
-
-// data types here are only responsible for storation,
-// not calculations or algorithms. So make sure the data
-// is correct before storing it.
  
 namespace droneworld{
 
@@ -23,6 +19,17 @@ struct Point3D {
 		: x_(x), y_(y), z_(z) {};
 	Point3D(Point2D &p, double z)
 		:x_(p.x_), y_(p.y_), z_(z) {};
+    Point3D(const Point3D &other){
+        x_ = other.x_;
+        y_ = other.y_;
+        z_ = other.z_;
+    }
+    Point3D& operator=(const Point3D &other){
+        x_ = other.x_;
+        y_ = other.y_;
+        z_ = other.z_;
+        return *this;
+    }
 	double x_ = 0.0;
 	double y_ = 0.0;
 	double z_ = 0.0;
@@ -48,8 +55,7 @@ struct EulerAngle {
 			1 - 2 * quat.y_*quat.y_ - 2 * quat.z_*quat.z_);
 		roll_ = atan2(2*quat.w_*quat.x_,
 			1 - 2*quat.x_*quat.x_ - 2*quat.y_*quat.y_);
-
-	};
+	}
 	/* data */
 	double pitch_ = 0.0;
 	double yaw_ = 0.0;
@@ -72,13 +78,13 @@ struct ScaledDisparityFrame {
     }
 	void PushStixel(std::vector<double> stixel) {
 		data_.push_back(stixel);
-	};
+	}
 	void SetPosition(Point3D &position) {
 		pos_camera_ = position;
-	};
+	}
 	void SetEulerAngle(Quaternion &quaternion) {
 		angle_camera_ = EulerAngle(quaternion);
-	};
+	}
     int size(){
         return static_cast<int>(data_.size());
     }
@@ -126,7 +132,7 @@ struct BlockedIndex {
     /* methods */
     void AddSegment(int start, int end){
         if(start > end){
-            std::cout << "wrong input for BlockedIndex.AddSegment, swapped start and end already\n";
+            std::cout << "wrong input for BlockedIndex.AddSegment(), swapped start and end already\n";
             auto temp = start;
             start = end;
             end = temp;
@@ -169,7 +175,7 @@ struct BlockedIndex {
             }
         }
         index_.insert(index_.begin()+idx_r, pair);
-    };
+    }
     bool IsFull(){
         for(auto i=1; i<index_.size(); i++){
             if(index_[i-1].second < index_[i].first){
@@ -177,20 +183,20 @@ struct BlockedIndex {
             }
         }
         return false;
-    };
+    }
     void Print(){
         for(auto seg : index_){
             std::cout << "(" << seg.first << ", " << seg.second << ")  ";
         }
         std::cout << std::endl;
-    };
+    }
     std::pair<int, int>& operator[](unsigned int pos){
         if(pos >= index_.size()){
             std::cout << "BlockedIndex: index out of bounds" << std::endl;
             return index_[index_.size()-1];
         }
         return index_[pos];
-    };
+    }
     int size(){
         return static_cast<int>(index_.size());
     }
@@ -223,7 +229,7 @@ public:
         y_ = other.y_; 
         z1_ = other.z1_;
         z2_ = other.z2_;
-    };
+    }
     // Pillar(Pillar &&other){
     // 
     // }
@@ -327,7 +333,7 @@ public:
     bool empty() { return data_.empty(); }
     double z_max() {
         return *(std::max_element(z2_vec_.begin(), z2_vec_.end()));
-    };
+    }
     double z_min() {
         return *(std::min_element(z1_vec_.begin(), z1_vec_.end()));
     }
@@ -505,12 +511,14 @@ public:
     Plane(double x_min, double x_max, double y_min, 
         double y_max, double z_min, double z_max) {
             
-    };
+    }
     // for rectangle
-    Plane(Point3D p1, Point3D p2)
-        : p1_(p1), p2_(p2) { };
+    Plane(Point3D &p1, Point3D &p2)
+        : p1_(p1), p2_(p2) {
+        // TODO
+    }
     // for quadrilateral
-    Plane(Point3D p1, Point3D p2, Point3D p3, Point3D p4)
+    Plane(Point3D &p1, Point3D &p2, Point3D &p3, Point3D &p4)
         : p1_(p1), p2_(p2), p3_(p3), p4_(p4) {};
     ~Plane() {};
     /* data */
