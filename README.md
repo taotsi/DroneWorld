@@ -16,45 +16,29 @@ If you were to add or delete .cc or .h files, the easiest way is to do this in t
 
 First you have to run an Airsim program, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
 
-### Input
+### Input Command
+
+After the program finishes initialization, you can input some commands to console, here ther are:
 
 - `exit`
-    exit program
+
+    Exit program.
+    
 - `ls`
-    list the drones available right now
+    
+    List the drones available right now. Currently there's only one drone, so this command is useless.
+    
 - `select`
-    select the drone you'd like to control
-- `go 0 10 3`
-    fly to (0, 10, 3)
-
-## How to checkout the code
-
-For start, see for all the code inside `Begin()` and `Update()` in each class. Most work is done in various component classes, checkout them and go to `Begin()` and `Update()` first. Then you'll know what to look at next. The code is a mess, sorry~
+    
+    Select the drone you'd like to control. Currently there's only one drone, so this command is useless.
+    
+- `go x y z`
+    
+    for example, `go 0 5 2` means flying to (0, 5, 2). ENU coordinate system, +x, +y and +z means east, north, and up.
 
 ## Python Client
 
-If you're insterested in the rpc function binding, checkout `DroneWorld/src/rpc_server.cc` and `DroneWorld/py_client/rpc_client.py`. Here's a example, skip it if you just care about the rpc client api.
-
-rpc_server.cc
-```
-#include "rpc_server.h"
-
-void PackServer(rpc::server& server, World& world) {
-	server.bind("GetKde", [&world](int pos) {return world.drone_list_["drone1"]->stixel_->GetKde(pos); });
-}
-```
-`PackServer()` binds all the functions or data you'll need in python. When you need those functions and data, just call them in python, like this:
-
-rpc_client.py
-```
-import msgpackrpc
-import matplotlib.pyplot as plt
-
-client = msgpackrpc.Client(msgpackrpc.Address("127.0.0.1", 8080))
-kde = client.call("GetKde")
-plt.plot(kde)
-plt.show()
-```
+See all the available Python APIs in py_client/rpc_client.py, and test code in py_client/test.py
 
 ### Quick steps
 
@@ -64,7 +48,7 @@ here are the steps to take for python users
 
   which you can download in the Airsim github repo's releases.
  
-- run DroneWorld executable
+- run DroneWorld.exe
 
   which you should build in advance on vs2017(x64, debug or release), find the exe file in build/
   
