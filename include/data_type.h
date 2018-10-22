@@ -386,7 +386,8 @@ public:
         return static_cast<int>(data_.size());
     }
 };
-// a*x+b*y+c = 0
+
+/* a*x+b*y+c = 0 */
 class Line2dFitted{
 public:
     Line2Line2dFitted() {};
@@ -478,6 +479,16 @@ public:
             return abs(x);
         }
     }
+    void Reset(){
+        n_ = 0.0;
+        a_ = 0.0;
+        b_ = 0.0;
+        c_ = 0.0;
+        x_avr_ = 0.0;
+        y_avr_ = 0.0;
+        xx_avr_ = 0.0;
+        xy_avr_ = 0.0;
+    }
     void Print(){
         std::cout << std::setprecision(2) << a_ << " * x + " 
             << std::setprecision(2) << b_ << " * y + " 
@@ -534,6 +545,7 @@ private:
 class PlaneWorld {
 public:
 	std::vector<Plane> data_;
+    std::vector<Pillar> pillars_alone_;
 };
 
 } // namespace droneworld

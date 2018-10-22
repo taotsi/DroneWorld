@@ -17,7 +17,7 @@ private:
     /* methods */
     void RunCompactPlane();
     void CompactPlane();
-    void PillarClusterToPlane(
+    void PillarClusterToPlane(double d_max, int n_flip_max, 
         std::vector<Pillar> &cluster, std::vector<Plane> &planes);
 };
 }
