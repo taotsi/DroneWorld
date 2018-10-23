@@ -41,21 +41,27 @@ void CompactPlaneComponent::CompactPlane(){
     }
 }
 
-void CompactPlaneComponent::PillarClusterToPlane(double d_max, int n_flip_max, 
-    std::vector<Pillar> &cluster, std::vector<Plane> &planes){
+void CompactPlaneComponent::PillarClusterToPlane( std::vector<Pillar> &cluster, 
+    std::vector<Plane> &planes) {
     Line2dFitted line{cluster[0], cluster[1]};
     std::vector<double> dist;
     dist.reserve(n_pillar);
     double dist_max = 0;
     size_t n_pillar = cluster.size();
-    int start = 0, end = 1;
+    if(n_pillar>=3){
+        
+    }else if(n_pillar == 2){
+        
+    }else{ // n_pillar = 1
+        
+    }
 }
 
 /* returns false if it's uneven */
 bool CompactPlaneComponent::GetSignedDist(Line2dFitted &line, 
     std::vector<Pillar> &pillars, int start, int end, 
-    std::vector<double> clipped_dist, int n_flip_max, double dist_max=0.2){
-    if(end-start < 2){
+    std::vector<double> clipped_dist, int n_flip_max, double dist_max=0.2) {
+    if(end-start < 3){
         std::cout << "CompactPlaneComponent::GetSignedDist, end-start<2\n ";
         return false;
     }
@@ -86,9 +92,24 @@ bool CompactPlaneComponent::GetSignedDist(Line2dFitted &line,
     return true;
 }
 
-bool CompactPlaneComponent::CheckoutTurnpoint(
-    std::vector<double> dist, double dist_max){
-    
+bool CompactPlaneComponent::CheckoutTurnpoint(std::vector<double> dist, 
+    double dist_max) {
+    size_t n_dist = dist.size();
+    size_t idx = 1, idx_max=0;
+    double dist_temp = 0;
+    while(idx<n_dist-1){
+        if(abs(dist[idx+1]) < abs(dist[idx])){
+            idx +=2;
+            if(abs(dist[idx-1]) < abs(dist[idx])){
+                if(dist_temp < abs(dist[idx])){
+                    dist_temp = abs(dist[idx]);
+                    idx_max = idx;
+                }
+            }
+        }else{
+            idx +=1;
+        }
+    }
 }
 
 } // namespace droneworld
