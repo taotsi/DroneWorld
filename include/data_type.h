@@ -30,12 +30,24 @@ struct Point3D {
         z_ = other.z_;
         return *this;
     }
-	double x_ = 0.0;
-	double y_ = 0.0;
-	double z_ = 0.0;
+    /* methods */
+    void Set(double x, double y, douelb z){
+        x_ = x;
+        y_ = y;
+        z_ = z;
+    }
+    void Reset(){
+        x_ = 0.0;
+    	y_ = 0.0;
+    	z_ = 0.0;        
+    }
     void Print(){
         std::cout << "( " << x_ << ", " << y_ << ", " << z_ << " )\n";
     }
+    /* data */
+	double x_ = 0.0;
+	double y_ = 0.0;
+	double z_ = 0.0;
 };
 struct Quaternion {
 	Quaternion(double w, double x, double y, double z)
@@ -390,7 +402,7 @@ public:
 /* a*x+b*y+c = 0 */
 class Line2dFitted{
 public:
-    Line2Line2dFitted() {};
+    Line2dFitted() {};
     Line2dFitted(std::vector<Pillar> &pillars){
         double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
         auto n_pillar = pillars.size();
@@ -538,8 +550,7 @@ public:
     Plane(Point3D &p1, Point3D &p2)
         : p1_(p1), p2_(p2) {};
     Plane(Pillar &pl1, Pillar &pl2){
-        p1_ = Point3D{pl1.x(), pl1.y(), pl1.z1()};
-        p2_ = Point3D{pl2.x(), pl2.y(), pl2.z2()};
+        FromPillars(pl1, pl2);
     }
     Plane(const Plane &other){
         p1_ = other.p1_;
@@ -555,6 +566,22 @@ public:
         }
     }
     ~Plane() {};
+    void FromPillars(Pillar &pl1, Pillar &pl2){
+        p1_ = Point3D{pl1.x(), pl1.y(), pl1.z1()};
+        p2_ = Point3D{pl2.x(), pl2.y(), pl2.z2()};
+    }
+    void FromPoints((Point3D &p1, Point3D &p2){
+        p1_ = p1;
+        p2_ = p2;
+    }
+    void Reset(){
+        p1_.Reset();
+        p2_.Reset();
+    }
+    void IsReset(){
+        Point3D p_temp;
+        return p1_ == p_temp && p2_ == p_temp;
+    }
 private:
     /* data */
     Point3D p1_;
@@ -562,6 +589,7 @@ private:
     std::vector<Plane*> left_ = std::vector<Plane*>{nullptr};
     std::vector<Plane*> right_ = std::vector<Plane*>{nullptr};
 };
+
 class PlaneWorld {
 public:
 	std::vector<Plane> data_;
