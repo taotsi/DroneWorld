@@ -1,4 +1,5 @@
 #include "components/compact_plane_component.h"
+#include <iostream>
 
 namespace droneworld{
 
@@ -47,36 +48,47 @@ void CompactPlaneComponent::PillarClusterToPlane(double d_max, int n_flip_max,
     dist.reserve(n_pillar);
     double dist_max = 0;
     size_t n_pillar = cluster.size();
-    int start = 0, end = 2;
-    // 1 for bigger and -1 for lesser
+    int start = 0, end = 1;
+}
+
+/* returns false if it's uneven */
+bool CompactPlaneComponent::GetSignedDist(Line2dFitted &line, 
+    std::vector<Pillar> &pillars, int start, int end, 
+    std::vector<double> clipped_dist, int n_flip_max, double dist_max=0.2){
+    if(end-start < 2){
+        std::cout << "CompactPlaneComponent::GetSignedDist, end-start<2\n ";
+        return false;
+    }
+    int n_pillar = end - start;
+    clipped_dist.reserve(n_pillar);
+    clipped_dist.clear();
+    int n_flip_max = n_pillar*0.3<1 ? 1 : n_pillar*0.3;
+    double dist_temp;
+    double dist_1 = line.DistClipped(pillars[start].x(), pillars[start].y());
     int prev_flip_flag = 0, flip_flag = 0;
-    int n_flip;
-    while(end < n_pillar){
-        dist.clear();
-        line.AddPoint(cluster[end].x(), cluster[end].y());
-        for(int i=start; i<=end; i++){
-            dist.push_back(line.DistFromPoint(cluster[i].x(), cluster[i].y()));
+    if(dist_1 != 0){
+        prev_flip_flag = dist_1 > 0 ? 1 : -1;
+    }
+    int n_flip = 0;
+    for(int i=start; i<=end; i++){
+        dist_temp = line.DistClipped(pillars[i].x(), pillars[i].y(), 0.1);
+        if(dist_temp != 0){
+            flip_flag = dist_temp > 0 ? 1 : -1;
         }
-        d_max_temp = std::max_element(dist.begin(), dist.end());
-        if(*dist_max > d_max){
-            prev_flip_flag = 
-                cluster[start].y() > line.EstimateY(cluster[start].x())
-                ? 1 : -1;
-            for(int i=start+1; i<=end; i++){
-                flip_flag = cluster[i].y() > line.EstimateX(cluster[i].x())
-                    ? 1 : -1;
-                if(flip_flag != prev_flip_flag){
-                    n_flip++;
-                    if(n_flip > n_flip_max){
-                        // TODO:what's next??
-                        break;
-                    }
-                }
-                prev_flip_flag = flip_flag;
+        if(flip_flag == -prev_flip_flag){
+            n_flip++;
+            if(n_flip > n_flip_max){
+                return false;
             }
         }
-        end++;
+        clipped_dist.push_back(dist_temp);
     }
+    return true;
+}
+
+bool CompactPlaneComponent::CheckoutTurnpoint(
+    std::vector<double> dist, double dist_max){
+    
 }
 
 } // namespace droneworld

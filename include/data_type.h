@@ -458,6 +458,9 @@ public:
         xy_avr_ += (x*y-xy_avr_)/n_;
         CalcCoef();
     }
+    void AddPoints(){
+        
+    }
     inline double EstimateY(double x){
         if(!IsZero(b_)){
             return -a_/b_*x - c_/b_;
@@ -472,11 +475,25 @@ public:
             return 0;
         }
     }
-    inline double DistFromPoint(double x, double y){
+    inline double SignedDist(double x, double y){
         if(!IsZero(b_)){
-            return abs(EstimateX(x)*cos(atan(-a_/b_)));
+            return abs((y-EstimateX(x))*cos(atan(-a_/b_)));
         }else{
-            return abs(x);
+            return abs(x+c_/a_);
+        }
+    }
+    inline double Dist(double x, double y){
+        return abs(SignedDistFrom(x, y));
+    }
+    inline double DistClipped(double x, double y, double epsilon=0.1){
+        auto dist = SignedDist(x, y);
+        epsilon = abs(epsilon);
+        if(dist < epsilon){
+            return dist - epsilon;
+        }else if(dist < -epsilon){
+            return dist + epsilon;
+        }else{
+            return 0;
         }
     }
     void Reset(){

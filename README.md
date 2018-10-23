@@ -58,9 +58,7 @@ here are the steps to take for python users
 
 ## TODO
 
-- linear fitting
 - record on C++
-- copy and move ctors for some data types
 - add noise
 - find a window scene
 - plane forming
