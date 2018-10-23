@@ -224,6 +224,15 @@ struct FilterStatus{
 class Pillar {
 public:
     Pillar() {};
+    Pillar(double x, double y, double z1, double z2)
+        : x_(x), y_(y), z1_(z1), z2_(z2) {
+        SortZ();
+    }
+    Pillar(Point3D p){
+        x_ = p.x_;
+        y_ = p.y_;
+        z1_ = p.z_;
+    }
     Pillar(const Pillar &other){
         x_ = other.x_;
         y_ = other.y_; 
@@ -247,15 +256,6 @@ public:
     // Pillar& operator=(Pillar &&other){
     // 
     // }
-    Pillar(double x, double y, double z1, double z2)
-        : x_(x), y_(y), z1_(z1), z2_(z2) {
-        SortZ();
-    }
-    Pillar(Point3D p){
-        x_ = p.x_;
-        y_ = p.y_;
-        z1_ = p.z_;
-    }
     void SetPoint(Point3D p){
         x_ = p.x_;
         y_ = p.y_;
@@ -534,30 +534,33 @@ private:
 
 class Plane {
 public:
-    // for rectangle
     Plane() {};
-    Plane(double x_min, double x_max, double y_min, 
-        double y_max, double z_min, double z_max) {
-            
-    }
-    // for rectangle
     Plane(Point3D &p1, Point3D &p2)
-        : p1_(p1), p2_(p2) {
-        // TODO
+        : p1_(p1), p2_(p2) {};
+    Plane(Pillar &pl1, Pillar &pl2){
+        p1_ = Point3D{pl1.x(), pl1.y(), pl1.z1()};
+        p2_ = Point3D{pl2.x(), pl2.y(), pl2.z2()};
     }
-    // for quadrilateral
-    Plane(Point3D &p1, Point3D &p2, Point3D &p3, Point3D &p4)
-        : p1_(p1), p2_(p2), p3_(p3), p4_(p4) {};
+    Plane(const Plane &other){
+        p1_ = other.p1_;
+        p2_ = other.p2_;
+    }
+    Plane& operator=(const Plane &other){
+        if(this != &other){
+            p1_ = other.p1_;
+            p2_ = other.p2_;
+            return *this;
+        }else{
+            return *this;
+        }
+    }
     ~Plane() {};
-    /* data */
-    std::vector<Plane*> left_ = std::vector<Plane*>{nullptr};
-    std::vector<Plane*> right_ = std::vector<Plane*>{nullptr};
 private:
     /* data */
     Point3D p1_;
 	Point3D p2_;
-    Point3D p3_;
-	Point3D p4_;
+    std::vector<Plane*> left_ = std::vector<Plane*>{nullptr};
+    std::vector<Plane*> right_ = std::vector<Plane*>{nullptr};
 };
 class PlaneWorld {
 public:

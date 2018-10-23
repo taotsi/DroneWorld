@@ -51,9 +51,9 @@ void CompactPlaneComponent::PillarClusterToPlane( std::vector<Pillar> &cluster,
     if(n_pillar>=3){
         
     }else if(n_pillar == 2){
-        
+        planes.push_back(Plane{cluster[0], cluster[1]});
     }else{ // n_pillar = 1
-        
+        // TODO
     }
 }
 
