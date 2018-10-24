@@ -58,9 +58,11 @@ here are the steps to take for python users
 
 ## TODO
 
+- python visual api
+- read json, write also maybe
 - record on C++
 - add noise
 - find a window scene
 - plane forming
 - embed opencv
-- thread competition for disparity queue and other queue
+- thread competition for queues

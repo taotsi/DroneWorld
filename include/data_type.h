@@ -13,6 +13,7 @@ struct Point2D {
 	double x_ = 0.0;
 	double y_ = 0.0;
 };
+
 struct Point3D {
 	Point3D() {};
 	Point3D(double x, double y, double z)
@@ -30,8 +31,11 @@ struct Point3D {
         z_ = other.z_;
         return *this;
     }
+    bool operator==(const Point3D &rhs){
+        return x_ == rhs.x_ && y_ == rhs.y_ && z_ == rhs.z_;
+    }
     /* methods */
-    void Set(double x, double y, douelb z){
+    void Set(double x, double y, double z){
         x_ = x;
         y_ = y;
         z_ = z;
@@ -49,6 +53,7 @@ struct Point3D {
 	double y_ = 0.0;
 	double z_ = 0.0;
 };
+
 struct Quaternion {
 	Quaternion(double w, double x, double y, double z)
 		:w_(w), x_(x), y_(y), z_(z) {};
@@ -427,7 +432,7 @@ public:
         x_avr_ = (pl1.x()+pl2.x())/2;
         y_avr_ = (pl1.y()+pl2.y())/2;
         xx_avr_ = (pow(pl1.x(), 2)+pow(pl2.x(), 2))/2;
-        xy_avr_ = (pl1.x()*pl1.y()+pl2.x()*pl2.y())/x;
+        xy_avr_ = (pl1.x()*pl1.y()+pl2.x()*pl2.y())/2;
         CalcCoef();
     }
     Line2dFitted(const Line2dFitted &other){
@@ -495,7 +500,7 @@ public:
         }
     }
     inline double Dist(double x, double y){
-        return abs(SignedDistFrom(x, y));
+        return abs(SignedDist(x, y));
     }
     inline double DistClipped(double x, double y, double epsilon=0.1){
         auto dist = SignedDist(x, y);
@@ -570,7 +575,7 @@ public:
         p1_ = Point3D{pl1.x(), pl1.y(), pl1.z1()};
         p2_ = Point3D{pl2.x(), pl2.y(), pl2.z2()};
     }
-    void FromPoints((Point3D &p1, Point3D &p2){
+    void FromPoints(Point3D &p1, Point3D &p2){
         p1_ = p1;
         p2_ = p2;
     }
@@ -578,7 +583,7 @@ public:
         p1_.Reset();
         p2_.Reset();
     }
-    void IsReset(){
+    bool IsReset(){
         Point3D p_temp;
         return p1_ == p_temp && p2_ == p_temp;
     }
