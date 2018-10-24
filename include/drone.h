@@ -16,6 +16,7 @@ STRICT_MODE_ON
 #include "components/stixel_component.h"
 #include "components/pillar_cluster_component.h"
 #include "components/communication_component.h"
+#include "components/compact_plane_component.h"
 
 namespace droneworld{
 
@@ -33,5 +34,6 @@ public:
 	std::unique_ptr<ImageRecordComponent> image_record_;
 	std::unique_ptr<StixelComponent> stixel_;
     std::unique_ptr<PillarClusterComponent> cluster_;
+    std::unique_ptr<CompactPlaneComponent> compact_;
 };
 }

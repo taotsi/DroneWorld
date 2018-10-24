@@ -13,6 +13,8 @@ Drone::Drone(std::string name)
 		&(image_record_->disparity_retreived_), 640, 480, 1.91986218);
     cluster_ = std::make_unique<PillarClusterComponent>(
         &(stixel_->pillar_frame_queue_));
+    compact_ = std::make_unique<CompactPlaneComponent>(
+        &(cluster_->filtered_cluster_queue_));
 }
 
 Drone::~Drone() {
@@ -21,6 +23,7 @@ Drone::~Drone() {
     image_record_->Stop();
     stixel_->Stop();
     cluster_->Stop();
+    compact_->Stop();
     std::cout << name_ << " removed\n";
 }
 
@@ -29,6 +32,7 @@ void Drone::Begin() {
     // image_record_->Begin();
 	// stixel_->Begin();
     // cluster_->Begin();
+    // compact_->Begin();
 }
 
 void Drone::Update(double DeltaTime) {
@@ -36,5 +40,6 @@ void Drone::Update(double DeltaTime) {
     // image_record_->Update(DeltaTime);
 	// stixel_->Update(DeltaTime);
     // cluster_->Update(DeltaTime);
+    // compact_->Update(DeltaTime);
 }
 }
