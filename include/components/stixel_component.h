@@ -7,10 +7,8 @@ namespace droneworld{
 class StixelComponent :public BaseComponent {
 public:
 	/* methods */
-	StixelComponent(
-		std::queue<ImageResponse>* disparity_retreived);
-    StixelComponent(
-        std::queue<ImageResponse>* disparity_retreived, 
+	StixelComponent(std::queue<ImageResponse>* disparity_retreived);
+    StixelComponent(std::queue<ImageResponse>* disparity_retreived, 
         int width, int height, double fov);
 	~StixelComponent();
     void Begin();
@@ -21,13 +19,10 @@ public:
     std::vector<std::vector<double>> GetPillarFrame();
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
-	std::queue<ScaledDisparityFrame> 
-		scaled_disparity_frame_queue_;
+	std::queue<ScaledDisparityFrame> scaled_disparity_frame_queue_;
 	// kde for disparity
-	std::queue<std::vector<std::vector<double>>> 
-		kde_frame_queue_;
-	std::queue<std::vector<std::vector<KdePeak>>> 
-		kde_peak_frame_queue_;
+	std::queue<std::vector<std::vector<double>>> kde_frame_queue_;
+	std::queue<std::vector<std::vector<KdePeak>>> kde_peak_frame_queue_;
     std::queue<std::vector<Pillar>> pillar_frame_queue_;
 private:
 	/* methods */
@@ -40,9 +35,8 @@ private:
 		double disp_normalized, int x_pixel_scaled, int y_pixel);
 	Point3D CameraToWorldCoor(
 		Point3D  &camera_pos, Point3D &p_camera, EulerAngle &angle);
-    void LayeringObject(std::vector<int> &object_idx, std::vector<std::pair<int, int>> &results, int h_thh);
+    void LayerObject(std::vector<int> &object_idx, std::vector<std::pair<int, int>> &results, int h_thh);
 	void DetectObject();
-	void Behave();
 	std::thread thread_handle_;
 	/* data */
 	int width_ = 640;

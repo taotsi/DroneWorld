@@ -10,6 +10,8 @@ public:
     ~CompactPlaneComponent();
     void Begin();
     void Update(double DeltaTime);
+    // for rpc server
+
     /* data */
     std::queue<std::vector<std::vector<Pillar>>>* pillar_cluster_queue_;
     std::queue<std::vector<Plane>> planes_queue_;
@@ -24,4 +26,4 @@ private:
     bool CheckoutTurnpoint(std::vector<double> dist, int &idx_turnpoint);
     void FillConcave();
 };
-}
+} // namespace droneworld

@@ -14,9 +14,19 @@ If you were to add or delete .cc or .h files, the easiest way is to do this in t
 
 ## How to run
 
-First you have to run an Airsim program, download one from [here](https://github.com/Microsoft/AirSim/releases). Then run the built DroneWorld.exe and the python script in py_client/.
+operate in such an order:
 
-### Input Command
+### configure settings.json
+
+copy conf/settings.json to ~/Airsim.
+
+### open a airsim program
+
+you can download one from [here](https://github.com/Microsoft/AirSim/releases). 
+
+### run DroneWorld.exe
+
+#### Input Command
 
 After the program finishes initialization, you can input some commands to console, here ther are:
 
@@ -35,6 +45,8 @@ After the program finishes initialization, you can input some commands to consol
 - `go x y z`
     
     for example, `go 0 5 2` means flying to (0, 5, 2). ENU coordinate system, +x, +y and +z means east, north, and up.
+
+### run test.py
 
 ## Python Client
 
@@ -58,7 +70,11 @@ here are the steps to take for python users
 
 ## TODO
 
-- python visual api
+- add comments
+- a shell script for dealing with settings.json
+- fix bug on program exit
+- all python visual apis
+- overload operator== as friend class for data type
 - read json, write also maybe
 - record on C++
 - add noise

@@ -26,6 +26,9 @@ public:
         server_.bind("GetPillarCluster", [&world](){
             return world.drone_list_["drone1"]->cluster_->GetPillarCluster();
         });
+        server_.bind("GetFilteredCluster", [&world](){
+            return world.drone_list_["drone1"]->cluster_->GetFilteredCluster();
+        });
         server_.bind("test", [](){return "hello there~";});
     }
 private:

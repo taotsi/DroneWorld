@@ -31,13 +31,15 @@ void PillarClusterComponent::RunCluster(){
         // PUSH primary_pillar_cluster_queue_
         PrimaryCluster();
         //pillar_frame_queue_->pop();
-        std::cout << "cluster ready\n";
+        std::cout << "cluster primary ready\n";
     }
-    if(!filtered_cluster_queue_.empty()){
+    if(!primary_pillar_cluster_queue_.empty()){
         // PUSH filtered_cluster_queue_
         ComplementFilter();
         //primary_pillar_cluster_queue_.pop()
         std::cout << "cluster complement ready\n";
+    }else{
+        std::cout << "primary_pillar_cluster_queue_ is empty\n";
     }
 }
 
@@ -50,44 +52,14 @@ void PillarClusterComponent::PrimaryCluster(){
     primary_pillar_cluster_queue_.push(pillar_cluster_horizon);
 }
 
-ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
-    double z_max, double z_min, double h_thh, bool is_forcibly=false) {
-    if(!is_forcibly){
-        if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
-            pillar.SetZ1(z_min);
-            pillar.SetZ2(z_max);
-            return kJamb;
-        }else if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min > h_thh){// head
-            pillar.SetZ2(z_max);
-            return kHead;
-        }else if(z_max-pillar.z2() > h_thh && pillar.z1()-z_min < h_thh){// sill
-            pillar.SetZ1(z_min);
-            return kSill;
-        }else{// grille, taken as jamb, temporarily
-            pillar.SetZ1(z_min);
-            pillar.SetZ2(z_max);
-            return kJamb;
-        }
-    }else{
-        pillar.SetZ2(z_max);
-        pillar.SetZ1(z_min);
-        return kJamb;
+void PillarClusterComponent::ComplementFilter(){
+    auto &pillar_cluster = primary_pillar_cluster_queue_.front();
+    std::vector<std::vector<Pillar>> filtered_clusters;
+    auto n_pillar_cluster = pillar_cluster.size();
+    for(auto i=0; i<n_pillar_cluster; i++){
+        ComplementCluster(pillar_cluster[i], filtered_clusters);
     }
-}
-
-void PillarClusterComponent::FillWindow(std::vector<Pillar> jambs, 
-    std::vector<Pillar> heads, std::vector<Pillar> sills, 
-    double z_max, double z_min){
-    auto n_sills = sills.size();
-    for(auto i=0; i<n_sills; i++){
-        CompletePillar(sills[i], z_max, z_min, 0, true);
-    }
-    jambs.insert(jambs.end(), sills.begin(), sills.end());
-    auto n_heads = heads.size();
-    for(auto i=0; i<n_heads; i++){
-        CompletePillar(heads[i], z_max, z_min, 0, true);
-    }
-    jambs.insert(jambs.end(), heads.begin(), heads.end());
+    filtered_cluster_queue_.push(filtered_clusters);
 }
 
 void PillarClusterComponent::ComplementCluster(
@@ -183,22 +155,44 @@ void PillarClusterComponent::ComplementCluster(
     }
 }
 
-void PillarClusterComponent::ComplementFilter(){
-    auto &pillar_cluster = primary_pillar_cluster_queue_.front();
-    std::vector<std::vector<Pillar>> filtered_clusters;
-    auto n_pillar_cluster = pillar_cluster.size();
-    for(auto i=0; i<n_pillar_cluster; i++){
-        ComplementCluster(pillar_cluster[i], filtered_clusters);
+ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
+    double z_max, double z_min, double h_thh, bool is_forcibly) {
+    if(!is_forcibly){
+        if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min < h_thh){// jamb
+            pillar.SetZ1(z_min);
+            pillar.SetZ2(z_max);
+            return kJamb;
+        }else if(z_max-pillar.z2() < h_thh && pillar.z1()-z_min > h_thh){// head
+            pillar.SetZ2(z_max);
+            return kHead;
+        }else if(z_max-pillar.z2() > h_thh && pillar.z1()-z_min < h_thh){// sill
+            pillar.SetZ1(z_min);
+            return kSill;
+        }else{// grille, taken as jamb, temporarily
+            pillar.SetZ1(z_min);
+            pillar.SetZ2(z_max);
+            return kJamb;
+        }
+    }else{
+        pillar.SetZ2(z_max);
+        pillar.SetZ1(z_min);
+        return kJamb;
     }
-    filtered_cluster_queue_.push(filtered_clusters);
 }
 
-void PillarClusterComponent::FormPlane(){
-    
-}
-
-void PillarClusterComponent::FilterPlane(){
-    
+void PillarClusterComponent::FillWindow(std::vector<Pillar> jambs, 
+    std::vector<Pillar> heads, std::vector<Pillar> sills, 
+    double z_max, double z_min){
+    auto n_sills = sills.size();
+    for(auto i=0; i<n_sills; i++){
+        CompletePillar(sills[i], z_max, z_min, 0, true);
+    }
+    jambs.insert(jambs.end(), sills.begin(), sills.end());
+    auto n_heads = heads.size();
+    for(auto i=0; i<n_heads; i++){
+        CompletePillar(heads[i], z_max, z_min, 0, true);
+    }
+    jambs.insert(jambs.end(), heads.begin(), heads.end());
 }
 
 /* for rpclib server */
@@ -206,7 +200,7 @@ std::vector<std::vector<std::vector<double>>>
 PillarClusterComponent::GetPillarCluster(){
     std::vector<std::vector<std::vector<double>>> result;
     std::vector<std::vector<double>> cluster;
-    cluster.reserve(100);
+    cluster.reserve(30);
     if(!primary_pillar_cluster_queue_.empty()){
         auto &pillar_cluster = primary_pillar_cluster_queue_.front();
         auto n_cluster = pillar_cluster.size();
@@ -221,6 +215,29 @@ PillarClusterComponent::GetPillarCluster(){
         return result;
     }else{
         std::cout << "primary_pillar_cluster_queue_ is empty\n";
+        return std::vector<std::vector<std::vector<double>>>();
+    }
+}
+
+std::vector<std::vector<std::vector<double>>> 
+PillarClusterComponent::GetFilteredCluster(){
+    std::vector<std::vector<std::vector<double>>> result;
+    std::vector<std::vector<double>> cluster;
+    cluster.reserve(30);
+    if(!filtered_cluster_queue_.empty()){
+        auto &pillar_cluster = filtered_cluster_queue_.front();
+        auto n_cluster = pillar_cluster.size();
+        for(auto i=0; i<n_cluster; i++){
+            cluster.clear();
+            auto n_pillar = pillar_cluster[i].size();
+            for(auto j=0; j<n_pillar; j++){
+                cluster.push_back(pillar_cluster[i][j].GetCoor());
+            }
+            result.push_back(cluster);
+        }
+        return result;
+    }else{
+        std::cout << "filtered_cluster_queue_ is empty\n";
         return std::vector<std::vector<std::vector<double>>>();
     }
 }

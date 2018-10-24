@@ -38,18 +38,18 @@ void StixelComponent::RunStixel() {
 		RetreiveStixel();
         //auto &sf = scaled_disparity_frame_queue_.front();
         //disparity_retreived_->pop();	
-        //std::cout << "stixel retreivation ready\n";		
+        // std::cout << "stixel retreivation ready\n";		
 	}
     if(!scaled_disparity_frame_queue_.empty()){
         // PUSH kde_frame_queue_
         Kde();
-        //std::cout << "stixel kde ready\n";
+        // std::cout << "stixel kde ready\n";
     }
 	if(!kde_frame_queue_.empty()) {
 		// PUSH kde_peak_frame_queue_
 		FindKdePeak(0.5);
         //kde_frame_queue_.pop();
-        //std::cout << "stixel kde peak ready\n";
+        // std::cout << "stixel kde peak ready\n";
 	}
     if(!scaled_disparity_frame_queue_.empty()
         && !kde_peak_frame_queue_.empty()){
@@ -57,7 +57,7 @@ void StixelComponent::RunStixel() {
         DetectObject();
         //scaled_disparity_frame_queue_.pop();
         //kde_peak_frame_queue_.pop();
-        //std::cout << "stixel detection ready\n";
+        // std::cout << "stixel detection ready\n";
     }
     if(!pillar_frame_queue_.empty()){
         //auto &pf = pillar_frame_queue_.front();
@@ -68,7 +68,6 @@ void StixelComponent::RunStixel() {
     std::cout << "stixel reday\n";
 }
 void StixelComponent::RetreiveStixel(){
-    // TODO: if roll != 0, correction needs to be done
     auto &frame_raw = disparity_retreived_->front();
     Point3D pos_camera = TransformAirsimCoor(
         frame_raw.camera_position.x(),
@@ -195,31 +194,9 @@ Point3D StixelComponent::CameraToWorldCoor(
 	return p_world;
 }
 
-void StixelComponent::LayeringObject(std::vector<int> &object_idx,
-    std::vector<std::pair<int, int>> &results, int h_thh) {
-    if(!object_idx.empty()){
-        if(!std::is_sorted(object_idx.begin(), object_idx.end())){
-            std::sort(object_idx.begin(), object_idx.end());
-        };
-        std::pair<int, int> temp{object_idx[0], object_idx[0]};
-        for(auto i=0; i<object_idx.size()-1; i++){
-            if(object_idx[i+1]-object_idx[i] > h_thh){
-                temp.second = object_idx[i];
-                results.push_back(temp);
-                temp.first = object_idx[i+1];
-            }
-        }
-        temp.second = *object_idx.end();
-        results.push_back(temp);
-    }else{
-        std::cout << "layering object: no object info!\n";
-    }
-}
-
 /* Sliding-block filter */
 void StixelComponent::DetectObject() {
-	auto &scaled_disparity_frame =
-		scaled_disparity_frame_queue_.front();
+	auto &scaled_disparity_frame = scaled_disparity_frame_queue_.front();
 	auto &kde_peak_frame = kde_peak_frame_queue_.front();
     std::vector<Pillar> pillar_frame;
     auto n_stixel = kde_peak_frame.size();
@@ -236,13 +213,11 @@ void StixelComponent::DetectObject() {
             for(auto idx=0; idx<n_idx; idx++){
                 auto start = index[idx].second;
                 auto end = index[idx+1].first;
-                int window_height = 
-                    kde_peak_frame[stx_i][peak_i].window_height_;
+                int window_height = kde_peak_frame[stx_i][peak_i].window_height_;
                 int step_size = window_height>>1;
                 if(window_height < end - start){
                     if((end-start) % step_size != 0){
-                        auto prev_stat = Filter(
-                            scaled_disparity_frame[stx_i], 
+                        auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
                             start, (end-start) % step_size, 
                             kde_peak_frame[stx_i][peak_i].mean_, 
                             kde_peak_frame[stx_i][peak_i].left_, 
@@ -267,8 +242,7 @@ void StixelComponent::DetectObject() {
                     }
                     if(!idx_of_object.empty()){
                         std::vector<std::pair<int, int>> object_z1z2;
-                        LayeringObject(idx_of_object, object_z1z2,
-                             window_height);
+                        LayerObject(idx_of_object, object_z1z2, window_height);
                         for(auto z1z2 : object_z1z2){
                             auto p_camera1 = GetCameraCoor(
                                 kde_peak_frame[stx_i][peak_i].mean_, 
@@ -277,12 +251,10 @@ void StixelComponent::DetectObject() {
                                 kde_peak_frame[stx_i][peak_i].mean_, 
                                 stx_i, z1z2.second);
                             auto p_world1 = CameraToWorldCoor(
-                                scaled_disparity_frame.pos_camera_, 
-                                p_camera1, 
+                                scaled_disparity_frame.pos_camera_, p_camera1, 
                                 scaled_disparity_frame.angle_camera_);
                             auto p_world2 = CameraToWorldCoor(
-                                scaled_disparity_frame.pos_camera_, 
-                                p_camera2, 
+                                scaled_disparity_frame.pos_camera_, p_camera2, 
                                 scaled_disparity_frame.angle_camera_);
                             pillar_temp.SetPoint(p_world1);
                             pillar_temp.SetZ2(p_world2.z_);
@@ -295,10 +267,27 @@ void StixelComponent::DetectObject() {
     }
     pillar_frame_queue_.push(pillar_frame);
 }
-void StixelComponent::Behave() {
-	is_busy_ = true;
-	thread_handle_ = std::thread{ 
-		&StixelComponent::RunStixel, this };
+
+void StixelComponent::LayerObject(std::vector<int> &object_idx,
+    std::vector<std::pair<int, int>> &results, int h_thh) {
+    results.clear();
+    if(!object_idx.empty()){
+        if(!std::is_sorted(object_idx.begin(), object_idx.end())){
+            std::sort(object_idx.begin(), object_idx.end());
+        };
+        std::pair<int, int> temp{object_idx[0], object_idx[0]};
+        for(auto i=0; i<object_idx.size()-1; i++){
+            if(object_idx[i+1]-object_idx[i] > h_thh){
+                temp.second = object_idx[i];
+                results.push_back(temp);
+                temp.first = object_idx[i+1];
+            }
+        }
+        temp.second = *(object_idx.end()-1);
+        results.push_back(temp);
+    }else{
+        std::cout << "layering object: no object info!\n";
+    }
 }
 
 /* for rpclib server */

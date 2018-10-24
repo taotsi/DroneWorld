@@ -27,6 +27,9 @@ void CompactPlaneComponent::RunCompactPlane(){
         // PUSH planes_queue_
         CompactPlane();
         // pillar_cluster_queue_->pop();
+        std::cout << "compact ready\n";
+    }else{
+        std::cout << "pillar_cluster_queue_ is empty\n";
     }
 }
 
@@ -141,5 +144,8 @@ bool CompactPlaneComponent::CheckoutTurnpoint(std::vector<double> dist,
     }
     return is_found;
 }
+
+// for rpc server
+
 
 } // namespace droneworld

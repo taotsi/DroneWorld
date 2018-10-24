@@ -19,3 +19,6 @@ class DataClient:
 
     def GetPillarCluster(self):
         return self.client_.call("GetPillarCluster")
+
+    def GetFilteredCluster(self):
+        return self.client_.call("GetFilteredCluster")

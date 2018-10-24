@@ -10,6 +10,7 @@ public:
     void Begin();
     void Update(double DeltaTime);
     void AddPathPoint(const std::vector<float> &point);
+    void AddPath(const std::vector<std::vector<float>> &path);
 private:
     msr::airlib::MultirotorRpcLibClient client_;
     std::queue<std::vector<float>> path_to_go_;
