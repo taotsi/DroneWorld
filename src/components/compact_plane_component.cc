@@ -39,14 +39,16 @@ void CompactPlaneComponent::CompactPlane(){
     std::vector<Plane> planes;
     for(auto i=0; i<n_cluster; i++){
         auto n_pillar = clusters[i].size();
+        std::cout << "---- cluster " << i << ", " << n_pillar << " pillars\n";
         if(n_pillar >= 3){
             PillarClusterToPlane(clusters[i], planes);
         }else if(n_pillar == 2){
+            std::cout << "two pillars\n";
             planes.push_back(Plane{clusters[i][0], clusters[i][1]});
         }else{ // n_pillar = 1
-            // TODO: deal with alone pillars
+            // TODO: deal with single pillars
+            std::cout << "one single pillar or no pillar at all\n";
         }
-        PillarClusterToPlane(clusters[i], planes);
     }
     planes_queue_.push(planes);
 }
@@ -55,14 +57,14 @@ void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster,
     std::vector<Plane> &planes) {
     Line2dFitted line{cluster[0], cluster[1]};
     std::vector<double> dist;
-    auto n_pillar = cluster.size();
+    int n_pillar = static_cast<int>(cluster.size());
     dist.reserve(n_pillar);
     int step_size = 5;
     int start = 0, end = 2;
     Plane plane_temp;
     Point3D p1_temp, p2_temp;
     while(true){
-        if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.2)){
+        std::cout << "start: " << start << ", end: " << end << "\n";        if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.2)){
             int idx_turnpoint;
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
                 plane_temp.Reset();
@@ -77,12 +79,18 @@ void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster,
             }
         }else{
             // TODO: FillConcave();
-        }
-        if(end >= n_pillar-1){
+            std::cout << "FillConcave() is called\n";
             break;
+        }
+        if(end < n_pillar-1){
+            if(n_pillar-1-end >= step_size){
+                end += step_size;
+            }else{
+                end = n_pillar-1;
+            }
         }else{
-            end += (n_pillar-1-end)%step_size == 0 ? 
-                step_size : (n_pillar-1-end)%step_size;
+            std::cout << "*** loop break\n";
+            break;
         }
     }
 }
@@ -91,7 +99,7 @@ void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster,
 bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line, 
     std::vector<Pillar> &pillars, int start, int end, 
     std::vector<double> clipped_dist, double dist_max) {
-    if(end-start < 3){
+    if(end-start < 2){
         std::cout << "CompactPlaneComponent::GetSignedDist, end-start<2\n ";
         return false;
     }
