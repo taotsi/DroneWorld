@@ -48,6 +48,9 @@ struct Point3D {
     void Print(){
         std::cout << "( " << x_ << ", " << y_ << ", " << z_ << " )\n";
     }
+    std::vector<double> GetCoor(){
+        return std::vector<double>{x_, y_, z_};
+    }
     /* data */
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -479,21 +482,23 @@ public:
         
     }
     inline double EstimateY(double x){
-        if(!IsZero(b_)){
+        if(b_!=0 && !IsZero(b_/a_)){
             return -a_/b_*x - c_/b_;
         }else{
+            std::cout << "failed to estimate y\n";
             return 0;
         }
     }
+    // TODO: make it like EstimateY()
     inline double EstimateX(double y){
-        if(!IsZero(a_)){
+        if(!IsZero(a_/b_)){
             return -b_/a_*y - c_/a_;
         }else{
             return 0;
         }
     }
     inline double SignedDist(double x, double y){
-        if(!IsZero(b_)){
+        if(!IsZero(b_/a_)){
             return abs((y-EstimateX(x))*cos(atan(-a_/b_)));
         }else{
             return abs(x+c_/a_);
@@ -502,7 +507,7 @@ public:
     inline double Dist(double x, double y){
         return abs(SignedDist(x, y));
     }
-    inline double DistClipped(double x, double y, double epsilon=0.1){
+    inline double DistClipped(double x, double y, double epsilon=0.3){
         auto dist = SignedDist(x, y);
         epsilon = abs(epsilon);
         if(dist < epsilon){
@@ -545,7 +550,7 @@ private:
         c_ = x_avr_*xy_avr_ - xx_avr_*y_avr_;
     }
     inline bool IsZero(double x){
-        return abs(x)<std::numeric_limits<double>::epsilon();
+        return abs(x) < 1.0e-4;
     }
 };
 
@@ -586,6 +591,16 @@ public:
     bool IsReset(){
         Point3D p_temp;
         return p1_ == p_temp && p2_ == p_temp;
+    }
+    void Print(){
+        std::cout << "plane: \n";
+        p1_.Print();
+        p2_.Print();
+    }
+    std::vector<std::vector<double>> GetCoor(){
+        std::vector<std::vector<double>> coor{
+            p1_.GetCoor(), p2_.GetCoor()};
+        return coor;
     }
 private:
     /* data */

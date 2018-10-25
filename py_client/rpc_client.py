@@ -22,3 +22,6 @@ class DataClient:
 
     def GetFilteredCluster(self):
         return self.client_.call("GetFilteredCluster")
+
+    def GetPlanes(self):
+        return self.client_.call("GetPlanes")
