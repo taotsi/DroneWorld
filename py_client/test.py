@@ -1,6 +1,7 @@
 from rpc_client import DataClient
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
 import random
 
@@ -57,7 +58,17 @@ def DrawPillarCluster(clusters):
 
 
 def DrawPlanes(planes):
-    pass
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    for plane in planes:
+        x = [plane[0][0], plane[1][0], plane[1][0], plane[0][0]]
+        y = [plane[0][1], plane[1][1], plane[1][1], plane[0][1]]
+        z = [plane[0][2], plane[0][2], plane[1][2], plane[1][2]]
+        verts = [list(zip(x, y, z))]
+        ax.add_collection3d(Poly3DCollection(verts))
+    verts = [list(zip(x, y, z))]
+    ax.add_collection3d(Poly3DCollection(verts), zs='z')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -75,4 +86,4 @@ if __name__ == "__main__":
     # print(len(filtered_clusters))
     # DrawPillarCluster(filtered_clusters)
     planes = client.GetPlanes()
-    print(planes)
+    DrawPlanes(planes)
