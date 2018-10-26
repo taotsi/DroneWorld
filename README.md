@@ -46,6 +46,8 @@ After the program finishes initialization, you can input some commands to consol
     
     for example, `go 0 5 2` means flying to (0, 5, 2). ENU coordinate system, +x, +y and +z means east, north, and up.
 
+for more commands, go to src/world.cc, for definition of ProcessInput()
+
 ### run test.py
 
 ## Python Client
@@ -56,7 +58,7 @@ See all the available Python APIs in py_client/rpc_client.py, and test code in p
 
 here are the steps to take for python users
 
-- run a airsim simulation program
+- run an airsim simulation program
 
   which you can download in the Airsim github repo's releases.
  
@@ -70,6 +72,10 @@ here are the steps to take for python users
 
 ## TODO
 
+- find a window scene
+- test the window scene
+- find a uneven surface scene
+- test the uneven surface scene
 - add comments
 - a shell script for dealing with settings.json
 - fix bug on program exit
@@ -78,7 +84,5 @@ here are the steps to take for python users
 - read json, write also maybe
 - record on C++
 - add noise
-- find a window scene
-- plane forming
 - embed opencv
-- thread competition for queues
+- thread competition for data queues

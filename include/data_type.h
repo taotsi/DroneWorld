@@ -3,6 +3,7 @@
 #include <cmath>
 #include <utility>
 #include <algorithm>
+#include <iomanip>
  
 namespace droneworld{
 
@@ -295,11 +296,17 @@ public:
     }
     void Print(){
         std::cout 
-            << "( " << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
+            << "(" << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << y_ 
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z1_ 
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z2_ 
-            << " )\n";
+            << ")\n";
+    }
+    void PrintXy(){
+        std::cout
+            << "(" << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
+            << ", " << std::fixed << std::setw(7) << std::setprecision(3) << y_
+            << ")\n";
     }
     std::vector<double> GetCoor(){
         return std::vector<double>{x_, y_, z1_, z2_};
@@ -386,12 +393,9 @@ public:
                 double dist = pow(data_[i].back().x() - pillar.x(), 2)
                     + pow(data_[i].back().y() - pillar.y(), 2);
                 if(dist <= pow(xy_max, 2)){
-                    if(fabs(data_[i].z1_mean()-pillar.z1()) <= z_max
-                        && fabs(data_[i].z2_mean()-pillar.z2()) <= z_max){
-                        data_[i].Push(pillar);
-                        is_brought_in = true;
-                        break;
-                    }
+                    data_[i].Push(pillar);
+                    is_brought_in = true;
+                    break;
                 }
             }
             if(!is_brought_in){
@@ -407,7 +411,7 @@ public:
     }
 };
 
-/* a*x+b*y+c = 0 */
+/* y = k*x+b */
 class Line2dFitted{
 public:
     Line2dFitted() {};
@@ -471,35 +475,36 @@ public:
     // }
     ~Line2dFitted() {};
     void AddPoint(double x, double y){
-        n_++;
+        n_ += 1.0;
         x_avr_ += (x-x_avr_)/n_;
         y_avr_ += (y-y_avr_)/n_;
         xx_avr_ += (x*x-xx_avr_)/n_;
         xy_avr_ += (x*y-xy_avr_)/n_;
         CalcCoef();
     }
-    void AddPoints(){
-        
-    }
-    inline double EstimateY(double x){
-        if(b_!=0 && !IsZero(b_/a_)){
-            return -a_/b_*x - c_/b_;
-        }else{
-            std::cout << "failed to estimate y\n";
-            return 0;
+    // TODO: this implementation looks stupid, update it later
+    void AddPoints(std::vector<Pillar> &pillars, int start, int end){
+        for(int i=start; i<=end; i++){
+            AddPoint(pillars[i].x(), pillars[i].y());
         }
     }
-    // TODO: make it like EstimateY()
-    inline double EstimateX(double y){
+    inline double EstimateY(double x, double y){
+        if(!IsZero(b_/a_)){
+            return -a_/b_*x - c_/b_;
+        }else{
+            return y;
+        }
+    }
+    inline double EstimateX(double x, double y){
         if(!IsZero(a_/b_)){
             return -b_/a_*y - c_/a_;
         }else{
-            return 0;
+            return x;
         }
     }
     inline double SignedDist(double x, double y){
         if(!IsZero(b_/a_)){
-            return abs((y-EstimateX(x))*cos(atan(-a_/b_)));
+            return abs((y-EstimateX(x, y))*cos(atan(-a_/b_)));
         }else{
             return abs(x+c_/a_);
         }
@@ -529,9 +534,11 @@ public:
         xy_avr_ = 0.0;
     }
     void Print(){
-        std::cout << std::setprecision(2) << a_ << " * x + " 
+        std::cout << "line: "
+            << std::setprecision(2) << a_ << " * x + " 
             << std::setprecision(2) << b_ << " * y + " 
-            << std::setprecision(2) << c_ <<"\n";
+            << std::setprecision(2) << c_ <<" = 0\n";
+        std::cout << "x_avr_ = "<< x_avr_ << ", y_avr_ = " << y_avr_ << ", xx_avr_ = " << xx_avr_ << ", xy_avr_ = " << xy_avr_ << ", a_ = " << a_ << ", b_ = " << b_ << ", c_ = " << c_ << "\n";
     }
 private:
     /* data */
@@ -545,8 +552,8 @@ private:
     double xy_avr_ = 0.0;
     /* methods */
     inline void CalcCoef(){
+        a_ = x_avr_*y_avr_ - xy_avr_;
         b_ = xx_avr_ - x_avr_*x_avr_;
-        a_ = -(xy_avr_ + x_avr_*y_avr_);
         c_ = x_avr_*xy_avr_ - xx_avr_*y_avr_;
     }
     inline bool IsZero(double x){

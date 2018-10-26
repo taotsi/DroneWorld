@@ -68,6 +68,7 @@ void World::RemoveDrone(std::string &name){
     drone_names_.erase(drone_name_ptr);
 }
 
+/* Input Handling */
 void World::InputThreadMain(){
     std::string line;
     while(is_on_){
@@ -100,10 +101,17 @@ void World::ProcessInput(std::string &msg) {
     }else
     if(first == "go"){
         CmdGo(ss);
-    }else
+    }else 
     if(first == "rec"){
         // TODO
-    }else{
+    }else
+    if(first == "setspd"){
+        CmdSetspd(ss);
+    }else
+    if(first == "kde"){
+        CmdKde(ss);
+    }
+    else{
         std::cout << "can't identify command \"" << msg << "\"\n";
     }
 }
@@ -145,6 +153,25 @@ void World::CmdGo(std::stringstream &ss){
         return;
     }
 }
+void World::CmdSetspd(std::stringstream &ss){
+    if(ss.good()){
+        float speed;
+        ss >> speed;
+        drone_list_[selected_drone_]->movement_->SetSpeed(speed);
+    }else{
+        std::cout << "need one argument, like setspd [speed_val]";
+    }
+}
+void World::CmdKde(std::stringstream &ss){
+    if(ss.good()){
+        int col;
+        ss >> col;
+        drone_list_[selected_drone_]->stixel_->PrintKde(col);
+    }else{
+        
+    }
+}
+
 void World::CmdRec(std::stringstream &ss){
     
 }

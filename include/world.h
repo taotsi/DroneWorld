@@ -45,6 +45,8 @@ private:
     void CmdLs(std::stringstream &ss);
     void CmdSelect(std::stringstream &ss);
     void CmdGo(std::stringstream &ss);
+    void CmdSetspd(std::stringstream &ss);
     void CmdRec(std::stringstream &ss);
+    void CmdKde(std::stringstream &ss);
 };
 }

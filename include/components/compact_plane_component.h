@@ -19,7 +19,7 @@ private:
     /* methods */
     void RunCompactPlane();
     void CompactPlane();
-    void PillarClusterToPlane(std::vector<Pillar> &cluster, 
+    void PillarToPlaneIfPossible(std::vector<Pillar> &cluster, 
         std::vector<Plane> &planes);
     bool GetSignedDistIfNecessary(Line2dFitted &line, 
         std::vector<Pillar> &pillars, int start, int end, 

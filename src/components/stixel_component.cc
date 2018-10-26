@@ -165,28 +165,13 @@ Point3D StixelComponent::GetCameraCoor(
 Point3D StixelComponent::CameraToWorldCoor(
 	Point3D &pos_camera, Point3D &p_camera, EulerAngle &angle) {
 	Point3D p_world;
-	//double cos_theta = cos(angle.roll_);
-	//double sin_theta = sin(angle.roll_);
 	double cos_omega = cos(angle.yaw_);
 	double sin_omega = sin(angle.yaw_);
-    //std::cout << "cos yaw = " << cos_omega << ", sin yaw = " << sin_omega << std::endl;
-    //std::cout << "p_camera = ( " << p_camera.x_ << ", " << p_camera.y_ << " )\n";
-	//double cos_phi = cos(angle.pitch_);
-	//double sin_phi = sin(angle.pitch_);
 	// rotation
+    // because of gimbal, only yaw changes
     p_world.x_ = cos_omega*p_camera.x_ + sin_omega*p_camera.y_;
     p_world.y_ = cos_omega*p_camera.y_ - sin_omega*p_camera.x_; 
     p_world.z_ = p_camera.z_;
-    /*
-	p_world.x_ = -p_camera.y_*(sin_theta*sin_phi)
-		+p_camera.x_*(cos_theta*cos_omega-sin_theta*sin_phi*sin_omega)
-		-p_camera.z_*(cos_theta * sin_omega+sin_theta*sin_phi*cos_omega);
-	p_world.y_ = p_camera.y_ * (cos_theta * cos_phi)
-		+p_camera.x_*(sin_theta*cos_omega+sin_omega*cos_theta*sin_phi) 
-		+ p_camera.z_*(-sin_theta*sin_omega+cos_theta*sin_phi*cos_omega);
-	p_world.z_ = -p_camera.y_*(sin_phi)
-		+p_camera.x_*(sin_omega*cos_phi)+p_camera.z_*(cos_phi*cos_omega);
-    */
 	// translation
 	p_world.x_ += pos_camera.x_;
 	p_world.y_ += pos_camera.y_;
@@ -287,6 +272,23 @@ void StixelComponent::LayerObject(std::vector<int> &object_idx,
         results.push_back(temp);
     }else{
         std::cout << "layering object: no object info!\n";
+    }
+}
+
+void StixelComponent::PrintKde(int col){
+    if(!kde_frame_queue_.empty()){
+        auto kde = kde_frame_queue_.front();
+        int n_col = static_cast<int>(kde.size());
+        if(!(col<0 || col>=n_col)){
+            for(auto &v : kde[col]){
+                std::cout << std::setprecision(3) << v << "  ";
+            }
+            std::cout << "\n";
+        }else{
+            std::cout << "PrintKde out of range\n";
+        }
+    }else{
+        std::cout << "kde_frame_queue_ is empty\n";
     }
 }
 

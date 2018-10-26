@@ -13,6 +13,7 @@ public:
 	~StixelComponent();
     void Begin();
 	void Update(double DeltaTime);
+    void PrintKde(int col);
     // for rpclib server
     std::vector<std::vector<double>> GetDisparityFrame();
 	std::vector<std::vector<double>> GetKde();

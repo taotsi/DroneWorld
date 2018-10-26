@@ -52,20 +52,25 @@ void CompactPlaneComponent::CompactPlane(){
         auto n_pillar = clusters[i].size();
         std::cout << "---- cluster " << i << ", " << n_pillar << " pillars\n";
         if(n_pillar >= 3){
-            PillarClusterToPlane(clusters[i], planes);
+            PillarToPlaneIfPossible(clusters[i], planes);
         }else if(n_pillar == 2){
             std::cout << "two pillars\n";
             planes.push_back(Plane{clusters[i][0], clusters[i][1]});
-        }else{ // n_pillar = 1
+        }else if(n_pillar == 1){ // n_pillar = 1
             // TODO: deal with single pillars
-            std::cout << "one single pillar or no pillar at all\n";
+            std::cout << "one single pillar\n";
+        }else{
+            std::cout << "no pillar at all\n";
         }
     }
     planes_queue_.push(planes);
 }
 
-void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster, 
+void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster, 
     std::vector<Plane> &planes) {
+    // for(auto &p : cluster){
+    //     p.PrintXy();
+    // }
     Line2dFitted line{cluster[0], cluster[1]};
     std::vector<double> dist;
     int n_pillar = static_cast<int>(cluster.size());
@@ -75,19 +80,20 @@ void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster,
     Plane plane_temp;
     Point3D p1_temp, p2_temp;
     while(true){
-        std::cout << "\tstart: " << start << ", end: " << end << "\n"; 
+        // std::cout << "\tstart: " << start << ", end: " << end << "\n"; 
         if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.5)){
-            std::cout << "\t\tGot dist\n";
+            //std::cout << "\t\tGot dist\n";
             int idx_turnpoint;
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
                 std::cout << "\t\tGot turnpoint\n";
-                auto p1_ye = line.EstimateY(cluster[start].x());
-                auto p1_y = p1_ye==0 ? cluster[start].y() : p1_ye;
-                p1_temp.Set(cluster[start].x(), p1_y, cluster[start].z1());
-                auto p2_ye = line.EstimateY(cluster[idx_turnpoint].x());
-                auto p2_y = p2_ye==0 ? cluster[idx_turnpoint].y() : p2_ye;
-                p2_temp.Set(cluster[idx_turnpoint].x(), p2_y, 
-                    cluster[idx_turnpoint].z2());
+                auto p1x = cluster[start].x();
+                auto p1y = cluster[start].y();
+                auto p1z = cluster[start].z1();
+                p1_temp.Set(p1x, line.EstimateY(p1x, p1y), p1z);
+                auto p2x = cluster[idx_turnpoint].x();
+                auto p2y = cluster[idx_turnpoint].y();
+                auto p2z = cluster[idx_turnpoint].z2();
+                p2_temp.Set(p2x, line.EstimateY(p2y, p2y), p2z);
                 plane_temp.FromPoints(p1_temp, p2_temp);
                 planes.push_back(plane_temp);
                 start = idx_turnpoint;
@@ -98,20 +104,24 @@ void CompactPlaneComponent::PillarClusterToPlane(std::vector<Pillar> &cluster,
             break;
         }
         if(end < n_pillar-1){
+            int start_temp = end+1;
             if(n_pillar-1-end >= step_size){
                 end += step_size;
             }else{
                 end = n_pillar-1;
             }
+            line.AddPoints(cluster, start_temp, end);
         }else{
             std::cout << "\t** loop out of range, push last plane\n";
             line.Print();
-            auto p1_ye = line.EstimateY(cluster[start].x());
-            auto p1_y = p1_ye==0 ? cluster[start].y() : p1_ye;
-            p1_temp.Set(cluster[start].x(), p1_y, cluster[start].z1());
-            auto p2_ye = line.EstimateY(cluster[end].x());
-            auto p2_y = p2_ye==0 ? cluster[end].y() : p2_ye;
-            p2_temp.Set(cluster[end].x(), p2_y, cluster[end].z2());
+            auto p1x = cluster[start].x();
+            auto p1y = cluster[start].y();
+            auto p1z = cluster[start].z1();
+            p1_temp.Set(p1x, line.EstimateY(p1x, p1y), p1z);
+            auto p2x = cluster[end].x();
+            auto p2y = cluster[end].y();
+            auto p2z = cluster[end].z2();
+            p2_temp.Set(p2x, line.EstimateY(p2x, p2y), p2z);
             plane_temp.FromPoints(p1_temp, p2_temp);
             planes.push_back(plane_temp);
             break;

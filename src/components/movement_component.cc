@@ -2,8 +2,8 @@
 
 namespace droneworld{
 
-MovementComponent::MovementComponent(){ 
-    
+MovementComponent::MovementComponent(){
+
 }
 MovementComponent::~MovementComponent(){
     client_.landAsync()->waitOnLastTask();
@@ -18,9 +18,13 @@ void MovementComponent::Begin(){
     client_.armDisarm(true);
     client_.takeoffAsync(5)->waitOnLastTask();
     client_.hoverAsync()->waitOnLastTask();
-    MoveTest();
-    // move_thread_ = std::thread{&MovementComponent::MoveThreadMain, this};
-    // move_thread_.detach();
+    
+    std::vector<Vector3r> path{Vector3r(0, 0, -10)};
+    client_.moveOnPathAsync(path, speed_, 300, DrivetrainType::ForwardOnly, 
+        YawMode(false, 0), -1, 0)->waitOnLastTask();
+    
+    move_thread_ = std::thread{&MovementComponent::MoveThreadMain, this};
+    move_thread_.detach();
 }
 
 void MovementComponent::Update(double DeltaTime){
@@ -28,12 +32,11 @@ void MovementComponent::Update(double DeltaTime){
 }
 
 void MovementComponent::MoveThreadMain(){
-    float speed = 3;
     while(is_on_){
         if(!path_to_go_.empty()){
             auto point_to_go = path_to_go_.front();
             client_.moveToPositionAsync(
-                point_to_go[1], point_to_go[0], -point_to_go[2], speed, 60, 
+                point_to_go[1], point_to_go[0], -point_to_go[2], speed_, 60, 
                 DrivetrainType::ForwardOnly, YawMode(false, 0), -1, 0)
                 ->waitOnLastTask();
             path_to_go_.pop();
@@ -56,6 +59,10 @@ void MovementComponent::AddPath(const std::vector<std::vector<float>> &path){
 void MovementComponent::ResetPath(
     const std::queue<std::vector<float>> &new_path){
     path_to_go_ = new_path;
+}
+
+void MovementComponent::SetSpeed(float speed){
+    speed_ = speed;
 }
 
 void MovementComponent::MoveTest(){

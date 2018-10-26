@@ -27,12 +27,11 @@ inline void RetreiveKde(std::vector<double> const &src,
     for(auto i=0; i<src.size(); i++){
         // std::cout << "retreiving kde, index = " << i << "\n";
         if(src[i] < max && src[i] > min){
-            int kde_x = static_cast<int>(
-                (src[i]-min)/(max-min)*(kde_width-1));
+            int kde_x = static_cast<int>((src[i]-min)/(max-min)*(kde_width-1));
             //std::cout << "kde_x = " << kde_x << "\n";
             for(auto j=0; j<kernel_size; j++){
-                if(kde_x-kernel_half_size >= 0 &&
-                    kde_x+kernel_half_size <= kde_width-1){
+                if(kde_x-kernel_half_size+j >= 0 &&
+                    kde_x-kernel_half_size+j < kde_width){
                     //std::cout << kde_x-kernel_half_size+j << "\n";
                     dst[kde_x-kernel_half_size+j] += kernel[j];
                 }
