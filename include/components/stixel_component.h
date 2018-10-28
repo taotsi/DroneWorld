@@ -8,8 +8,6 @@ class StixelComponent :public BaseComponent {
 public:
 	/* methods */
 	StixelComponent(std::queue<ImageResponse>* disparity_retreived);
-    StixelComponent(std::queue<ImageResponse>* disparity_retreived, 
-        int width, int height, double fov);
 	~StixelComponent();
     void Begin();
 	void Update(double DeltaTime);
@@ -40,12 +38,12 @@ private:
 	void DetectObject();
 	std::thread thread_handle_;
 	/* data */
-	int width_ = 640;
-	int height_ = 320;
+	int width_ = 256;
+	int height_ = 144;
+    double fov_ = 1.570796326795;
 	int kde_width_ = 1000;
 	int stixel_width_ = 7;
 	float baseline_ = 0.25;
-	double fov_;
 	// normalized disparity
 	double disp_max_ = 0.25;   // 0.5m
 	double disp_min_ = 0.00625; // 20m

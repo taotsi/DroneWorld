@@ -10,7 +10,7 @@ Drone::Drone(std::string name)
 	movement_ = std::make_unique<MovementComponent>();
 	image_record_ = std::make_unique<ImageRecordComponent>();
 	stixel_ = std::make_unique<StixelComponent>(
-		&(image_record_->disparity_retreived_), 640, 480, 1.91986218);
+		&(image_record_->disparity_retreived_));
     cluster_ = std::make_unique<PillarClusterComponent>(
         &(stixel_->pillar_frame_queue_));
     compact_ = std::make_unique<CompactPlaneComponent>(

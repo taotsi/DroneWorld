@@ -1,20 +1,35 @@
-#include "components\stixel_component.h"
-#include "math_utility.h"
 #include <algorithm>
 #include <cmath>
 
+#include "components/stixel_component.h"
+#include "math_utility.h"
+#include "nlohmann/json.hpp"
+#include "common_utility.h"
+
 namespace droneworld{
+
+using json = nlohmann::json;
 
 StixelComponent::StixelComponent(
     std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
-	fov_ = PI*110/180;
-}
-StixelComponent::StixelComponent(
-    std::queue<ImageResponse>* disparity_retreived, 
-        int width, int height, double fov)
-	:disparity_retreived_(disparity_retreived), width_(width), height_(height), fov_(fov) {
-    
+	SettingsJsonHandler settings;
+    json &json_data = settings.GetJsonData()["CameraDefaults"]["CaptureSettings"];
+    for(auto &it: json_data){
+        if(it["ImageType"] == 4){
+            if(!it["Width"].empty()){
+                width_ = it["Width"];
+            }
+            if(!it["Height"].empty()){
+                height_ = it["Height"];
+            }
+            if(!it["FOV_Degrees"].empty()){
+                auto fov_dgr = it["FOV_Degrees"];
+                fov_ = PI * static_cast<double>(fov_dgr) / 180.0;
+            }
+            break;
+        }
+    }
 }
 
 StixelComponent::~StixelComponent() {

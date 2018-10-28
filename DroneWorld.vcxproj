@@ -31,7 +31,6 @@
     <ClCompile Include="src\components\stixel_component.cc" />
     <ClCompile Include="src\drone.cc" />
     <ClCompile Include="src\main.cc" />
-    <ClCompile Include="src\utility.cc" />
     <ClCompile Include="src\world.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -739,7 +738,7 @@
     <ClInclude Include="include\components\movement_component.h" />
     <ClInclude Include="include\math_utility.h" />
     <ClInclude Include="include\rpc_server.h" />
-    <ClInclude Include="include\utility.h" />
+    <ClInclude Include="include\common_utility.h" />
     <ClInclude Include="include\world.h" />
   </ItemGroup>
   <ItemGroup>
@@ -844,7 +843,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\deps\*;$(ProjectDir)\deps\rpclib\include;$(ProjectDir)\include\*;$(ProjectDir)\include;$(ProjectDir)..\AirSim\AirLib\deps\eigen3;$(ProjectDir)..\AirSim\AirLib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\deps\;$(ProjectDir)\deps\*;$(ProjectDir)\deps\rpclib\include;$(ProjectDir)\include\*;$(ProjectDir)\include;$(ProjectDir)..\AirSim\AirLib\deps\eigen3;$(ProjectDir)..\AirSim\AirLib\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/w34263 /w34266 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4100;4505;4820;4464;4514;4710;4571;%(DisableSpecificWarnings)</DisableSpecificWarnings>
