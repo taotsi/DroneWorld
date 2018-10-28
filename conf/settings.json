@@ -10,7 +10,43 @@
                 "FOV_Degrees": 110
             },
             {
+                "ImageType": 1,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
+                "ImageType": 2,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
+                "ImageType": 3,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
                 "ImageType": 4,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
+                "ImageType": 5,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
+                "ImageType": 6,
+                "Width": 640,
+                "Height": 480,
+                "FOV_Degrees": 110
+            },
+            {
+                "ImageType": 7,
                 "Width": 640,
                 "Height": 480,
                 "FOV_Degrees": 110

@@ -47,6 +47,7 @@ private:
     void CmdGo(std::stringstream &ss);
     void CmdSetspd(std::stringstream &ss);
     void CmdRec(std::stringstream &ss);
+    void CmdDisp(std::stringstream &ss);
     void CmdKde(std::stringstream &ss);
 };
 }

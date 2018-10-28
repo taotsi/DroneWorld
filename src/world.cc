@@ -110,6 +110,9 @@ void World::ProcessInput(std::string &msg) {
     }else
     if(first == "kde"){
         CmdKde(ss);
+    }else
+    if(first == "disp"){
+        CmdDisp(ss);
     }
     else{
         std::cout << "can't identify command \"" << msg << "\"\n";
@@ -162,16 +165,24 @@ void World::CmdSetspd(std::stringstream &ss){
         std::cout << "need one argument, like setspd [speed_val]";
     }
 }
+void World::CmdDisp(std::stringstream &ss){
+    if(ss.good()){
+        int col;
+        ss >> col;
+        drone_list_[selected_drone_]->stixel_->PrintDisp(col);
+    }else{
+        std::cout << "disp [col_index_value], like kde 45\n";
+    }
+}
 void World::CmdKde(std::stringstream &ss){
     if(ss.good()){
         int col;
         ss >> col;
         drone_list_[selected_drone_]->stixel_->PrintKde(col);
     }else{
-        
+        std::cout << "kde [col_index_value], like kde 45\n";
     }
 }
-
 void World::CmdRec(std::stringstream &ss){
     
 }

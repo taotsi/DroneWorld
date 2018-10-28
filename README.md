@@ -72,8 +72,6 @@ here are the steps to take for python users
 
 ## TODO
 
-- find a window scene
-- test the window scene
 - find a uneven surface scene
 - test the uneven surface scene
 - add comments

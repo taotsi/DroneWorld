@@ -28,7 +28,7 @@ def DrawKde(kde):
     y_list = np.arange(0, y_len, 1)
     x, y = np.meshgrid(x_list, y_list, indexing="ij")
     z = np.array(kde)
-    surf = ax.plot_surface(x, y, z, alpha=0.7)
+    ax.plot_surface(x, y, z, alpha=0.7)
     plt.show()
 
 
@@ -65,9 +65,7 @@ def DrawPlanes(planes):
         y = [plane[0][1], plane[1][1], plane[1][1], plane[0][1]]
         z = [plane[0][2], plane[0][2], plane[1][2], plane[1][2]]
         verts = [list(zip(x, y, z))]
-        ax.add_collection3d(Poly3DCollection(verts))
-    verts = [list(zip(x, y, z))]
-    ax.add_collection3d(Poly3DCollection(verts), zs='z')
+        ax.add_collection3d(Poly3DCollection(verts), zs='z')
     plt.show()
 
 

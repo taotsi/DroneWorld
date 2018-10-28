@@ -119,7 +119,7 @@ void StixelComponent::Kde() {
         //std::cout << "--- frame index: " << i << " ---\n";
         kde_col.clear();
         RetreiveKde(frame_scaled[i], kde_col, 
-            disp_max_, disp_min_, width_);
+            disp_max_, disp_min_, kde_width_);
 		kde_frame.push_back(kde_col);
 	}
 	kde_frame_queue_.push(kde_frame);
@@ -142,7 +142,7 @@ void StixelComponent::FindKdePeak(float delta_y) {
         // 0.2m for filter window height
         double window_h_weight = 0.2/kde_width_*disp_max_/baseline_*width_;
         RetreiveKdePeak(kde_frame[i], kde_peaks, disp_max_, disp_min_, 
-            0.8, slop, 0.0, window_h_weight);
+            0.8, slop, 5.5, window_h_weight);
 		if (kde_peaks.empty()) {
 			kde_peak_frame.push_back(
 				std::vector<KdePeak>());
@@ -290,6 +290,26 @@ void StixelComponent::LayerObject(std::vector<int> &object_idx,
     }
 }
 
+void StixelComponent::PrintDisp(int col){
+    if(!scaled_disparity_frame_queue_.empty()){
+        auto disp = scaled_disparity_frame_queue_.front();
+        int n_col = static_cast<int>(disp.size());
+        int count = 0;
+        if(!(col<0 || col >=n_col)){
+            for(auto &it : disp.data_[col]){
+                if(it < disp_max_ && it > disp_min_){
+                    std::cout << std::setprecision(3) << it << "  ";
+                    count++;
+                }
+            }
+            std::cout << "( " << count << " )\n";
+        }else{
+            std::cout << "PrintDisp out of range\n";
+        }
+    }else{
+        std::cout << "scaled_disparity_frame_queue_ is empty\n";
+    }
+}
 void StixelComponent::PrintKde(int col){
     if(!kde_frame_queue_.empty()){
         auto kde = kde_frame_queue_.front();
