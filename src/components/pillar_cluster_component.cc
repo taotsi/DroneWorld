@@ -103,18 +103,18 @@ void PillarClusterComponent::ComplementCluster(
             auto stat_temp = CompletePillar(
                 clst_src[idx], z_max, z_min, drone_height);
             if(stat_temp == kJamb){
-                std::cout << "\t\tjamb, jambs left " << idx << "\n";
+                // std::cout << "\t\tjamb, jambs left " << idx << "\n";
                 jambs.push_back(clst_src[idx]);
                 idx++;
             }else if(stat_temp == kSill){
-                std::cout << "\t\t** found a sill, jambs left over\n";
+                // std::cout << "\t\t** found a sill, jambs left over\n";
                 sills.push_back(clst_src[idx]);
                 z_min_window = clst_src[idx].z2();
                 idx++;
                 window_start = idx;
                 break;
             }else{ // kHead
-                std::cout << "\t\t** found a head, jambs left over\n";
+                // std::cout << "\t\t** found a head, jambs left over\n";
                 heads.push_back(clst_src[idx]);
                 z_max_window = clst_src[idx].z1();
                 idx++;
@@ -178,13 +178,13 @@ void PillarClusterComponent::ComplementCluster(
                 break;
             }else{
                 if(stat_temp == kSill){
-                    std::cout << "found a sill, sills & heads goes on\n";
+                    // std::cout << "found a sill, sills & heads goes on\n";
                     if(clst_src[idx].z2() > z_min_window){
                        z_min_window = clst_src[idx].z2();
                     }
                     sills.push_back(clst_src[idx]);
                 }else{ // kHead
-                    std::cout << "found a head, sills & heads goes on\n";
+                    // std::cout << "found a head, sills & heads goes on\n";
                     if(clst_src[idx].z1() < z_max_window){
                         z_max_window = clst_src[idx].z1();
                     }

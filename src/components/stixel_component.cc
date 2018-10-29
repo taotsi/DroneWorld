@@ -216,17 +216,18 @@ void StixelComponent::DetectObject() {
                 int window_height = kde_peak_frame[stx_i][peak_i].window_height_;
                 int step_size = window_height>>1;
                 if(window_height < end - start){
-                    if((end-start) % step_size != 0){
+                    int temp_step = (end-start) % step_size;
+                    if(temp_step != 0){
                         auto prev_stat = Filter(scaled_disparity_frame[stx_i], 
-                            start, (end-start) % step_size, 
+                            start, temp_step, 
                             kde_peak_frame[stx_i][peak_i].mean_, 
                             kde_peak_frame[stx_i][peak_i].left_, 
                             kde_peak_frame[stx_i][peak_i].right_);
                         if(prev_stat.flag_ == kCompliant){
                             idx_of_object.push_back(start);
-                            idx_of_object.push_back(start + (end-start) % step_size);
+                            idx_of_object.push_back(start + temp_step);
                         }
-                        start += (end-start) % step_size;
+                        start += temp_step;
                     }
                     while(start < end){
                         auto stat = Filter(scaled_disparity_frame[stx_i], 
@@ -243,22 +244,43 @@ void StixelComponent::DetectObject() {
                     if(!idx_of_object.empty()){
                         std::vector<std::pair<int, int>> object_z1z2;
                         LayerObject(idx_of_object, object_z1z2, window_height);
-                        for(auto z1z2 : object_z1z2){
-                            auto p_camera1 = GetCameraCoor(
-                                kde_peak_frame[stx_i][peak_i].mean_, 
-                                stx_i, z1z2.first);
-                            auto p_camera2 = GetCameraCoor(
-                                kde_peak_frame[stx_i][peak_i].mean_, 
-                                stx_i, z1z2.second);
-                            auto p_world1 = CameraToWorldCoor(
-                                scaled_disparity_frame.pos_camera_, p_camera1, 
-                                scaled_disparity_frame.angle_camera_);
-                            auto p_world2 = CameraToWorldCoor(
-                                scaled_disparity_frame.pos_camera_, p_camera2, 
-                                scaled_disparity_frame.angle_camera_);
-                            pillar_temp.SetPoint(p_world1);
-                            pillar_temp.SetZ2(p_world2.z_);
-                            pillar_frame.push_back(pillar_temp);
+                        for(auto &it : object_z1z2){
+                            index.AddSegment(it.first, it.second);
+                        }
+                        for(auto &it : object_z1z2){
+                            Line2dFitted line{static_cast<double>(it.first), 
+                                scaled_disparity_frame[stx_i][it.first], 
+                                static_cast<double>(it.second), 
+                                scaled_disparity_frame[stx_i][it.second]};
+                            if(it.second - it.first > 1){
+                                for(auto i=it.first; i<it.second; i++){
+                                    line.AddPoint(static_cast<double>(i),
+                                        scaled_disparity_frame[stx_i][i]);
+                                }
+                            }
+                            // if it's ground, the slope is a fixed value.
+                            // here it's about 7.1e-5
+                            if(abs(line.GetSlope()) < 6.0e-5){
+                                auto p_camera1 = GetCameraCoor(
+                                    kde_peak_frame[stx_i][peak_i].mean_, 
+                                    stx_i, it.first);
+                                auto p_camera2 = GetCameraCoor(
+                                    kde_peak_frame[stx_i][peak_i].mean_, 
+                                    stx_i, it.second);
+                                auto p_world1 = CameraToWorldCoor(
+                                    scaled_disparity_frame.pos_camera_, 
+                                    p_camera1, 
+                                    scaled_disparity_frame.angle_camera_);
+                                auto p_world2 = CameraToWorldCoor(
+                                    scaled_disparity_frame.pos_camera_, 
+                                    p_camera2, 
+                                    scaled_disparity_frame.angle_camera_);
+                                pillar_temp.SetPoint(p_world1);
+                                pillar_temp.SetZ2(p_world2.z_);
+                                pillar_frame.push_back(pillar_temp);
+                            }else{
+                                std::cout << "DetectObject(), this might be ground or a roof\n";
+                            }
                         }
                     }
                 }

@@ -16,10 +16,10 @@ void MovementComponent::Begin(){
     client_.confirmConnection();
     client_.enableApiControl(true);
     client_.armDisarm(true);
-    client_.takeoffAsync(5)->waitOnLastTask();
+    client_.takeoffAsync(4)->waitOnLastTask();
     client_.hoverAsync()->waitOnLastTask();
     
-    std::vector<Vector3r> path{Vector3r(0, 0, -10)};
+    std::vector<Vector3r> path{Vector3r(0, 0, -7)};
     client_.moveOnPathAsync(path, speed_, 300, DrivetrainType::ForwardOnly, 
         YawMode(false, 0), -1, 0)->waitOnLastTask();
     

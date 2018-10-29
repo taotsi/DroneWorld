@@ -414,7 +414,6 @@ public:
 /* y = k*x+b */
 class Line2dFitted{
 public:
-    Line2dFitted() {};
     Line2dFitted(std::vector<Pillar> &pillars){
         double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
         auto n_pillar = pillars.size();
@@ -432,6 +431,14 @@ public:
         y_avr_ = y_sum / n_;
         xx_avr_ = xx_sum / n_;
         xy_avr_ = xy_sum / n_;
+        CalcCoef();
+    }
+    Line2dFitted(double x1, double y1, double x2, double y2){
+        n_ = 2;
+        x_avr_ = (x1 + x2) / 2;
+        y_avr_ = (y1 + y2) / 2;
+        xx_avr_ = (x1*x1 + x2*x2) / 2;
+        xy_avr_ = (x1*y1 + x2*y2) / 2;
         CalcCoef();
     }
     Line2dFitted(Pillar &pl1, Pillar &pl2){
@@ -475,6 +482,9 @@ public:
     // }
     ~Line2dFitted() {};
     void AddPoint(double x, double y){
+        if(n_ == 0){
+            
+        }
         n_ += 1.0;
         x_avr_ += (x-x_avr_)/n_;
         y_avr_ += (y-y_avr_)/n_;
@@ -523,6 +533,12 @@ public:
             return 0;
         }
     }
+    double GetSlope(){
+        return -a_/b_;
+    }
+    double GetIntercept(){
+        return -c_/b_;
+    }
     void Reset(){
         n_ = 0.0;
         a_ = 0.0;
@@ -541,6 +557,7 @@ public:
         std::cout << "x_avr_ = "<< x_avr_ << ", y_avr_ = " << y_avr_ << ", xx_avr_ = " << xx_avr_ << ", xy_avr_ = " << xy_avr_ << ", a_ = " << a_ << ", b_ = " << b_ << ", c_ = " << c_ << "\n";
     }
 private:
+    Line2dFitted();
     /* data */
     double n_ = 0.0;
     double a_ = 0.0;

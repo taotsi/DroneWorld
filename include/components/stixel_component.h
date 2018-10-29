@@ -20,7 +20,6 @@ public:
 	/* data */
 	std::queue<ImageResponse>* disparity_retreived_;
 	std::queue<ScaledDisparityFrame> scaled_disparity_frame_queue_;
-	// kde for disparity
 	std::queue<std::vector<std::vector<double>>> kde_frame_queue_;
 	std::queue<std::vector<std::vector<KdePeak>>> kde_peak_frame_queue_;
     std::queue<std::vector<Pillar>> pillar_frame_queue_;

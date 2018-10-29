@@ -86,6 +86,10 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
             int idx_turnpoint;
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
                 std::cout << "\t\tGot turnpoint\n";
+                for(auto &it : dist){
+                    std::cout << it << "  ";
+                }
+                std::cout << "\n";
                 auto p1x = cluster[start].x();
                 auto p1y = cluster[start].y();
                 auto p1z = cluster[start].z1();
@@ -134,7 +138,7 @@ bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line,
     std::vector<Pillar> &pillars, int start, int end, 
     std::vector<double> clipped_dist, double dist_epsilon) {
     if(end-start < 2){
-        std::cout << "CompactPlaneComponent::GetSignedDist, end-start<2\n ";
+        std::cout << "CompactPlaneComponent::GetSignedDist, end-start < 2\n ";
         return false;
     }
     int n_pillar = end - start + 1;
