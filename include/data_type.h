@@ -302,7 +302,7 @@ public:
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << z2_ 
             << ")\n";
     }
-    void PrintXy(){
+    void PrintXY(){
         std::cout
             << "(" << std::fixed << std::setw(7) << std::setprecision(3) << x_ 
             << ", " << std::fixed << std::setw(7) << std::setprecision(3) << y_
@@ -434,20 +434,10 @@ public:
         CalcCoef();
     }
     Line2dFitted(double x1, double y1, double x2, double y2){
-        n_ = 2;
-        x_avr_ = (x1 + x2) / 2;
-        y_avr_ = (y1 + y2) / 2;
-        xx_avr_ = (x1*x1 + x2*x2) / 2;
-        xy_avr_ = (x1*y1 + x2*y2) / 2;
-        CalcCoef();
+        Reset(x1, y1, x2, y2);
     }
     Line2dFitted(Pillar &pl1, Pillar &pl2){
-        n_ = 2;
-        x_avr_ = (pl1.x()+pl2.x())/2;
-        y_avr_ = (pl1.y()+pl2.y())/2;
-        xx_avr_ = (pow(pl1.x(), 2)+pow(pl2.x(), 2))/2;
-        xy_avr_ = (pl1.x()*pl1.y()+pl2.x()*pl2.y())/2;
-        CalcCoef();
+        Reset(pl1.x(), pl1.y(), pl2.x(), pl2.y());
     }
     Line2dFitted(const Line2dFitted &other){
         n_ = other.n_;
@@ -482,9 +472,6 @@ public:
     // }
     ~Line2dFitted() {};
     void AddPoint(double x, double y){
-        if(n_ == 0){
-            
-        }
         n_ += 1.0;
         x_avr_ += (x-x_avr_)/n_;
         y_avr_ += (y-y_avr_)/n_;
@@ -514,9 +501,9 @@ public:
     }
     inline double SignedDist(double x, double y){
         if(!IsZero(b_/a_)){
-            return abs((y-EstimateX(x, y))*cos(atan(-a_/b_)));
+            return (y-EstimateY(x, y))*cos(atan(-a_/b_));
         }else{
-            return abs(x+c_/a_);
+            return x+c_/a_;
         }
     }
     inline double Dist(double x, double y){
@@ -525,7 +512,7 @@ public:
     inline double DistClipped(double x, double y, double epsilon=0.3){
         auto dist = SignedDist(x, y);
         epsilon = abs(epsilon);
-        if(dist < epsilon){
+        if(dist > epsilon){
             return dist - epsilon;
         }else if(dist < -epsilon){
             return dist + epsilon;
@@ -549,12 +536,23 @@ public:
         xx_avr_ = 0.0;
         xy_avr_ = 0.0;
     }
+    void Reset(double x1, double y1, double x2, double y2){
+        n_ = 2;
+        x_avr_ = (x1 + x2) / 2;
+        y_avr_ = (y1 + y2) / 2;
+        xx_avr_ = (x1*x1 + x2*x2) / 2;
+        xy_avr_ = (x1*y1 + x2*y2) / 2;
+        CalcCoef();
+    }
+    int n(){
+        return static_cast<int>(n_);
+    }
     void Print(){
         std::cout << "line: "
             << std::setprecision(2) << a_ << " * x + " 
             << std::setprecision(2) << b_ << " * y + " 
             << std::setprecision(2) << c_ <<" = 0\n";
-        std::cout << "x_avr_ = "<< x_avr_ << ", y_avr_ = " << y_avr_ << ", xx_avr_ = " << xx_avr_ << ", xy_avr_ = " << xy_avr_ << ", a_ = " << a_ << ", b_ = " << b_ << ", c_ = " << c_ << "\n";
+        std::cout << "x_avr_ = "<< x_avr_ << ", y_avr_ = " << y_avr_ << ", xx_avr_ = " << xx_avr_ << ", xy_avr_ = " << xy_avr_ << "\n";
     }
 private:
     Line2dFitted();

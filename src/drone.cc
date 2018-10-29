@@ -31,8 +31,8 @@ void Drone::Begin() {
     movement_->Begin();
     image_record_->Begin();
 	stixel_->Begin();
-    // cluster_->Begin();
-    // compact_->Begin();
+    cluster_->Begin();
+    compact_->Begin();
 }
 
 void Drone::Update(double DeltaTime) {

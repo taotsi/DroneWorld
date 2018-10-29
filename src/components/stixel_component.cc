@@ -279,7 +279,7 @@ void StixelComponent::DetectObject() {
                                 pillar_temp.SetZ2(p_world2.z_);
                                 pillar_frame.push_back(pillar_temp);
                             }else{
-                                std::cout << "DetectObject(), this might be ground or a roof\n";
+                                // std::cout << "DetectObject(), this might be ground or a roof\n";
                             }
                         }
                     }

@@ -23,7 +23,7 @@ private:
         std::vector<Plane> &planes);
     bool GetSignedDistIfNecessary(Line2dFitted &line, 
         std::vector<Pillar> &pillars, int start, int end, 
-        std::vector<double> clipped_dist, double dist_epsilon=0.3);
+        std::vector<double> &clipped_dist, double dist_epsilon=0.3);
     bool CheckoutTurnpoint(std::vector<double> dist, int &idx_turnpoint);
     void FillConcave();
 };

@@ -68,9 +68,6 @@ void CompactPlaneComponent::CompactPlane(){
 
 void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster, 
     std::vector<Plane> &planes) {
-    // for(auto &p : cluster){
-    //     p.PrintXy();
-    // }
     Line2dFitted line{cluster[0], cluster[1]};
     std::vector<double> dist;
     int n_pillar = static_cast<int>(cluster.size());
@@ -81,14 +78,23 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
     Point3D p1_temp, p2_temp;
     while(true){
         // std::cout << "\tstart: " << start << ", end: " << end << "\n"; 
-        if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.5)){
-            //std::cout << "\t\tGot dist\n";
+        if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.25)){
+            // std::cout << "\t\tGot dist\n";
+            // std::cout << dist.size() << "\n";
             int idx_turnpoint;
+            std::cout << "dist = {";
+            for(auto &it : dist){
+                std::cout << it << ", ";
+            }
+            std::cout << "}\n";
+            // for(auto &it : cluster){
+            //     std::cout << "(" << it.x() << ", " << it.y() << ") ";
+            // }
+            std::cout << "\n";
+            std::cout << "\n\t-- dist size " << dist.size() << "\n";
+            std::cout << "\t-- cluster size " << cluster.size() << "\n";
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
                 std::cout << "\t\tGot turnpoint\n";
-                for(auto &it : dist){
-                    std::cout << it << "  ";
-                }
                 std::cout << "\n";
                 auto p1x = cluster[start].x();
                 auto p1y = cluster[start].y();
@@ -101,6 +107,12 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
                 plane_temp.FromPoints(p1_temp, p2_temp);
                 planes.push_back(plane_temp);
                 start = idx_turnpoint;
+                if(start+1 <= n_pillar){
+                    line.Reset(cluster[start].x(), cluster[start].y(), 
+                        cluster[start+1].x(), cluster[start+1].y());
+                }else{
+                    break;
+                }
             }
         }else{
             // TODO: FillConcave();
@@ -136,9 +148,9 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
 /* returns false if it's uneven */
 bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line, 
     std::vector<Pillar> &pillars, int start, int end, 
-    std::vector<double> clipped_dist, double dist_epsilon) {
+    std::vector<double> &clipped_dist, double dist_epsilon) {
     if(end-start < 2){
-        std::cout << "CompactPlaneComponent::GetSignedDist, end-start < 2\n ";
+        std::cout << "GetSignedDistIfNecessary(), end-start < 2\n ";
         return false;
     }
     int n_pillar = end - start + 1;
@@ -154,18 +166,18 @@ bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line,
     }
     int n_flip = 0;
     for(int i=start; i<=end; i++){
-        dist_temp = line.DistClipped(pillars[i].x(), pillars[i].y(), 
-            dist_epsilon);
+        dist_temp = line.DistClipped(pillars[i].x(), pillars[i].y(), dist_epsilon);
         if(dist_temp != 0){
             flip_flag = dist_temp > 0 ? 1 : -1;
-        }
-        if((flip_flag == 1 && prev_flip_flag == -1)
-            || flip_flag == -1 && prev_flip_flag == 1){
-            n_flip++;
-            if(n_flip > n_flip_max){
-                std::cout << "flipped " << n_flip << " times out of " << n_flip_max << "\n";
-                return false;
+            if((flip_flag == 1 && prev_flip_flag == -1)
+                || flip_flag == -1 && prev_flip_flag == 1){
+                n_flip++;
+                if(n_flip > n_flip_max){
+                    std::cout << "flipped " << n_flip << " times out of " << n_flip_max << "\n";
+                    return false;
+                }
             }
+            prev_flip_flag = flip_flag;
         }
         clipped_dist.push_back(dist_temp);
     }
@@ -175,19 +187,22 @@ bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line,
 bool CompactPlaneComponent::CheckoutTurnpoint(std::vector<double> dist, 
     int &idx_turnpoint) {
     int n_dist = static_cast<int>(dist.size());
+    if(n_dist < 3){
+        return false;
+    }
     int idx = 1;
-    double dist_temp = 0;
+    double dist_max = 0;
     bool is_found = false;
-    while(idx<n_dist-1){
+    while(idx < n_dist-1){
         if(abs(dist[idx+1]) < abs(dist[idx])){
-            idx +=2;
             if(abs(dist[idx-1]) < abs(dist[idx])){
-                if(dist_temp < abs(dist[idx])){
-                    dist_temp = abs(dist[idx]);
+                is_found = true;
+                if(dist_max < abs(dist[idx])){
+                    dist_max = abs(dist[idx]);
                     idx_turnpoint = idx;
-                    is_found = true;
                 }
             }
+            idx +=2;
         }else{
             idx +=1;
         }
