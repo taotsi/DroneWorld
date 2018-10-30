@@ -82,11 +82,6 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
             // std::cout << "\t\tGot dist\n";
             // std::cout << dist.size() << "\n";
             int idx_turnpoint;
-            std::cout << "dist = {";
-            for(auto &it : dist){
-                std::cout << it << ", ";
-            }
-            std::cout << "}\n";
             // for(auto &it : cluster){
             //     std::cout << "(" << it.x() << ", " << it.y() << ") ";
             // }
@@ -94,7 +89,21 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
             std::cout << "\n\t-- dist size " << dist.size() << "\n";
             std::cout << "\t-- cluster size " << cluster.size() << "\n";
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
-                std::cout << "\t\tGot turnpoint\n";
+                std::cout << "\t\tGot turnpoint " << idx_turnpoint << "\n";
+                line.Reset(cluster, start, idx_turnpoint);
+                line.Print();
+                std::cout << "dist = {";
+                for(auto &it : dist){
+                    std::cout << it << ", ";
+                }
+                std::cout << "}\n";
+                for(auto i=start; i<=idx_turnpoint; i++){
+                    std::cout << cluster[i].x() << ",";
+                }
+                std::cout << "\n";
+                for(auto i=start; i<=idx_turnpoint; i++){
+                    std::cout << cluster[i].y() << ",";
+                }
                 std::cout << "\n";
                 auto p1x = cluster[start].x();
                 auto p1y = cluster[start].y();

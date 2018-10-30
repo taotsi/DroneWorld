@@ -415,23 +415,8 @@ public:
 class Line2dFitted{
 public:
     Line2dFitted(std::vector<Pillar> &pillars){
-        double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
-        auto n_pillar = pillars.size();
-        double x_temp, y_temp;
-        for(auto i=0; i<n_pillar; i++){
-            x_temp = pillars[i].x();
-            y_temp = pillars[i].y();
-            x_sum += x_temp;
-            y_sum += y_temp;
-            xx_sum += x_temp * x_temp;
-            xy_sum += y_temp * y_temp;
-        }
-        n_ = static_cast<double>(n_pillar);
-        x_avr_ = x_sum / n_;
-        y_avr_ = y_sum / n_;
-        xx_avr_ = xx_sum / n_;
-        xy_avr_ = xy_sum / n_;
-        CalcCoef();
+        int end = static_cast<int>(pillars.size()-1);
+        Reset(pillars, 0, end);
     }
     Line2dFitted(double x1, double y1, double x2, double y2){
         Reset(x1, y1, x2, y2);
@@ -486,21 +471,21 @@ public:
         }
     }
     inline double EstimateY(double x, double y){
-        if(!IsZero(b_/a_)){
+        if(!IsZero(b_)){
             return -a_/b_*x - c_/b_;
         }else{
             return y;
         }
     }
     inline double EstimateX(double x, double y){
-        if(!IsZero(a_/b_)){
+        if(!IsZero(a_)){
             return -b_/a_*y - c_/a_;
         }else{
             return x;
         }
     }
     inline double SignedDist(double x, double y){
-        if(!IsZero(b_/a_)){
+        if(!IsZero(b_)){
             return (y-EstimateY(x, y))*cos(atan(-a_/b_));
         }else{
             return x+c_/a_;
@@ -542,6 +527,32 @@ public:
         y_avr_ = (y1 + y2) / 2;
         xx_avr_ = (x1*x1 + x2*x2) / 2;
         xy_avr_ = (x1*y1 + x2*y2) / 2;
+        CalcCoef();
+    }
+    void Reset(std::vector<Pillar> &pillars, int start, int end){
+        if(start < 0) { start = 0; }
+        int n_pillar = static_cast<int>(pillars.size());
+        if(end >= n_pillar) { end = n_pillar; }
+        if(start > end){
+            int temp = start;
+            start = end;
+            end = temp;
+        }
+        n_ = static_cast<double>(end - start +1);
+        double x_sum = 0, y_sum = 0, xx_sum = 0, xy_sum = 0;
+        double x_temp, y_temp;
+        for(auto i=start; i<=end; i++){
+            x_temp = pillars[i].x();
+            y_temp = pillars[i].y();
+            x_sum += x_temp;
+            y_sum += y_temp;
+            xx_sum += x_temp * x_temp;
+            xy_sum += x_temp * y_temp;
+        }
+        x_avr_ = x_sum / n_;
+        y_avr_ = y_sum / n_;
+        xx_avr_ = xx_sum / n_;
+        xy_avr_ = xy_sum / n_;
         CalcCoef();
     }
     int n(){
