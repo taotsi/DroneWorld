@@ -38,9 +38,6 @@ StixelComponent::~StixelComponent() {
 
 void StixelComponent::Begin() {
 	RunStixel();
-    //auto pillar_frame = pillar_frame_queue_.front();
-    //std::cout << pillar_frame.size() << std::endl;
-    //pillar_frame[45][0].Print();
 }
 
 void StixelComponent::Update(double DeltaTime) {
@@ -76,7 +73,6 @@ void StixelComponent::RunStixel() {
     }
     if(!pillar_frame_queue_.empty()){
         //auto &pf = pillar_frame_queue_.front();
-        //pf.Print();
     }else{
         std::cout << "pillar_frame_queue_ is empty\n";
     }
@@ -116,7 +112,6 @@ void StixelComponent::Kde() {
     std::vector<double> kde_col;
     auto frame_size = frame_scaled.size();
 	for (int i = 0; i < frame_size; i++) {
-        //std::cout << "--- frame index: " << i << " ---\n";
         kde_col.clear();
         RetreiveKde(frame_scaled[i], kde_col, 
             disp_max_, disp_min_, kde_width_);

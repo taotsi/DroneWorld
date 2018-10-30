@@ -26,7 +26,6 @@ void PillarClusterComponent::Update(double DeltaTime){
 }
 
 void PillarClusterComponent::RunCluster(){
-    
     if(!pillar_frame_queue_->empty()){
         // PUSH primary_pillar_cluster_queue_
         PrimaryCluster();
@@ -37,17 +36,10 @@ void PillarClusterComponent::RunCluster(){
         // PUSH filtered_cluster_queue_
         ComplementFilter();
         //primary_pillar_cluster_queue_.pop()
-        auto &cluster = primary_pillar_cluster_queue_.front();
-        std::cout << "--- primary cluster size: " << cluster.size() << "\n";
-        std::cout << "cluster complement ready\n";
+        //std::cout << "cluster complement ready\n";
     }else{
         std::cout << "primary_pillar_cluster_queue_ is empty\n";
     }
-    if(!filtered_cluster_queue_.empty()){
-        auto &cluster = filtered_cluster_queue_.front();
-        std::cout << "--- filtered cluster size: " << cluster.size() << "\n";
-    }
-    std::cout << "\n\n";
 }
 
 void PillarClusterComponent::PrimaryCluster(){
@@ -64,7 +56,6 @@ void PillarClusterComponent::ComplementFilter(){
     std::vector<std::vector<Pillar>> filtered_clusters;
     auto n_pillar_cluster = pillar_cluster.size();
     for(auto i=0; i<n_pillar_cluster; i++){
-        std::cout << "---------------- primary cluster " << i << "\n";
         ComplementCluster(pillar_cluster[i], filtered_clusters);
     }
     filtered_cluster_queue_.push(filtered_clusters);
@@ -81,19 +72,14 @@ void PillarClusterComponent::ComplementCluster(
     int n_clst_src = clst_src.size();
     int window_start = 0, window_end = 0;
     while(idx < n_clst_src){
-        if(idx >= n_clst_src){
-            std::cout << "\tthis primary cluster over\n";
-        }
         jambs.clear();
         heads.clear();
         sills.clear();
         double z_max_window = z_max;
         double z_min_window = z_min;
-        std::cout << "\tstart finding jambs on the left\n";
         // find jambs on the left
         while(true){
             if(idx >= n_clst_src){
-                std::cout << "\t** find jambs left over\n";
                 if(!jambs.empty()){
                     clst_dst.push_back(jambs);
                     jambs.clear();
@@ -103,18 +89,15 @@ void PillarClusterComponent::ComplementCluster(
             auto stat_temp = CompletePillar(
                 clst_src[idx], z_max, z_min, drone_height);
             if(stat_temp == kJamb){
-                // std::cout << "\t\tjamb, jambs left " << idx << "\n";
                 jambs.push_back(clst_src[idx]);
                 idx++;
             }else if(stat_temp == kSill){
-                // std::cout << "\t\t** found a sill, jambs left over\n";
                 sills.push_back(clst_src[idx]);
                 z_min_window = clst_src[idx].z2();
                 idx++;
                 window_start = idx;
                 break;
             }else{ // kHead
-                // std::cout << "\t\t** found a head, jambs left over\n";
                 heads.push_back(clst_src[idx]);
                 z_max_window = clst_src[idx].z1();
                 idx++;
@@ -122,14 +105,11 @@ void PillarClusterComponent::ComplementCluster(
                 break;
             }
         }
-        std::cout << "\tstart finding sills and heads\n";
         // find sills and heads
         while(true){
             if(idx >= n_clst_src){
-                std::cout << "\t** find sills & heads over\n";
                 // TODO: if not empty
                 if(!jambs.empty()){
-                    std::cout << "\tpush jambs\n";
                     clst_dst.push_back(jambs);
                     jambs.clear();
                 }
@@ -146,7 +126,6 @@ void PillarClusterComponent::ComplementCluster(
             auto stat_temp = CompletePillar(
                 clst_src[idx], z_max, z_min, drone_height);
             if(stat_temp == kJamb){
-                std::cout << "found a jamb, sills & heads over\n";
                 window_end = idx;
                 int start_temp = window_start>1 ? window_start-1 : 0;
                 double xl = clst_src[start_temp].x();

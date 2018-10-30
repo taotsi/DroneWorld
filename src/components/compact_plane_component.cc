@@ -31,17 +31,6 @@ void CompactPlaneComponent::RunCompactPlane(){
     }else{
         std::cout << "pillar_cluster_queue_ is empty\n";
     }
-    if(!planes_queue_.empty()){
-        auto &planes = planes_queue_.front();
-        if(planes.empty()){
-            std::cout << "no planes!\n";
-        }
-        for(auto &plane : planes){
-            plane.Print();
-        }
-    }else{
-        std::cout << "planes_queue_ is empty\n";
-    }
 }
 
 void CompactPlaneComponent::CompactPlane(){
@@ -77,34 +66,10 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
     Plane plane_temp;
     Point3D p1_temp, p2_temp;
     while(true){
-        // std::cout << "\tstart: " << start << ", end: " << end << "\n"; 
         if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.25)){
-            // std::cout << "\t\tGot dist\n";
-            // std::cout << dist.size() << "\n";
             int idx_turnpoint;
-            // for(auto &it : cluster){
-            //     std::cout << "(" << it.x() << ", " << it.y() << ") ";
-            // }
-            std::cout << "\n";
-            std::cout << "\n\t-- dist size " << dist.size() << "\n";
-            std::cout << "\t-- cluster size " << cluster.size() << "\n";
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
-                std::cout << "\t\tGot turnpoint " << idx_turnpoint << "\n";
                 line.Reset(cluster, start, idx_turnpoint);
-                line.Print();
-                std::cout << "dist = {";
-                for(auto &it : dist){
-                    std::cout << it << ", ";
-                }
-                std::cout << "}\n";
-                for(auto i=start; i<=idx_turnpoint; i++){
-                    std::cout << cluster[i].x() << ",";
-                }
-                std::cout << "\n";
-                for(auto i=start; i<=idx_turnpoint; i++){
-                    std::cout << cluster[i].y() << ",";
-                }
-                std::cout << "\n";
                 auto p1x = cluster[start].x();
                 auto p1y = cluster[start].y();
                 auto p1z = cluster[start].z1();
@@ -137,8 +102,6 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
             }
             line.AddPoints(cluster, start_temp, end);
         }else{
-            std::cout << "\t** loop out of range, push last plane\n";
-            line.Print();
             auto p1x = cluster[start].x();
             auto p1y = cluster[start].y();
             auto p1z = cluster[start].z1();
