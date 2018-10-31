@@ -72,13 +72,9 @@ void StixelComponent::RunStixel() {
         //kde_peak_frame_queue_.pop();
         // std::cout << "stixel detection ready\n";
     }
-    if(!pillar_frame_queue_.empty()){
-        //auto &pf = pillar_frame_queue_.front();
-    }else{
-        std::cout << "pillar_frame_queue_ is empty\n";
-    }
     std::cout << "stixel reday\n";
 }
+// Retreives stixels and other information from a disparity frame. Currently this methoed only downsamples the disparity frame.
 void StixelComponent::RetreiveStixel(){
     auto &frame_raw = disparity_retreived_->front();
     Point3D pos_camera = TransformAirsimCoor(
@@ -95,11 +91,11 @@ void StixelComponent::RetreiveStixel(){
     int i_start = stixel_width_ / 2;
     std::vector<double> stixel;
     stixel.reserve(height_);
+    // the disparity frame received from Airsim is a one-dimenssion array and counts from the bottom row of the image.
     for (int i = i_start; i < width_; i += stixel_width_) {
         stixel.clear();
         for (int j = height_-1; j >= 0; j--) {
-            double pix_val = frame_raw.
-                image_data_float[j*width_ + i];
+            double pix_val = frame_raw.image_data_float[j*width_ + i];
             stixel.push_back(pix_val);
         }
         frame_scaled.PushStixel(stixel);
@@ -114,14 +110,13 @@ void StixelComponent::Kde() {
     auto frame_size = frame_scaled.size();
 	for (int i = 0; i < frame_size; i++) {
         kde_col.clear();
-        RetreiveKde(frame_scaled[i], kde_col, 
-            disp_max_, disp_min_, kde_width_);
+        RetreiveKde(frame_scaled[i], kde_col, disp_max_, disp_min_, kde_width_);
 		kde_frame.push_back(kde_col);
 	}
 	kde_frame_queue_.push(kde_frame);
 }
 /* finds and saves the position of peaks meeting certain conditions */
-void StixelComponent::FindKdePeak(float delta_y) {
+void StixelComponent::FindKdePeak() {
 	auto &kde_frame = kde_frame_queue_.front();
 	std::vector<std::vector<KdePeak>> kde_peak_frame;
     std::vector<KdePeak> kde_peaks;
@@ -140,8 +135,7 @@ void StixelComponent::FindKdePeak(float delta_y) {
         RetreiveKdePeak(kde_frame[i], kde_peaks, disp_max_, disp_min_, 
             0.8, slop, 5.5, window_h_weight);
 		if (kde_peaks.empty()) {
-			kde_peak_frame.push_back(
-				std::vector<KdePeak>());
+			kde_peak_frame.push_back(std::vector<KdePeak>());
 		} else {
 			kde_peak_frame.push_back(kde_peaks);
 		}
@@ -157,8 +151,7 @@ z
 yet in Airsim, +X is North, +Y is East and +Z is Down(NED system)
 ours is also different with dual-camera's coordinate
 */
-Point3D StixelComponent::TransformAirsimCoor(
-	double x, double y, double z) {
+Point3D StixelComponent::TransformAirsimCoor(double x, double y, double z) {
 	return Point3D{ y, x, -z };
 }
 Point3D StixelComponent::GetCameraCoor(
@@ -205,7 +198,7 @@ void StixelComponent::DetectObject() {
             Pillar pillar_temp;
             auto n_idx = index.size()-1;
             std::vector<int> idx_of_object;
-            // for each unblocked segment
+            // for each unblocked segment, which means, the pixels in one stixel that has been filtered once won't be filtered again.
             for(auto idx=0; idx<n_idx; idx++){
                 auto start = index[idx].second;
                 auto end = index[idx+1].first;
@@ -285,7 +278,7 @@ void StixelComponent::DetectObject() {
     }
     pillar_frame_queue_.push(pillar_frame);
 }
-
+// even at the same disparity value, there might be more than one objects.
 void StixelComponent::LayerObject(std::vector<int> &object_idx,
     std::vector<std::pair<int, int>> &results, int h_thh) {
     results.clear();

@@ -39,22 +39,19 @@ void CompactPlaneComponent::CompactPlane(){
     std::vector<Plane> planes;
     for(auto i=0; i<n_cluster; i++){
         auto n_pillar = clusters[i].size();
-        std::cout << "---- cluster " << i << ", " << n_pillar << " pillars\n";
         if(n_pillar >= 3){
             PillarToPlaneIfPossible(clusters[i], planes);
         }else if(n_pillar == 2){
-            std::cout << "two pillars\n";
+            // only two pillars, no need to do linear fitting
             planes.push_back(Plane{clusters[i][0], clusters[i][1]});
         }else if(n_pillar == 1){ // n_pillar = 1
-            // TODO: deal with single pillars
+            // TODO: deal with single pillars, can't just ignore it
             std::cout << "one single pillar\n";
-        }else{
-            std::cout << "no pillar at all\n";
-        }
+        } // if there's no pillar, do nothing
     }
     planes_queue_.push(planes);
 }
-
+// fits the pillars to a plane if they can be fitted will. If not, fill the concave then.
 void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster, 
     std::vector<Plane> &planes) {
     Line2dFitted line{cluster[0], cluster[1]};
@@ -69,6 +66,7 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
         if(GetSignedDistIfNecessary(line, cluster, start, end, dist, 0.25)){
             int idx_turnpoint;
             if(CheckoutTurnpoint(dist, idx_turnpoint)){
+                // found turnpoint, turns the pillars to a plane
                 line.Reset(cluster, start, idx_turnpoint);
                 auto p1x = cluster[start].x();
                 auto p1y = cluster[start].y();
@@ -85,6 +83,7 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
                     line.Reset(cluster[start].x(), cluster[start].y(), 
                         cluster[start+1].x(), cluster[start+1].y());
                 }else{
+                    // if there's only one pillar left, ignore it
                     break;
                 }
             }
@@ -101,7 +100,7 @@ void CompactPlaneComponent::PillarToPlaneIfPossible(std::vector<Pillar> &cluster
                 end = n_pillar-1;
             }
             line.AddPoints(cluster, start_temp, end);
-        }else{
+        }else{ // if all the pillars have been iterated, turns the pillars unturned to a plane
             auto p1x = cluster[start].x();
             auto p1y = cluster[start].y();
             auto p1z = cluster[start].z1();
@@ -128,6 +127,7 @@ bool CompactPlaneComponent::GetSignedDistIfNecessary(Line2dFitted &line,
     int n_pillar = end - start + 1;
     clipped_dist.reserve(n_pillar);
     clipped_dist.clear();
+    // experimental value
     int n_flip_max = static_cast<int>(n_pillar*0.7<1 ? 1 : n_pillar*0.7);
     double dist_temp;
     double dist_1 = line.DistClipped(pillars[start].x(), pillars[start].y(), 
@@ -174,6 +174,7 @@ bool CompactPlaneComponent::CheckoutTurnpoint(std::vector<double> dist,
                     idx_turnpoint = idx;
                 }
             }
+            // distance goes like \/ or \\
             idx +=2;
         }else{
             idx +=1;

@@ -41,7 +41,7 @@ void PillarClusterComponent::RunCluster(){
         std::cout << "primary_pillar_cluster_queue_ is empty\n";
     }
 }
-
+// clusters by horizontal distance
 void PillarClusterComponent::PrimaryCluster(){
     auto &pillar_frame = pillar_frame_queue_->front();
     PillarClustersHorizon pillar_cluster_horizon;
@@ -50,7 +50,7 @@ void PillarClusterComponent::PrimaryCluster(){
     }
     primary_pillar_cluster_queue_.push(pillar_cluster_horizon);
 }
-
+// cluster by vertical ends, detects if there is a window on the wall
 void PillarClusterComponent::ComplementFilter(){
     auto &pillar_cluster = primary_pillar_cluster_queue_.front();
     std::vector<std::vector<Pillar>> filtered_clusters;
@@ -86,8 +86,8 @@ void PillarClusterComponent::ComplementCluster(
                 }
                 break;
             }
-            auto stat_temp = CompletePillar(
-                clst_src[idx], z_max, z_min, drone_height);
+            auto stat_temp = CompletePillar(clst_src[idx], 
+                z_max, z_min, drone_height);
             if(stat_temp == kJamb){
                 jambs.push_back(clst_src[idx]);
                 idx++;
@@ -108,7 +108,6 @@ void PillarClusterComponent::ComplementCluster(
         // find sills and heads
         while(true){
             if(idx >= n_clst_src){
-                // TODO: if not empty
                 if(!jambs.empty()){
                     clst_dst.push_back(jambs);
                     jambs.clear();
@@ -123,8 +122,8 @@ void PillarClusterComponent::ComplementCluster(
                 }
                 break;
             }
-            auto stat_temp = CompletePillar(
-                clst_src[idx], z_max, z_min, drone_height);
+            auto stat_temp = CompletePillar(clst_src[idx], 
+                z_max, z_min, drone_height);
             if(stat_temp == kJamb){
                 window_end = idx;
                 int start_temp = window_start>1 ? window_start-1 : 0;
@@ -182,7 +181,7 @@ void PillarClusterComponent::ComplementCluster(
         }
     }
 }
-
+// gets complement and deals with it
 ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar, 
     double z_max, double z_min, double h_thh, bool is_forcibly) {
     if(!is_forcibly){
@@ -207,7 +206,7 @@ ComplementStatus PillarClusterComponent::CompletePillar(Pillar &pillar,
         return kJamb;
     }
 }
-
+// fills the window on the wall that is too small for a drone to fly through
 void PillarClusterComponent::FillWindow(std::vector<Pillar> jambs, 
     std::vector<Pillar> heads, std::vector<Pillar> sills, 
     double z_max, double z_min){
@@ -220,6 +219,7 @@ void PillarClusterComponent::FillWindow(std::vector<Pillar> jambs,
     for(auto i=0; i<n_heads; i++){
         CompletePillar(heads[i], z_max, z_min, 0, true);
     }
+    // all heads and sills have become jambs now
     jambs.insert(jambs.end(), heads.begin(), heads.end());
 }
 
