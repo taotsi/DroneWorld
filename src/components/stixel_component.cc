@@ -13,6 +13,7 @@ using json = nlohmann::json;
 StixelComponent::StixelComponent(
     std::queue<ImageResponse>* disparity_retreived)
 	:disparity_retreived_(disparity_retreived) {
+    // reads from settings.json for imate settings
 	SettingsJsonHandler settings;
     json &json_data = settings.GetJsonData()["CameraDefaults"]["CaptureSettings"];
     for(auto &it: json_data){
@@ -38,9 +39,6 @@ StixelComponent::~StixelComponent() {
 
 void StixelComponent::Begin() {
 	RunStixel();
-    //auto pillar_frame = pillar_frame_queue_.front();
-    //std::cout << pillar_frame.size() << std::endl;
-    //pillar_frame[45][0].Print();
 }
 
 void StixelComponent::Update(double DeltaTime) {

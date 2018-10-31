@@ -30,7 +30,7 @@ void MovementComponent::Begin(){
 void MovementComponent::Update(double DeltaTime){
     
 }
-
+// The movement management is put in a seperated thread, instead of Update(). MoveThreadMain() keeps checking out if there is a path the drone should follow.
 void MovementComponent::MoveThreadMain(){
     while(is_on_){
         if(!path_to_go_.empty()){
@@ -43,6 +43,7 @@ void MovementComponent::MoveThreadMain(){
         }
     }
 }
+// Adds a target point to the path the drone would follow, it will fly there after all the past target points have been reached.
 void MovementComponent::AddPathPoint(const std::vector<float> &point){
     if(point.size() == 3){
         path_to_go_.push(point);
@@ -50,6 +51,7 @@ void MovementComponent::AddPathPoint(const std::vector<float> &point){
         std::cout << "failed to add new point to path\n";
     }
 }
+// Adds a series of target points for the drone to follow.
 void MovementComponent::AddPath(const std::vector<std::vector<float>> &path){
     auto n_point = path.size();
     for(auto i=0; i<n_point; i++){

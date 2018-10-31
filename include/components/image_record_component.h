@@ -15,9 +15,6 @@ private:
     msr::airlib::MultirotorRpcLibClient client_;
     void Record(bool save_as_file);
 	void RetreiveFrame();
-    void Behave();
     std::thread thread_handle_;
-    //std::thread thread_{ &ImageRecordComponent::ThreadMain, this };
-    //ThreadRaii thread_raii_{ std::thread{&ImageRecordComponent::ThreadMain, this} };
 };
 }

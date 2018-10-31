@@ -10,22 +10,29 @@ namespace droneworld{
 namespace fs = std::experimental::filesystem;
 
 ImageRecordComponent::ImageRecordComponent(){
+    
 }
 ImageRecordComponent::~ImageRecordComponent() {
     std::cout << "ImageRecordComponent destroyed\n";
-    is_busy_ = false;
-    // TODO: wait until the thread associated 
-    //       with thread_handle_  has stopped. 
 }
 void ImageRecordComponent::Begin() {
     std::cout << "\n---- record client ----\n";
 	client_.confirmConnection();
-    Behave();
 	RetreiveFrame();
 }
 void ImageRecordComponent::Update(double DeltaTime) {
-	//RetreiveFrame();
+	
 }
+// for test purpose, retreives one dispatiry frame
+void ImageRecordComponent::RetreiveFrame() {
+	std::vector<ImageRequest> request{
+		ImageRequest("0", ImageType::DisparityNormalized, true) };
+	const std::vector<ImageResponse> &response =
+		client_.simGetImages(request);
+	disparity_retreived_.push(response[0]);
+}
+// TODO: this is not finished yet
+// recordd a dataset for afterward process
 void ImageRecordComponent::Record(bool save_as_file=false) {
 	if (save_as_file) {
 		typedef common_utils::FileSystem FileSystem;
@@ -72,17 +79,5 @@ void ImageRecordComponent::Record(bool save_as_file=false) {
 		disparity_retreived_.push(response[0]);
     }
 }
-void ImageRecordComponent::RetreiveFrame() {
-	std::vector<ImageRequest> request{
-		ImageRequest("0", ImageType::DisparityNormalized, true) };
-	const std::vector<ImageResponse> &response =
-		client_.simGetImages(request);
-	disparity_retreived_.push(response[0]);
-}
-void ImageRecordComponent::Behave() {
-    is_busy_ = true;
-    /*thread_handle_ = std::thread{ 
-        &ImageRecordComponent::Record, this };*/
-    //thread_handle_.detach();
-}
+
 }
