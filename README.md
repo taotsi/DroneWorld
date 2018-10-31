@@ -44,11 +44,11 @@ After the program finishes initialization, you can input some commands to consol
     
     For example, `go 0 5 2` means flying to point (0, 5, 2). ENU coordinate system, +x, +y and +z means east, north, and up.
 
-- `disp [column_index_value]`
+- `disp [column_index_number]`
         
     `disp 45` for example, prints the 45th column of a diparity frame.
 
-- `kde [column_index_value]`
+- `kde [column_index_number]`
 
     `kde 45` for example, prints the 45th column of a kde frame.
 
@@ -61,10 +61,16 @@ There two parts of this program. The C++ part does the major work, and the Pytho
 
 ## TODO
 
-- real-time animation
-- add comments
 - fix bug on program exit
-- overload operator== as friend class for data type
+- save data as json
+- real-time animation
+- FillConcave()
+  - cylinders
+- performance test
+  - precision
+  - time
+- add comments
+- optimization
 - record on C++
 - add noise
 - embed opencv
